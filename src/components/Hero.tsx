@@ -12,8 +12,8 @@ const Hero: React.FC = () => {
   const handleDownloadCV = () => {
     // In a real implementation, this would download the actual CV
     const link = document.createElement('a');
-    link.href = '/cv-esther-souza.pdf';
-    link.download = 'CV-Esther-Souza-QA-Engineer.pdf';
+    link.href = '/cv-esther-gabrielle.pdf';
+    link.download = 'CV-Esther-Gabrielle.pdf';
     link.click();
   };
 
@@ -62,7 +62,7 @@ const Hero: React.FC = () => {
               <div className="absolute inset-0 rounded-full bg-gradient-to-tr from-indigo-500 via-purple-500 to-pink-500 p-2 shadow-2xl">
                 <img
                   src="https://images.pexels.com/photos/774909/pexels-photo-774909.jpeg?auto=compress&cs=tinysrgb&w=500&h=500&fit=crop"
-                  alt="Esther Souza - QA Engineer"
+                  alt="Esther Gabrielle - Profissional de Tecnologia"
                   className="w-full h-full object-cover rounded-full"
                   loading="eager"
                 />
@@ -110,7 +110,7 @@ const Hero: React.FC = () => {
               >
                 Olá, sou a{' '}
                 <span className="bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">
-                  Esther
+                  Esther Gabrielle
                 </span>
               </motion.h1>
             </AnimatedSection>
@@ -123,9 +123,9 @@ const Hero: React.FC = () => {
                 transition={{ duration: 0.8, delay: 0.6 }}
               >
                 <h2 className="text-3xl md:text-4xl text-slate-200 mb-4 leading-relaxed font-inter font-light">
-                  QA Engineer especializada em{' '}
-                  <span className="text-indigo-400 font-semibold">transformar ideias</span>{' '}
-                  em produtos digitais excepcionais
+                  Profissional de Tecnologia especializada em{' '}
+                  <span className="text-indigo-400 font-semibold">processos administrativos</span>{' '}
+                  e qualidade de sistemas
                 </h2>
                 <div className="w-32 h-1 bg-gradient-to-r from-indigo-400 to-purple-400 mx-auto rounded-full" />
               </motion.div>
@@ -138,8 +138,8 @@ const Hero: React.FC = () => {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.8, delay: 0.8 }}
               >
-                Combinando expertise técnica em testes de software com visão estratégica de negócios, 
-                garanto que cada produto entregue supere expectativas e proporcione experiências memoráveis aos usuários.
+                Combinando conhecimento técnico com visão estratégica de processos, 
+                trabalho para otimizar operações e garantir qualidade em sistemas e fluxos de trabalho.
               </motion.p>
             </AnimatedSection>
 
@@ -152,9 +152,9 @@ const Hero: React.FC = () => {
                 transition={{ duration: 0.8, delay: 1 }}
               >
                 {[
-                  { number: '50+', label: 'Projetos Entregues', icon: TrendingUp },
-                  { number: '99.8%', label: 'Taxa de Sucesso', icon: Award },
-                  { number: '3+', label: 'Anos de Experiência', icon: Sparkles }
+                  { number: '25+', label: 'Projetos Realizados', icon: TrendingUp },
+                  { number: '95%', label: 'Eficiência em Processos', icon: Award },
+                  { number: '2+', label: 'Anos de Experiência', icon: Sparkles }
                 ].map((stat, index) => (
                   <motion.div
                     key={index}

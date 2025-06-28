@@ -7,28 +7,28 @@ const About: React.FC = () => {
   const experiences = [
     {
       icon: Award,
-      title: 'Formação Mate Academy',
-      description: 'Transição completa para tecnologia com foco em QA Engineering'
+      title: 'Formação Técnica',
+      description: 'Especialização em tecnologia com foco em processos administrativos'
     },
     {
       icon: Users,
-      title: 'Experiência em Atendimento',
-      description: 'Background sólido em relacionamento com clientes e resolução de problemas'
+      title: 'Experiência Profissional',
+      description: 'Atuação em projetos de otimização e melhoria de processos'
     },
     {
       icon: Target,
       title: 'Foco em Qualidade',
-      description: 'Especialização em testes funcionais, automação e performance'
+      description: 'Especialização em análise de sistemas e controle de qualidade'
     }
   ];
 
   const softSkills = [
-    'Comunicação Eficaz',
-    'Trabalho em Equipe',
-    'Pensamento Crítico',
+    'Análise de Processos',
+    'Organização',
+    'Pensamento Analítico',
     'Resolução de Problemas',
     'Atenção aos Detalhes',
-    'Gerenciamento de Tempo'
+    'Comunicação Eficaz'
   ];
 
   return (
@@ -52,8 +52,8 @@ const About: React.FC = () => {
               </h2>
               <div className="w-24 h-1 bg-gradient-to-r from-primary-400 to-primary-600 mx-auto mb-8 rounded-full" />
               <p className="text-xl md:text-2xl text-neutral-600 dark:text-neutral-300 max-w-3xl mx-auto leading-relaxed font-inter">
-                Uma profissional dedicada que transformou experiência em atendimento ao cliente 
-                em expertise técnica em Quality Assurance
+                Profissional dedicada à otimização de processos e implementação 
+                de soluções tecnológicas eficientes
               </p>
             </motion.div>
           </AnimatedSection>
@@ -70,7 +70,7 @@ const About: React.FC = () => {
               <div className="relative overflow-hidden rounded-3xl shadow-2xl">
                 <img
                   src="https://images.pexels.com/photos/3184306/pexels-photo-3184306.jpeg?auto=compress&cs=tinysrgb&w=800"
-                  alt="Esther trabalhando"
+                  alt="Esther Gabrielle trabalhando"
                   className="w-full h-[500px] object-cover"
                 />
                 <div className="absolute inset-0 bg-gradient-to-tr from-primary-500/20 to-transparent" />
@@ -97,17 +97,16 @@ const About: React.FC = () => {
               viewport={{ once: true }}
             >
               <h3 className="text-3xl md:text-4xl font-poppins font-bold text-neutral-900 dark:text-white mb-6">
-                Minha Jornada Profissional
+                Minha Trajetória
               </h3>
               <p className="text-lg text-neutral-600 dark:text-neutral-300 leading-relaxed mb-6 font-inter">
-                Após anos trabalhando em atendimento ao cliente, descobri minha paixão por tecnologia 
-                e qualidade de software. A transição para QA Engineer através da Mate Academy me 
-                permitiu combinar minha experiência em resolver problemas e entender necessidades 
-                do usuário com conhecimento técnico em testes de software.
+                Sou uma profissional de tecnologia com especialização em processos administrativos, 
+                focada em criar soluções eficientes que otimizam operações e garantem qualidade. 
+                Minha experiência combina conhecimento técnico com visão estratégica de negócios.
               </p>
               <p className="text-lg text-neutral-600 dark:text-neutral-300 leading-relaxed font-inter">
-                Hoje, utilizo essa combinação única para garantir que produtos digitais não apenas 
-                funcionem corretamente, mas também proporcionem uma experiência excepcional aos usuários.
+                Trabalho para identificar oportunidades de melhoria, implementar automações 
+                e desenvolver processos que aumentem a produtividade e reduzam erros operacionais.
               </p>
             </motion.div>
           </AnimatedSection>
@@ -116,7 +115,7 @@ const About: React.FC = () => {
           <AnimatedSection animation="slide-up" delay={3}>
             <div className="space-y-6 element-spacing">
               <h4 className="text-2xl font-poppins font-bold text-neutral-900 dark:text-white">
-                Experiências Principais
+                Áreas de Atuação
               </h4>
               {experiences.map((exp, index) => (
                 <motion.div
@@ -148,7 +147,7 @@ const About: React.FC = () => {
           <AnimatedSection animation="slide-up" delay={4}>
             <div>
               <h4 className="text-2xl font-poppins font-bold text-neutral-900 dark:text-white mb-6">
-                Soft Skills
+                Competências
               </h4>
               <div className="flex flex-wrap gap-3">
                 {softSkills.map((skill, index) => (

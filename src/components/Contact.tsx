@@ -53,7 +53,7 @@ const Contact: React.FC = () => {
 
   const copyEmail = async () => {
     try {
-      await navigator.clipboard.writeText('esther.souza@email.com');
+      await navigator.clipboard.writeText('esthergabriellesouza@gmail.com');
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     } catch (err) {
@@ -65,21 +65,21 @@ const Contact: React.FC = () => {
     {
       icon: Mail,
       label: 'Email Profissional',
-      value: 'esther.souza@email.com',
+      value: 'esthergabriellesouza@gmail.com',
       action: copyEmail,
       color: 'from-blue-500 to-blue-600'
     },
     {
       icon: Phone,
       label: 'Telefone/WhatsApp',
-      value: '+55 (11) 99999-9999',
-      href: 'tel:+5511999999999',
+      value: '+55 (19) 98926-1419',
+      href: 'tel:+5519989261419',
       color: 'from-green-500 to-green-600'
     },
     {
       icon: MapPin,
       label: 'Localização',
-      value: 'São Paulo, SP - Brasil',
+      value: 'Americana, SP - Brasil',
       color: 'from-purple-500 to-purple-600'
     }
   ];
@@ -88,14 +88,14 @@ const Contact: React.FC = () => {
     {
       icon: Linkedin,
       label: 'LinkedIn',
-      href: 'https://linkedin.com/in/esther-souza',
+      href: 'https://linkedin.com/in/esthergabrielle',
       color: 'from-blue-600 to-blue-700',
       description: 'Conecte-se comigo'
     },
     {
       icon: Github,
       label: 'GitHub',
-      href: 'https://github.com/esther-souza',
+      href: 'https://github.com/Esthergabrielles',
       color: 'from-gray-700 to-gray-800',
       description: 'Veja meus projetos'
     }
@@ -150,7 +150,7 @@ const Contact: React.FC = () => {
             {[
               { icon: MessageSquare, label: 'Resposta Rápida', value: '< 24h', color: 'from-blue-500 to-blue-600' },
               { icon: Clock, label: 'Disponibilidade', value: 'Imediata', color: 'from-green-500 to-green-600' },
-              { icon: Users, label: 'Projetos Ativos', value: 'Aceito Novos', color: 'from-purple-500 to-purple-600' }
+              { icon: Users, label: 'Projetos', value: 'Aceito Novos', color: 'from-purple-500 to-purple-600' }
             ].map((stat, index) => (
               <motion.div
                 key={index}

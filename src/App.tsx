@@ -67,24 +67,26 @@ function App() {
             <div className="col-span-12 text-center">
               <div className="mb-12">
                 <div className="bg-gradient-to-br from-indigo-500 to-purple-600 text-white w-20 h-20 rounded-3xl flex items-center justify-center font-poppins font-bold text-3xl mx-auto mb-8 shadow-2xl">
-                  ES
+                  EG
                 </div>
-                <h3 className="text-3xl font-poppins font-bold mb-6">Esther Souza</h3>
+                <h3 className="text-3xl font-poppins font-bold mb-6">Esther Gabrielle</h3>
                 <p className="text-slate-300 font-inter text-xl max-w-3xl mx-auto leading-relaxed mb-8">
-                  QA Engineer especializada em transformar ideias em produtos digitais excepcionais 
-                  através de testes rigorosos e metodologias ágeis de ponta.
+                  Profissional de tecnologia especializada em processos administrativos 
+                  e otimização de sistemas para resultados eficientes.
                 </p>
                 
                 {/* Social Links */}
                 <div className="flex justify-center gap-6 mb-12">
                   {[
-                    { name: 'LinkedIn', href: '#', icon: '💼' },
-                    { name: 'GitHub', href: '#', icon: '🔗' },
-                    { name: 'Email', href: '#', icon: '📧' }
+                    { name: 'LinkedIn', href: 'https://linkedin.com/in/esthergabrielle', icon: '💼' },
+                    { name: 'GitHub', href: 'https://github.com/Esthergabrielles', icon: '🔗' },
+                    { name: 'Email', href: 'mailto:esthergabriellesouza@gmail.com', icon: '📧' }
                   ].map((social, index) => (
                     <a
                       key={index}
                       href={social.href}
+                      target={social.href.startsWith('http') ? '_blank' : undefined}
+                      rel={social.href.startsWith('http') ? 'noopener noreferrer' : undefined}
                       className="w-12 h-12 bg-slate-800/50 backdrop-blur-sm border border-slate-700 rounded-xl flex items-center justify-center text-xl hover:bg-indigo-500 hover:border-indigo-400 transition-all duration-300 hover:scale-110"
                       aria-label={social.name}
                     >
@@ -97,7 +99,7 @@ function App() {
               <div className="border-t border-slate-700 pt-8">
                 <div className="flex flex-col md:flex-row justify-between items-center gap-4">
                   <p className="text-slate-400 font-inter">
-                    © 2024 Esther Souza. Todos os direitos reservados.
+                    © 2024 Esther Gabrielle. Todos os direitos reservados.
                   </p>
                   <p className="text-slate-400 font-inter">
                     Desenvolvido com <span className="text-red-400">❤️</span> e atenção aos detalhes

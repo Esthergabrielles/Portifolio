@@ -61,7 +61,7 @@ export default function WelcomeScreen({ onComplete }: WelcomeScreenProps) {
                   transition={{ duration: 0.8, delay: 1.5 }}
                   className="ml-4 text-primary-400"
                 >
-                  Souza
+                  Gabrielle
                 </motion.span>
               </motion.h1>
 
@@ -72,7 +72,7 @@ export default function WelcomeScreen({ onComplete }: WelcomeScreenProps) {
                 transition={{ duration: 0.8, delay: 2 }}
                 className="mb-8 font-inter text-xl tracking-wide text-neutral-300 md:text-2xl"
               >
-                QA Engineer
+                Profissional de Tecnologia
               </motion.p>
 
               {/* Animated Line */}
@@ -90,7 +90,7 @@ export default function WelcomeScreen({ onComplete }: WelcomeScreenProps) {
                 transition={{ duration: 0.8, delay: 3 }}
                 className="mt-6 font-inter text-sm uppercase tracking-widest text-neutral-400"
               >
-                Garantindo Excelência em Cada Detalhe
+                Especialista em Processos e Qualidade
               </motion.p>
             </motion.div>
           </div>
