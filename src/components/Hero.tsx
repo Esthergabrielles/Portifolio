@@ -1,19 +1,23 @@
 import React from 'react';
 import { ArrowRight, Download, Sparkles, Award, TrendingUp } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { useLanguage } from '../hooks/useLanguage';
+import { t } from '../data/translations';
 import AnimatedSection from './AnimatedSection';
 
 const Hero: React.FC = () => {
+  const { language } = useLanguage();
+
   const handleContactClick = () => {
     const element = document.querySelector('#contact');
     element?.scrollIntoView({ behavior: 'smooth' });
   };
 
   const handleDownloadCV = () => {
-    // In a real implementation, this would download the actual CV
+    const cvFile = language === 'en' ? '/cv-esther-gabrielle-en.pdf' : '/cv-esther-gabrielle.pdf';
     const link = document.createElement('a');
-    link.href = '/cv-esther-gabrielle.pdf';
-    link.download = 'CV-Esther-Gabrielle.pdf';
+    link.href = cvFile;
+    link.download = language === 'en' ? 'CV-Esther-Gabrielle-EN.pdf' : 'CV-Esther-Gabrielle.pdf';
     link.click();
   };
 
@@ -62,7 +66,7 @@ const Hero: React.FC = () => {
               <div className="absolute inset-0 rounded-full bg-gradient-to-tr from-indigo-500 via-purple-500 to-pink-500 p-2 shadow-2xl">
                 <img
                   src="https://images.pexels.com/photos/774909/pexels-photo-774909.jpeg?auto=compress&cs=tinysrgb&w=500&h=500&fit=crop"
-                  alt="Esther Gabrielle - Profissional de Tecnologia"
+                  alt="Esther Gabrielle - Technology Professional"
                   className="w-full h-full object-cover rounded-full"
                   loading="eager"
                 />
@@ -98,7 +102,9 @@ const Hero: React.FC = () => {
               >
                 <div className="flex items-center gap-2 bg-emerald-500/20 backdrop-blur-sm border border-emerald-500/30 px-4 py-2 rounded-full">
                   <div className="w-2 h-2 bg-emerald-400 rounded-full animate-pulse" />
-                  <span className="text-emerald-300 font-inter font-medium text-sm">Disponível para novos projetos</span>
+                  <span className="text-emerald-300 font-inter font-medium text-sm">
+                    {t('availableForProjects', language)}
+                  </span>
                 </div>
               </motion.div>
               
@@ -108,7 +114,7 @@ const Hero: React.FC = () => {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.8, delay: 0.4 }}
               >
-                Olá, sou a{' '}
+                {t('hello', language)}{' '}
                 <span className="bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">
                   Esther Gabrielle
                 </span>
@@ -123,9 +129,9 @@ const Hero: React.FC = () => {
                 transition={{ duration: 0.8, delay: 0.6 }}
               >
                 <h2 className="text-3xl md:text-4xl text-slate-200 mb-4 leading-relaxed font-inter font-light">
-                  Profissional de Tecnologia especializada em{' '}
-                  <span className="text-indigo-400 font-semibold">processos administrativos</span>{' '}
-                  e qualidade de sistemas
+                  {t('qaSpecialist', language)}{' '}
+                  <span className="text-indigo-400 font-semibold">{t('qualityTesting', language)}</span>{' '}
+                  {t('organizationalProcesses', language)}
                 </h2>
                 <div className="w-32 h-1 bg-gradient-to-r from-indigo-400 to-purple-400 mx-auto rounded-full" />
               </motion.div>
@@ -138,8 +144,7 @@ const Hero: React.FC = () => {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.8, delay: 0.8 }}
               >
-                Combinando conhecimento técnico com visão estratégica de processos, 
-                trabalho para otimizar operações e garantir qualidade em sistemas e fluxos de trabalho.
+                {t('heroDescription', language)}
               </motion.p>
             </AnimatedSection>
 
@@ -152,9 +157,9 @@ const Hero: React.FC = () => {
                 transition={{ duration: 0.8, delay: 1 }}
               >
                 {[
-                  { number: '25+', label: 'Projetos Realizados', icon: TrendingUp },
-                  { number: '95%', label: 'Eficiência em Processos', icon: Award },
-                  { number: '2+', label: 'Anos de Experiência', icon: Sparkles }
+                  { number: '5+', label: t('studyProjects', language), icon: TrendingUp },
+                  { number: '95%', label: t('dedicationToStudies', language), icon: Award },
+                  { number: '1+', label: t('learningYear', language), icon: Sparkles }
                 ].map((stat, index) => (
                   <motion.div
                     key={index}
@@ -187,7 +192,7 @@ const Hero: React.FC = () => {
                   whileTap={{ scale: 0.98 }}
                   transition={{ duration: 0.2 }}
                 >
-                  <span className="relative z-10">Vamos Conversar</span>
+                  <span className="relative z-10">{t('letsChat', language)}</span>
                   <ArrowRight className="w-6 h-6 group-hover:translate-x-1 transition-transform duration-300 relative z-10" />
                   <motion.div
                     className="absolute inset-0 bg-gradient-to-r from-purple-600 to-pink-600"
@@ -204,7 +209,7 @@ const Hero: React.FC = () => {
                   whileTap={{ scale: 0.98 }}
                   transition={{ duration: 0.2 }}
                 >
-                  <span className="relative z-10">Download CV</span>
+                  <span className="relative z-10">{t('downloadCV', language)}</span>
                   <Download className="w-6 h-6 group-hover:translate-y-1 transition-transform duration-300 relative z-10" />
                   <motion.div
                     className="absolute inset-0 bg-slate-700/30"

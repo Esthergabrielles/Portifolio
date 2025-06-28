@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import { ExternalLink, Github, Eye, Award, TrendingUp, Shield, Zap } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { projects } from '../data/portfolio';
+import { useLanguage } from '../hooks/useLanguage';
+import { t } from '../data/translations';
 import Modal from './Modal';
 import AnimatedSection from './AnimatedSection';
 import { Project } from '../types';
@@ -9,6 +11,7 @@ import { Project } from '../types';
 const Projects: React.FC = () => {
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
   const [filter, setFilter] = useState<string>('All');
+  const { language } = useLanguage();
 
   const testTypes = ['All', 'Functional Testing', 'Security Testing', 'API Testing', 'Performance Testing'];
 
@@ -54,12 +57,11 @@ const Projects: React.FC = () => {
               viewport={{ once: true }}
             >
               <h2 className="text-5xl md:text-6xl font-poppins font-bold text-neutral-900 dark:text-white mb-6">
-                Projetos em Destaque
+                {t('featuredProjects', language)}
               </h2>
               <div className="w-24 h-1 bg-gradient-to-r from-primary-400 to-primary-600 mx-auto mb-8 rounded-full" />
               <p className="text-xl md:text-2xl text-neutral-600 dark:text-neutral-300 max-w-4xl mx-auto leading-relaxed font-inter">
-                Alguns dos projetos em que trabalhei, demonstrando expertise em diferentes 
-                tipos de testes e tecnologias de ponta
+                {t('projectsSubtitle', language)}
               </p>
             </motion.div>
           </AnimatedSection>
@@ -191,7 +193,7 @@ const Projects: React.FC = () => {
                           whileHover={{ scale: 1.02, y: -2 }}
                           whileTap={{ scale: 0.98 }}
                         >
-                          Ver Detalhes Completos
+                          {t('viewFullDetails', language)}
                           <ExternalLink className="w-5 h-5" />
                         </motion.button>
                       </div>
@@ -232,12 +234,12 @@ const Projects: React.FC = () => {
                 </h3>
                 <div className="flex items-center gap-2">
                   <TrendingUp className="w-5 h-5 text-green-500" />
-                  <span className="text-green-500 font-medium">Projeto Concluído</span>
+                  <span className="text-green-500 font-medium">{t('projectCompleted', language)}</span>
                 </div>
               </div>
               
               <p className="text-lg text-neutral-600 dark:text-neutral-300 mb-2 font-inter">
-                <strong className="text-primary-500">Cliente:</strong> {selectedProject.company}
+                <strong className="text-primary-500">{t('client', language)}:</strong> {selectedProject.company}
               </p>
               
               <p className="text-neutral-700 dark:text-neutral-300 mb-8 leading-relaxed font-inter text-lg">
@@ -246,7 +248,7 @@ const Projects: React.FC = () => {
               
               <div className="mb-8">
                 <h4 className="text-xl font-poppins font-bold text-neutral-900 dark:text-white mb-4">
-                  Tecnologias e Ferramentas
+                  {t('technologiesAndTools', language)}
                 </h4>
                 <div className="flex flex-wrap gap-3">
                   {selectedProject.technologies.map((tech, index) => (
@@ -266,10 +268,10 @@ const Projects: React.FC = () => {
 
               <div className="bg-gradient-to-r from-primary-50 to-primary-100 dark:from-primary-900/20 dark:to-primary-800/20 p-6 rounded-2xl border border-primary-200 dark:border-primary-700">
                 <h4 className="text-lg font-poppins font-bold text-neutral-900 dark:text-white mb-2">
-                  Resultados Alcançados
+                  {t('achievedResults', language)}
                 </h4>
                 <p className="text-neutral-700 dark:text-neutral-300 font-inter">
-                  Projeto executado com sucesso, garantindo alta qualidade e satisfação do cliente através de testes abrangentes e metodologias ágeis.
+                  {t('projectSuccess', language)}
                 </p>
               </div>
             </motion.div>

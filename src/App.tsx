@@ -1,21 +1,25 @@
 import React, { useState, useEffect } from 'react';
 import { useDarkMode } from './hooks/useDarkMode';
+import { useLanguage } from './hooks/useLanguage';
 import WelcomeScreen from './components/WelcomeScreen';
 import Header from './components/Header';
 import Hero from './components/Hero';
 import About from './components/About';
-import Services from './components/Services';
 import Projects from './components/Projects';
 import Process from './components/Process';
 import Skills from './components/Skills';
-import Testimonials from './components/Testimonials';
+import Courses from './components/Courses';
+import Certificates from './components/Certificates';
 import Achievements from './components/Achievements';
 import Contact from './components/Contact';
 import BackToTop from './components/BackToTop';
 import LoadingScreen from './components/LoadingScreen';
+import InteractiveElements from './components/InteractiveElements';
+import { t } from './data/translations';
 
 function App() {
   const { isDark, toggleDarkMode } = useDarkMode();
+  const { language } = useLanguage();
   const [showWelcome, setShowWelcome] = useState(true);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -46,14 +50,15 @@ function App() {
         <Header isDark={isDark} toggleDarkMode={toggleDarkMode} />
         <Hero />
         <About />
-        <Services />
         <Projects />
         <Process />
         <Skills />
-        <Testimonials />
+        <Courses />
+        <Certificates />
         <Achievements />
         <Contact />
         <BackToTop />
+        <InteractiveElements />
         
         {/* Premium Footer */}
         <footer className="bg-gradient-to-br from-slate-900 via-slate-800 to-black text-white section-spacing relative overflow-hidden">
@@ -71,8 +76,7 @@ function App() {
                 </div>
                 <h3 className="text-3xl font-poppins font-bold mb-6">Esther Gabrielle</h3>
                 <p className="text-slate-300 font-inter text-xl max-w-3xl mx-auto leading-relaxed mb-8">
-                  Profissional de tecnologia especializada em processos administrativos 
-                  e otimização de sistemas para resultados eficientes.
+                  {t('footerDescription', language)}
                 </p>
                 
                 {/* Social Links */}
@@ -99,10 +103,10 @@ function App() {
               <div className="border-t border-slate-700 pt-8">
                 <div className="flex flex-col md:flex-row justify-between items-center gap-4">
                   <p className="text-slate-400 font-inter">
-                    © 2024 Esther Gabrielle. Todos os direitos reservados.
+                    © 2024 Esther Gabrielle. {t('allRightsReserved', language)}
                   </p>
                   <p className="text-slate-400 font-inter">
-                    Desenvolvido com <span className="text-red-400">❤️</span> e atenção aos detalhes
+                    {t('developedWith', language)} <span className="text-red-400">❤️</span> {t('attentionToDetail', language)}
                   </p>
                 </div>
               </div>

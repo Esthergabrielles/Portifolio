@@ -1,13 +1,18 @@
 import React, { useState } from 'react';
-import { Mail, Phone, MapPin, Send, Linkedin, Github, Copy, Check, AlertCircle, MessageSquare, Clock, Users } from 'lucide-react';
+import { Mail, Phone, MapPin, Send, Linkedin, Copy, Check, AlertCircle, MessageSquare, Clock, Users, ExternalLink } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useFormValidation } from '../hooks/useFormValidation';
+import { useLanguage } from '../hooks/useLanguage';
+import { t } from '../data/translations';
+import { sendEmail, sendEmailViaMailto } from '../services/emailService';
 import AnimatedSection from './AnimatedSection';
 
 const Contact: React.FC = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [copiedPhone, setCopiedPhone] = useState(false);
   const [submitStatus, setSubmitStatus] = useState<'idle' | 'success' | 'error'>('idle');
+  const { language } = useLanguage();
 
   const formConfig = {
     name: { required: true, minLength: 2, maxLength: 50 },
@@ -39,11 +44,14 @@ const Contact: React.FC = () => {
     setSubmitStatus('idle');
     
     try {
-      // Simulate form submission
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      const success = await sendEmail(data);
       
-      setSubmitStatus('success');
-      reset();
+      if (success) {
+        setSubmitStatus('success');
+        reset();
+      } else {
+        setSubmitStatus('error');
+      }
     } catch (error) {
       setSubmitStatus('error');
     } finally {
@@ -61,25 +69,47 @@ const Contact: React.FC = () => {
     }
   };
 
+  const copyPhone = async () => {
+    try {
+      await navigator.clipboard.writeText('(19) 98926-1419');
+      setCopiedPhone(true);
+      setTimeout(() => setCopiedPhone(false), 2000);
+    } catch (err) {
+      console.error('Failed to copy phone');
+    }
+  };
+
+  const openWhatsApp = () => {
+    const message = encodeURIComponent(
+      language === 'pt' 
+        ? 'Olá Esther! Vi seu portfólio e gostaria de conversar sobre oportunidades.'
+        : 'Hello Esther! I saw your portfolio and would like to talk about opportunities.'
+    );
+    window.open(`https://wa.me/5519989261419?text=${message}`, '_blank');
+  };
+
   const contactInfo = [
     {
       icon: Mail,
-      label: 'Email Profissional',
+      label: t('professionalEmail', language),
       value: 'esthergabriellesouza@gmail.com',
       action: copyEmail,
-      color: 'from-blue-500 to-blue-600'
+      color: 'from-blue-500 to-blue-600',
+      copied: copied
     },
     {
       icon: Phone,
-      label: 'Telefone/WhatsApp',
-      value: '+55 (19) 98926-1419',
-      href: 'tel:+5519989261419',
-      color: 'from-green-500 to-green-600'
+      label: t('phoneWhatsApp', language),
+      value: '(19) 98926-1419',
+      action: copyPhone,
+      whatsappAction: openWhatsApp,
+      color: 'from-green-500 to-green-600',
+      copied: copiedPhone
     },
     {
       icon: MapPin,
-      label: 'Localização',
-      value: 'Americana, SP - Brasil',
+      label: t('location', language),
+      value: 'Santa Bárbara d\'Oeste, SP - Brasil',
       color: 'from-purple-500 to-purple-600'
     }
   ];
@@ -90,14 +120,7 @@ const Contact: React.FC = () => {
       label: 'LinkedIn',
       href: 'https://linkedin.com/in/esthergabrielle',
       color: 'from-blue-600 to-blue-700',
-      description: 'Conecte-se comigo'
-    },
-    {
-      icon: Github,
-      label: 'GitHub',
-      href: 'https://github.com/Esthergabrielles',
-      color: 'from-gray-700 to-gray-800',
-      description: 'Veja meus projetos'
+      description: t('connectWithMe', language)
     }
   ];
 
@@ -133,12 +156,11 @@ const Contact: React.FC = () => {
               viewport={{ once: true }}
             >
               <h2 className="text-5xl md:text-6xl font-poppins font-bold text-neutral-900 dark:text-white mb-6">
-                Vamos Conversar?
+                {t('letsChat2', language)}
               </h2>
               <div className="w-24 h-1 bg-gradient-to-r from-primary-400 to-primary-600 mx-auto mb-8 rounded-full" />
               <p className="text-xl md:text-2xl text-neutral-600 dark:text-neutral-300 max-w-4xl mx-auto leading-relaxed font-inter">
-                Estou sempre aberta a novas oportunidades e colaborações. 
-                Entre em contato para discutirmos como posso contribuir com seu projeto.
+                {t('contactSubtitle', language)}
               </p>
             </motion.div>
           </AnimatedSection>
@@ -148,9 +170,9 @@ const Contact: React.FC = () => {
         <div className="col-span-12 mb-16">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {[
-              { icon: MessageSquare, label: 'Resposta Rápida', value: '< 24h', color: 'from-blue-500 to-blue-600' },
-              { icon: Clock, label: 'Disponibilidade', value: 'Imediata', color: 'from-green-500 to-green-600' },
-              { icon: Users, label: 'Projetos', value: 'Aceito Novos', color: 'from-purple-500 to-purple-600' }
+              { icon: MessageSquare, label: t('quickResponse', language), value: '< 24h', color: 'from-blue-500 to-blue-600' },
+              { icon: Clock, label: t('availability', language), value: t('immediate', language), color: 'from-green-500 to-green-600' },
+              { icon: Users, label: t('projects', language), value: t('acceptNewProjects', language), color: 'from-purple-500 to-purple-600' }
             ].map((stat, index) => (
               <motion.div
                 key={index}
@@ -185,7 +207,7 @@ const Contact: React.FC = () => {
               viewport={{ once: true }}
             >
               <h3 className="text-3xl md:text-4xl font-poppins font-bold text-neutral-900 dark:text-white mb-12">
-                Informações de Contato
+                {t('contactInfo', language)}
               </h3>
               
               <div className="space-y-6 mb-12">
@@ -207,33 +229,37 @@ const Contact: React.FC = () => {
                         {info.label}
                       </p>
                       <div className="flex items-center gap-3">
-                        {info.href ? (
-                          <a 
-                            href={info.href}
-                            className="text-lg text-neutral-900 dark:text-white font-semibold hover:text-primary-500 transition-colors duration-300 font-inter"
-                          >
-                            {info.value}
-                          </a>
-                        ) : (
-                          <span className="text-lg text-neutral-900 dark:text-white font-semibold font-inter">
-                            {info.value}
-                          </span>
-                        )}
-                        {info.action && (
-                          <motion.button
-                            onClick={info.action}
-                            className="p-2 rounded-lg hover:bg-neutral-100 dark:hover:bg-neutral-700 transition-colors duration-300"
-                            title="Copiar email"
-                            whileHover={{ scale: 1.1 }}
-                            whileTap={{ scale: 0.9 }}
-                          >
-                            {copied ? (
-                              <Check className="w-5 h-5 text-green-500" />
-                            ) : (
-                              <Copy className="w-5 h-5 text-neutral-500" />
-                            )}
-                          </motion.button>
-                        )}
+                        <span className="text-lg text-neutral-900 dark:text-white font-semibold font-inter">
+                          {info.value}
+                        </span>
+                        <div className="flex gap-2">
+                          {info.action && (
+                            <motion.button
+                              onClick={info.action}
+                              className="p-2 rounded-lg hover:bg-neutral-100 dark:hover:bg-neutral-700 transition-colors duration-300"
+                              title={language === 'pt' ? 'Copiar' : 'Copy'}
+                              whileHover={{ scale: 1.1 }}
+                              whileTap={{ scale: 0.9 }}
+                            >
+                              {info.copied ? (
+                                <Check className="w-5 h-5 text-green-500" />
+                              ) : (
+                                <Copy className="w-5 h-5 text-neutral-500" />
+                              )}
+                            </motion.button>
+                          )}
+                          {info.whatsappAction && (
+                            <motion.button
+                              onClick={info.whatsappAction}
+                              className="p-2 rounded-lg bg-green-500 hover:bg-green-600 text-white transition-colors duration-300"
+                              title="WhatsApp"
+                              whileHover={{ scale: 1.1 }}
+                              whileTap={{ scale: 0.9 }}
+                            >
+                              <MessageSquare className="w-5 h-5" />
+                            </motion.button>
+                          )}
+                        </div>
                       </div>
                     </div>
                   </motion.div>
@@ -243,9 +269,9 @@ const Contact: React.FC = () => {
               {/* Social Links */}
               <div>
                 <h4 className="text-2xl font-poppins font-bold text-neutral-900 dark:text-white mb-6">
-                  Redes Sociais
+                  {t('socialNetworks', language)}
                 </h4>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 gap-4">
                   {socialLinks.map((social, index) => (
                     <motion.a
                       key={index}
@@ -282,7 +308,7 @@ const Contact: React.FC = () => {
               viewport={{ once: true }}
             >
               <h3 className="text-3xl md:text-4xl font-poppins font-bold text-neutral-900 dark:text-white mb-12">
-                Envie uma Mensagem
+                {t('sendMessage', language)}
               </h3>
               
               <motion.form 
@@ -293,7 +319,7 @@ const Contact: React.FC = () => {
               >
                 <div>
                   <label htmlFor="name" className="block text-lg font-semibold text-neutral-700 dark:text-neutral-300 mb-3 font-inter">
-                    Nome Completo *
+                    {t('fullName', language)} *
                   </label>
                   <input
                     type="text"
@@ -303,7 +329,7 @@ const Contact: React.FC = () => {
                     onChange={(e) => handleChange('name', e.target.value)}
                     onBlur={() => handleBlur('name')}
                     className={getFieldClassName('name')}
-                    placeholder="Seu nome completo"
+                    placeholder={t('yourFullName', language)}
                   />
                   {touched.name && errors.name && (
                     <motion.p 
@@ -319,7 +345,7 @@ const Contact: React.FC = () => {
 
                 <div>
                   <label htmlFor="email" className="block text-lg font-semibold text-neutral-700 dark:text-neutral-300 mb-3 font-inter">
-                    Email Profissional *
+                    {t('professionalEmail', language)} *
                   </label>
                   <input
                     type="email"
@@ -329,7 +355,7 @@ const Contact: React.FC = () => {
                     onChange={(e) => handleChange('email', e.target.value)}
                     onBlur={() => handleBlur('email')}
                     className={getFieldClassName('email')}
-                    placeholder="seu.email@empresa.com"
+                    placeholder={t('yourEmail', language)}
                   />
                   {touched.email && errors.email && (
                     <motion.p 
@@ -345,7 +371,7 @@ const Contact: React.FC = () => {
 
                 <div>
                   <label htmlFor="message" className="block text-lg font-semibold text-neutral-700 dark:text-neutral-300 mb-3 font-inter">
-                    Mensagem *
+                    {t('message', language)} *
                   </label>
                   <textarea
                     id="message"
@@ -355,7 +381,7 @@ const Contact: React.FC = () => {
                     onChange={(e) => handleChange('message', e.target.value)}
                     onBlur={() => handleBlur('message')}
                     className={`${getFieldClassName('message')} resize-none`}
-                    placeholder="Conte-me sobre seu projeto, oportunidade ou como posso ajudar..."
+                    placeholder={t('messagePlaceholder', language)}
                   />
                   {touched.message && errors.message && (
                     <motion.p 
@@ -377,9 +403,9 @@ const Contact: React.FC = () => {
                   >
                     <div className="flex items-center gap-2 mb-2">
                       <Check className="w-5 h-5" />
-                      <span className="font-semibold">Mensagem enviada com sucesso!</span>
+                      <span className="font-semibold">{t('messageSuccess', language)}</span>
                     </div>
-                    <p>Entrarei em contato em breve. Obrigada pelo interesse!</p>
+                    <p>{t('messageSuccessDesc', language)}</p>
                   </motion.div>
                 )}
 
@@ -391,9 +417,18 @@ const Contact: React.FC = () => {
                   >
                     <div className="flex items-center gap-2 mb-2">
                       <AlertCircle className="w-5 h-5" />
-                      <span className="font-semibold">Erro ao enviar mensagem</span>
+                      <span className="font-semibold">{t('messageError', language)}</span>
                     </div>
-                    <p>Tente novamente ou entre em contato diretamente pelo email.</p>
+                    <p className="mb-3">{t('tryAgain', language)}</p>
+                    <motion.button
+                      type="button"
+                      onClick={() => sendEmailViaMailto(data)}
+                      className="flex items-center gap-2 text-red-700 dark:text-red-300 hover:text-red-800 dark:hover:text-red-200 font-semibold"
+                      whileHover={{ scale: 1.05 }}
+                    >
+                      <ExternalLink className="w-4 h-4" />
+                      {t('openEmailClient', language)}
+                    </motion.button>
                   </motion.div>
                 )}
 
@@ -407,15 +442,19 @@ const Contact: React.FC = () => {
                   {isSubmitting ? (
                     <>
                       <div className="w-6 h-6 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                      Enviando...
+                      {t('sendingMessage', language)}
                     </>
                   ) : (
                     <>
-                      Enviar Mensagem
+                      {t('sendMessage2', language)}
                       <Send className="w-6 h-6" />
                     </>
                   )}
                 </motion.button>
+
+                <p className="text-sm text-neutral-500 dark:text-neutral-400 font-inter text-center">
+                  {t('privacyNote', language)}
+                </p>
               </motion.form>
             </motion.div>
           </AnimatedSection>

@@ -2,7 +2,10 @@ import React, { useState, useEffect } from 'react';
 import { Menu, X } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useScrollPosition } from '../hooks/useScrollPosition';
+import { useLanguage } from '../hooks/useLanguage';
+import { t } from '../data/translations';
 import DarkModeToggle from './DarkModeToggle';
+import LanguageToggle from './LanguageToggle';
 
 interface HeaderProps {
   isDark: boolean;
@@ -13,19 +16,29 @@ const Header: React.FC<HeaderProps> = ({ isDark, toggleDarkMode }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const scrollY = useScrollPosition();
   const isScrolled = scrollY > 50;
+  const { language, toggleLanguage } = useLanguage();
 
   const menuItems = [
-    { href: '#about', label: 'Sobre' },
-    { href: '#projects', label: 'Projetos' },
-    { href: '#skills', label: 'Habilidades' },
-    { href: '#certificates', label: 'Certificados' },
-    { href: '#contact', label: 'Contato' }
+    { href: '#about', label: t('about', language) },
+    { href: '#projects', label: t('projects', language) },
+    { href: '#skills', label: t('skills', language) },
+    { href: '#courses', label: t('courses', language) },
+    { href: '#certificates', label: t('certificates', language) },
+    { href: '#contact', label: t('contact', language) }
   ];
 
   const handleMenuClick = (href: string) => {
     setIsMenuOpen(false);
     const element = document.querySelector(href);
     element?.scrollIntoView({ behavior: 'smooth' });
+  };
+
+  const handleDownloadCV = () => {
+    const cvFile = language === 'en' ? '/cv-esther-gabrielle-en.pdf' : '/cv-esther-gabrielle.pdf';
+    const link = document.createElement('a');
+    link.href = cvFile;
+    link.download = language === 'en' ? 'CV-Esther-Gabrielle-EN.pdf' : 'CV-Esther-Gabrielle.pdf';
+    link.click();
   };
 
   useEffect(() => {
@@ -61,7 +74,7 @@ const Header: React.FC<HeaderProps> = ({ isDark, toggleDarkMode }) => {
           >
             <div className="relative">
               <div className="bg-gradient-to-br from-primary-500 to-primary-600 text-white w-14 h-14 rounded-xl flex items-center justify-center font-poppins font-bold text-xl shadow-lg cursor-pointer">
-                ES
+                EG
               </div>
               <div className="absolute inset-0 bg-gradient-to-br from-primary-400 to-primary-500 rounded-xl blur opacity-30 -z-10" />
             </div>
@@ -92,7 +105,23 @@ const Header: React.FC<HeaderProps> = ({ isDark, toggleDarkMode }) => {
 
           {/* Right side */}
           <div className="flex items-center space-x-4">
+            <LanguageToggle language={language} toggle={toggleLanguage} />
             <DarkModeToggle isDark={isDark} toggle={toggleDarkMode} />
+            <motion.button
+              onClick={handleDownloadCV}
+              className="hidden md:block relative bg-gradient-to-r from-green-500 to-green-600 text-white px-6 py-3 rounded-xl font-inter font-semibold shadow-lg overflow-hidden group"
+              whileHover={{ scale: 1.05, y: -2 }}
+              whileTap={{ scale: 0.98 }}
+              transition={{ duration: 0.2 }}
+            >
+              <span className="relative z-10">{t('downloadCV', language)}</span>
+              <motion.div
+                className="absolute inset-0 bg-gradient-to-r from-green-600 to-green-700"
+                initial={{ x: '-100%' }}
+                whileHover={{ x: 0 }}
+                transition={{ duration: 0.3 }}
+              />
+            </motion.button>
             <motion.button
               onClick={() => handleMenuClick('#contact')}
               className="hidden md:block relative bg-gradient-to-r from-primary-500 to-primary-600 text-white px-6 py-3 rounded-xl font-inter font-semibold shadow-lg overflow-hidden group"
@@ -100,7 +129,7 @@ const Header: React.FC<HeaderProps> = ({ isDark, toggleDarkMode }) => {
               whileTap={{ scale: 0.98 }}
               transition={{ duration: 0.2 }}
             >
-              <span className="relative z-10">Contrate-me</span>
+              <span className="relative z-10">{t('hireMe', language)}</span>
               <motion.div
                 className="absolute inset-0 bg-gradient-to-r from-primary-600 to-primary-700"
                 initial={{ x: '-100%' }}
@@ -175,14 +204,24 @@ const Header: React.FC<HeaderProps> = ({ isDark, toggleDarkMode }) => {
                   </motion.button>
                 ))}
                 <motion.button
-                  onClick={() => handleMenuClick('#contact')}
-                  className="block w-full text-left px-6 py-4 mt-8 bg-gradient-to-r from-primary-500 to-primary-600 text-white rounded-xl font-inter font-semibold text-xl"
+                  onClick={handleDownloadCV}
+                  className="block w-full text-left px-6 py-4 mt-4 bg-gradient-to-r from-green-500 to-green-600 text-white rounded-xl font-inter font-semibold text-xl"
                   initial={{ x: -50, opacity: 0 }}
                   animate={{ x: 0, opacity: 1 }}
-                  transition={{ duration: 0.4, delay: 0.5 }}
+                  transition={{ duration: 0.4, delay: 0.6 }}
                   whileHover={{ scale: 1.02 }}
                 >
-                  Contrate-me
+                  {t('downloadCV', language)}
+                </motion.button>
+                <motion.button
+                  onClick={() => handleMenuClick('#contact')}
+                  className="block w-full text-left px-6 py-4 bg-gradient-to-r from-primary-500 to-primary-600 text-white rounded-xl font-inter font-semibold text-xl"
+                  initial={{ x: -50, opacity: 0 }}
+                  animate={{ x: 0, opacity: 1 }}
+                  transition={{ duration: 0.4, delay: 0.7 }}
+                  whileHover={{ scale: 1.02 }}
+                >
+                  {t('hireMe', language)}
                 </motion.button>
               </motion.div>
             </motion.div>

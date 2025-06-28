@@ -1,34 +1,38 @@
 import React from 'react';
-import { Award, Users, Target, Lightbulb, MessageCircle, Clock, Sparkles } from 'lucide-react';
+import { Award, Users, Target, Lightbulb, MessageCircle, Clock, Sparkles, Zap, Brain } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { useLanguage } from '../hooks/useLanguage';
+import { t } from '../data/translations';
 import AnimatedSection from './AnimatedSection';
 
 const About: React.FC = () => {
+  const { language } = useLanguage();
+
   const experiences = [
     {
       icon: Award,
-      title: 'Formação Técnica',
-      description: 'Especialização em tecnologia com foco em processos administrativos'
+      title: t('ongoingEducation', language),
+      description: t('ongoingEducationDesc', language)
     },
     {
       icon: Users,
-      title: 'Experiência Profissional',
-      description: 'Atuação em projetos de otimização e melhoria de processos'
+      title: t('studyProjects2', language),
+      description: t('studyProjectsDesc', language)
     },
     {
       icon: Target,
-      title: 'Foco em Qualidade',
-      description: 'Especialização em análise de sistemas e controle de qualidade'
+      title: t('learningFocus', language),
+      description: t('learningFocusDesc', language)
     }
   ];
 
   const softSkills = [
-    'Análise de Processos',
-    'Organização',
-    'Pensamento Analítico',
+    t('attentionToDetails', language),
+    t('organization', language),
+    t('analyticalThinking', language),
     'Resolução de Problemas',
-    'Atenção aos Detalhes',
-    'Comunicação Eficaz'
+    t('communication', language),
+    t('willToLearn', language)
   ];
 
   return (
@@ -48,12 +52,11 @@ const About: React.FC = () => {
               viewport={{ once: true }}
             >
               <h2 className="text-5xl md:text-6xl font-poppins font-bold text-neutral-900 dark:text-white mb-6">
-                Sobre Mim
+                {t('aboutMe', language)}
               </h2>
               <div className="w-24 h-1 bg-gradient-to-r from-primary-400 to-primary-600 mx-auto mb-8 rounded-full" />
               <p className="text-xl md:text-2xl text-neutral-600 dark:text-neutral-300 max-w-3xl mx-auto leading-relaxed font-inter">
-                Profissional dedicada à otimização de processos e implementação 
-                de soluções tecnológicas eficientes
+                {t('aboutSubtitle', language)}
               </p>
             </motion.div>
           </AnimatedSection>
@@ -70,7 +73,7 @@ const About: React.FC = () => {
               <div className="relative overflow-hidden rounded-3xl shadow-2xl">
                 <img
                   src="https://images.pexels.com/photos/3184306/pexels-photo-3184306.jpeg?auto=compress&cs=tinysrgb&w=800"
-                  alt="Esther Gabrielle trabalhando"
+                  alt="Esther Gabrielle estudando"
                   className="w-full h-[500px] object-cover"
                 />
                 <div className="absolute inset-0 bg-gradient-to-tr from-primary-500/20 to-transparent" />
@@ -97,16 +100,13 @@ const About: React.FC = () => {
               viewport={{ once: true }}
             >
               <h3 className="text-3xl md:text-4xl font-poppins font-bold text-neutral-900 dark:text-white mb-6">
-                Minha Trajetória
+                {t('myJourney', language)}
               </h3>
               <p className="text-lg text-neutral-600 dark:text-neutral-300 leading-relaxed mb-6 font-inter">
-                Sou uma profissional de tecnologia com especialização em processos administrativos, 
-                focada em criar soluções eficientes que otimizam operações e garantem qualidade. 
-                Minha experiência combina conhecimento técnico com visão estratégica de negócios.
+                {t('aboutDescription1', language)}
               </p>
               <p className="text-lg text-neutral-600 dark:text-neutral-300 leading-relaxed font-inter">
-                Trabalho para identificar oportunidades de melhoria, implementar automações 
-                e desenvolver processos que aumentem a produtividade e reduzam erros operacionais.
+                {t('aboutDescription2', language)}
               </p>
             </motion.div>
           </AnimatedSection>
@@ -115,7 +115,7 @@ const About: React.FC = () => {
           <AnimatedSection animation="slide-up" delay={3}>
             <div className="space-y-6 element-spacing">
               <h4 className="text-2xl font-poppins font-bold text-neutral-900 dark:text-white">
-                Áreas de Atuação
+                {t('studyAreas', language)}
               </h4>
               {experiences.map((exp, index) => (
                 <motion.div
@@ -147,7 +147,7 @@ const About: React.FC = () => {
           <AnimatedSection animation="slide-up" delay={4}>
             <div>
               <h4 className="text-2xl font-poppins font-bold text-neutral-900 dark:text-white mb-6">
-                Competências
+                {t('competencies', language)}
               </h4>
               <div className="flex flex-wrap gap-3">
                 {softSkills.map((skill, index) => (

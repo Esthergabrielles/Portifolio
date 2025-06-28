@@ -16,6 +16,8 @@ export interface Certificate {
   date: string;
   image: string;
   category: string;
+  description?: string;
+  skills?: string[];
 }
 
 export interface Skill {

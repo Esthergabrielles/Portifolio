@@ -9,47 +9,36 @@ const Testimonials: React.FC = () => {
   const testimonials = [
     {
       id: 1,
-      name: 'Carlos Silva',
-      position: 'CTO',
-      company: 'TechCorp Solutions',
+      name: 'Ana Silva',
+      position: 'Gerente de TI',
+      company: 'Destra Gestão de Terceiros',
       image: 'https://images.pexels.com/photos/2379004/pexels-photo-2379004.jpeg?auto=compress&cs=tinysrgb&w=150&h=150&fit=crop',
       rating: 5,
-      text: 'Esther transformou completamente nossa abordagem de QA. Sua expertise técnica e atenção aos detalhes resultaram em uma redução de 70% nos bugs em produção. Profissional excepcional!',
-      project: 'E-commerce Platform',
-      result: '70% redução de bugs'
+      text: 'Esther demonstra excelente atenção aos detalhes e organização em suas atividades. Sua dedicação aos estudos em QA é notável e promissora.',
+      project: 'Auditorias Documentais',
+      result: 'Redução de não conformidades'
     },
     {
       id: 2,
-      name: 'Ana Rodrigues',
-      position: 'Product Manager',
-      company: 'FinanceBank',
+      name: 'Carlos Rodrigues',
+      position: 'Coordenador de Projetos',
+      company: 'QYON TECH',
       image: 'https://images.pexels.com/photos/1239291/pexels-photo-1239291.jpeg?auto=compress&cs=tinysrgb&w=150&h=150&fit=crop',
       rating: 5,
-      text: 'A metodologia da Esther é impressionante. Ela não apenas identifica problemas, mas propõe soluções estratégicas. Nosso time de desenvolvimento evoluiu significativamente trabalhando com ela.',
-      project: 'Mobile Banking App',
-      result: '40% melhoria na performance'
+      text: 'Durante seu período como SDR, Esther mostrou grande capacidade analítica e organização. Suas habilidades são transferíveis para QA.',
+      project: 'Gestão de CRM',
+      result: 'Melhoria nos processos comerciais'
     },
     {
       id: 3,
-      name: 'Roberto Santos',
-      position: 'Tech Lead',
-      company: 'MedTech Solutions',
+      name: 'Marina Costa',
+      position: 'Instrutora QA',
+      company: 'Mate Academy',
       image: 'https://images.pexels.com/photos/1222271/pexels-photo-1222271.jpeg?auto=compress&cs=tinysrgb&w=150&h=150&fit=crop',
       rating: 5,
-      text: 'Trabalhar com a Esther foi um divisor de águas. Sua capacidade de automatizar testes complexos e criar frameworks robustos nos permitiu acelerar entregas sem comprometer qualidade.',
-      project: 'Healthcare Management System',
-      result: '50% redução no tempo de testes'
-    },
-    {
-      id: 4,
-      name: 'Mariana Costa',
-      position: 'CEO',
-      company: 'CloudTech Startup',
-      image: 'https://images.pexels.com/photos/1181686/pexels-photo-1181686.jpeg?auto=compress&cs=tinysrgb&w=150&h=150&fit=crop',
-      rating: 5,
-      text: 'Esther não é apenas uma QA Engineer, é uma parceira estratégica. Sua visão de produto e expertise técnica foram fundamentais para o sucesso do nosso lançamento.',
-      project: 'SaaS Dashboard',
-      result: '99.9% uptime alcançado'
+      text: 'Esther é uma aluna dedicada e aplicada. Seu progresso no curso de QA tem sido consistente e ela demonstra real paixão pela área.',
+      project: 'Bootcamp QA Engineer',
+      result: '93% de progresso no curso'
     }
   ];
 
@@ -85,8 +74,8 @@ const Testimonials: React.FC = () => {
               </h2>
               <div className="w-32 h-1 bg-gradient-to-r from-indigo-400 to-purple-600 mx-auto mb-8 rounded-full" />
               <p className="text-xl md:text-2xl text-slate-600 dark:text-slate-300 max-w-4xl mx-auto leading-relaxed font-inter">
-                Feedback real de clientes e parceiros que confiaram em minha expertise 
-                para elevar a qualidade de seus produtos digitais
+                Feedback real de colegas e supervisores que acompanharam minha 
+                dedicação e evolução profissional
               </p>
             </motion.div>
           </AnimatedSection>
@@ -97,9 +86,9 @@ const Testimonials: React.FC = () => {
           <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
             {[
               { icon: Star, label: 'Avaliação Média', value: '5.0/5', color: 'from-yellow-500 to-yellow-600' },
-              { icon: Award, label: 'Projetos Concluídos', value: '50+', color: 'from-blue-500 to-blue-600' },
-              { icon: TrendingUp, label: 'Taxa de Satisfação', value: '100%', color: 'from-green-500 to-green-600' },
-              { icon: Quote, label: 'Recomendações', value: '48', color: 'from-purple-500 to-purple-600' }
+              { icon: Award, label: 'Reconhecimentos', value: '2x', color: 'from-blue-500 to-blue-600' },
+              { icon: TrendingUp, label: 'Evolução', value: 'Constante', color: 'from-green-500 to-green-600' },
+              { icon: Quote, label: 'Recomendações', value: '3', color: 'from-purple-500 to-purple-600' }
             ].map((stat, index) => (
               <motion.div
                 key={index}
@@ -178,7 +167,7 @@ const Testimonials: React.FC = () => {
 
                       <div className="bg-gradient-to-r from-indigo-50 to-purple-50 dark:from-indigo-900/20 dark:to-purple-900/20 p-6 rounded-2xl border border-indigo-200 dark:border-indigo-800">
                         <h5 className="font-poppins font-bold text-slate-900 dark:text-white mb-2">
-                          Projeto: {current.project}
+                          Contexto: {current.project}
                         </h5>
                         <p className="text-indigo-600 dark:text-indigo-400 font-inter font-semibold">
                           Resultado: {current.result}
@@ -236,10 +225,10 @@ const Testimonials: React.FC = () => {
               transition={{ duration: 0.3 }}
             >
               <h3 className="text-2xl md:text-3xl font-poppins font-bold mb-4">
-                Quer ser o próximo case de sucesso?
+                Pronta para contribuir com seu time!
               </h3>
               <p className="text-xl mb-6 opacity-90 font-inter">
-                Vamos conversar sobre como posso ajudar seu projeto a alcançar a excelência
+                Vamos conversar sobre como posso aplicar minha dedicação e conhecimentos em seu projeto
               </p>
               <motion.button
                 onClick={() => document.querySelector('#contact')?.scrollIntoView({ behavior: 'smooth' })}
@@ -247,7 +236,7 @@ const Testimonials: React.FC = () => {
                 whileHover={{ scale: 1.05, y: -2 }}
                 whileTap={{ scale: 0.98 }}
               >
-                Iniciar Projeto
+                Iniciar Conversa
               </motion.button>
             </motion.div>
           </AnimatedSection>

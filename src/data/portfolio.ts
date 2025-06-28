@@ -3,95 +3,223 @@ import { Project, Certificate, Skill } from '../types';
 export const projects: Project[] = [
   {
     id: '1',
-    name: 'E-commerce Platform Testing',
-    company: 'TechCorp',
+    name: 'Projeto de Estudo - E-commerce',
+    company: 'Projeto Acadêmico',
     type: 'Functional Testing',
-    technologies: ['Selenium', 'Python', 'Jenkins', 'TestRail'],
-    description: 'Comprehensive testing of e-commerce platform with focus on user experience and payment flows.',
+    technologies: ['Selenium', 'TestRail', 'Postman'],
+    description: 'Projeto de estudo focado em testes funcionais de uma plataforma e-commerce simulada.',
     image: 'https://images.pexels.com/photos/230544/pexels-photo-230544.jpeg?auto=compress&cs=tinysrgb&w=800',
-    details: 'Led end-to-end testing for a major e-commerce platform, ensuring seamless user experience across web and mobile platforms. Implemented automated test suites that reduced manual testing time by 60%.'
+    details: 'Desenvolvimento de casos de teste para funcionalidades básicas de e-commerce, incluindo cadastro, login e carrinho de compras. Foco no aprendizado de metodologias de teste.'
   },
   {
     id: '2',
-    name: 'Mobile Banking App',
-    company: 'FinanceBank',
-    type: 'Security Testing',
-    technologies: ['Appium', 'OWASP ZAP', 'Burp Suite', 'Postman'],
-    description: 'Security and performance testing for mobile banking application.',
+    name: 'Simulação - App Mobile',
+    company: 'Projeto de Curso',
+    type: 'Mobile Testing',
+    technologies: ['Appium', 'Android Studio'],
+    description: 'Simulação de testes em aplicativo mobile para aprendizado de ferramentas.',
     image: 'https://images.pexels.com/photos/4386321/pexels-photo-4386321.jpeg?auto=compress&cs=tinysrgb&w=800',
-    details: 'Conducted thorough security testing for mobile banking app, identifying and helping resolve critical vulnerabilities. Performed penetration testing and ensured compliance with financial regulations.'
+    details: 'Projeto prático do curso de QA focado em testes de aplicações mobile, explorando diferentes cenários de uso e validação de interface.'
   },
   {
     id: '3',
-    name: 'Healthcare Management System',
-    company: 'MedTech Solutions',
+    name: 'Estudo de API Testing',
+    company: 'Autoestudo',
     type: 'API Testing',
-    technologies: ['REST Assured', 'Java', 'Newman', 'Docker'],
-    description: 'API testing and integration testing for healthcare management platform.',
+    technologies: ['Postman', 'Newman'],
+    description: 'Projeto pessoal para aprender testes de API e integração.',
     image: 'https://images.pexels.com/photos/40568/medical-appointment-doctor-healthcare-40568.jpeg?auto=compress&cs=tinysrgb&w=800',
-    details: 'Designed and executed comprehensive API testing strategy for healthcare management system, ensuring data integrity and HIPAA compliance across all endpoints.'
-  },
-  {
-    id: '4',
-    name: 'SaaS Dashboard',
-    company: 'CloudTech',
-    type: 'Performance Testing',
-    technologies: ['JMeter', 'LoadRunner', 'Grafana', 'New Relic'],
-    description: 'Performance and load testing for SaaS analytics dashboard.',
-    image: 'https://images.pexels.com/photos/590041/pexels-photo-590041.jpeg?auto=compress&cs=tinysrgb&w=800',
-    details: 'Executed performance testing strategy that optimized system response times by 40% and improved user satisfaction scores. Analyzed bottlenecks and provided actionable recommendations.'
+    details: 'Estudo prático de testes de API utilizando Postman, criação de coleções de testes e automação básica com Newman.'
   }
 ];
 
 export const certificates: Certificate[] = [
   {
-    id: '1',
-    name: 'ISTQB Foundation Level',
-    issuer: 'ISTQB',
-    date: '2023',
-    image: 'https://images.pexels.com/photos/267507/pexels-photo-267507.jpeg?auto=compress&cs=tinysrgb&w=400',
-    category: 'Testing'
-  },
-  {
-    id: '2',
-    name: 'Certified Agile Testing',
-    issuer: 'Agile Alliance',
-    date: '2023',
-    image: 'https://images.pexels.com/photos/1181677/pexels-photo-1181677.jpeg?auto=compress&cs=tinysrgb&w=400',
-    category: 'Agile'
-  },
-  {
     id: '3',
-    name: 'Selenium WebDriver',
-    issuer: 'Mate Academy',
-    date: '2024',
-    image: 'https://images.pexels.com/photos/1181244/pexels-photo-1181244.jpeg?auto=compress&cs=tinysrgb&w=400',
-    category: 'Automation'
+    name: 'CURSO SUPERIOR DE TECNOLOGIA EM GESTÃO COMERCIAL',
+    issuer: 'Estácio',
+    date: '2023',
+    image: 'https://media.licdn.com/dms/image/v2/D4D2DAQF8bLpce7587w/profile-treasury-document-cover-images_480/B4DZe32cusH4A4-/0/1751136194549?e=1751742000&v=beta&t=flR49sD5OZCLM3DiBEOwQEE9B0foXkOG-8fUyn1t30M',
+    category: 'Higher Education',
+    description: 'Diploma de curso superior em gestão comercial e estratégias de negócios.',
+    skills: ['Gestão Comercial', 'Estratégias de Negócio', 'Liderança', 'Análise de Mercado']
   },
   {
     id: '4',
-    name: 'API Testing with Postman',
-    issuer: 'Postman',
+    name: 'MOBILE TESTING',
+    issuer: 'Mate Academy',
     date: '2024',
-    image: 'https://images.pexels.com/photos/1181345/pexels-photo-1181345.jpeg?auto=compress&cs=tinysrgb&w=400',
-    category: 'API Testing'
+    image: 'https://media.licdn.com/dms/image/v2/D4D2DAQE1EOxbdgl4GA/profile-treasury-document-cover-images_480/B4DZe32TmLHkBE-/0/1751136157019?e=1751742000&v=beta&t=v0CQ3LIWz88KE8dszedRB1dKRY3gMGPkETYm-AKoswA',
+    category: 'QA',
+    description: 'Certificação em testes de aplicações móveis, cobrindo metodologias e ferramentas específicas.',
+    skills: ['Mobile Testing', 'Appium', 'Device Testing', 'UI/UX Testing']
+  },
+  {
+    id: '5',
+    name: 'GENAI ESSENTIALS',
+    issuer: 'Mate Academy',
+    date: '2024',
+    image: 'https://media.licdn.com/dms/image/v2/D4D2DAQGyIaT_QCzpWQ/profile-treasury-document-cover-images_480/B4DZe315TEHAAw-/0/1751136049209?e=1751742000&v=beta&t=wqUg6ERHWfYlbfWQBtN9Y2m6ioz0w26SSMUd7rUcj0I',
+    category: 'AI',
+    description: 'Fundamentos de Inteligência Artificial Generativa e suas aplicações práticas.',
+    skills: ['Inteligência Artificial', 'Machine Learning', 'GenAI', 'Automação Inteligente']
+  },
+  {
+    id: '6',
+    name: 'COMUNICAÇÃO EM NEGÓCIOS E MÍDIAS SOCIAIS',
+    issuer: 'Mate Academy',
+    date: '2024',
+    image: 'https://media.licdn.com/dms/image/v2/D4D2DAQGeyTxppomi2Q/profile-treasury-document-cover-images_480/B4DZaEdfrKGcAw-/0/1745979048272?e=1751742000&v=beta&t=VwOMxtBmeI916CwPv9KZLTf0XFfllljb9rRF75UTTBg',
+    category: 'Business',
+    description: 'Certificação em comunicação empresarial e estratégias de mídias sociais para negócios.',
+    skills: ['Comunicação Empresarial', 'Marketing Digital', 'Mídias Sociais', 'Estratégias de Conteúdo']
+  },
+  {
+    id: '7',
+    name: 'COURSE FUNDAMENTALS',
+    issuer: 'Mate Academy',
+    date: '2024',
+    image: 'https://media.licdn.com/dms/image/v2/D4D2DAQEi7HkUhgIvcQ/profile-treasury-document-cover-images_480/B4DZaEelAPG8Aw-/0/1745979331461?e=1751742000&v=beta&t=Tah2hBhIu7o7JzEOwOF4My2EJQzqAm-avRwOaKU-DtU',
+    category: 'Foundation',
+    description: 'Fundamentos essenciais para desenvolvimento de carreira em tecnologia.',
+    skills: ['Fundamentos de TI', 'Metodologias', 'Planejamento de Carreira', 'Soft Skills']
+  },
+  {
+    id: '8',
+    name: 'GENERAL ESSENTIALS',
+    issuer: 'Mate Academy',
+    date: '2024',
+    image: 'https://media.licdn.com/dms/image/v2/D4D2DAQEi7HkUhgIvcQ/profile-treasury-document-cover-images_480/B4DZaEelAPG8Aw-/0/1745979331461?e=1751742000&v=beta&t=Tah2hBhIu7o7JzEOwOF4My2EJQzqAm-avRwOaKU-DtU',
+    category: 'Foundation',
+    description: 'Conhecimentos essenciais gerais para profissionais de tecnologia.',
+    skills: ['Conhecimentos Gerais', 'Fundamentos', 'Metodologias', 'Boas Práticas']
+  },
+  {
+    id: '9',
+    name: 'GESTÃO DE PROJETOS DE SUSTENTABILIDADE',
+    issuer: 'Mate Academy',
+    date: '2024',
+    image: 'https://media.licdn.com/dms/image/v2/D4D2DAQE8MHpbIlhPHw/profile-treasury-document-images_800/B4DZaEdYugG0Ak-/1/1745979020047?e=1752105600&v=beta&t=aTezXDtJk4WcsnN5RAT58lAwMk-EtSrONU-LQKmlo_4',
+    category: 'Sustainability',
+    description: 'Certificação em gestão de projetos com foco em sustentabilidade ambiental.',
+    skills: ['Gestão de Projetos', 'Sustentabilidade', 'ESG', 'Responsabilidade Social']
+  },
+  {
+    id: '10',
+    name: 'GIT AND TERMINAL — PRACTICE',
+    issuer: 'Mate Academy',
+    date: '2024',
+    image: 'https://media.licdn.com/dms/image/v2/D4D2DAQFhsJ6tCuUKgw/profile-treasury-document-cover-images_480/B4DZaEd4VPH4Aw-/0/1745979148564?e=1751742000&v=beta&t=jPDj1ps0UKDyBQAOaRrBjtNUqUdUNrqXstaX7tHWG3g',
+    category: 'Development',
+    description: 'Certificação prática em controle de versão Git e uso de terminal.',
+    skills: ['Git', 'Terminal', 'Controle de Versão', 'Command Line']
+  },
+  {
+    id: '11',
+    name: 'HOW THE WEB WORKS',
+    issuer: 'Mate Academy',
+    date: '2024',
+    image: 'https://media.licdn.com/dms/image/v2/D4D2DAQGQQSwF09GY8A/profile-treasury-document-cover-images_480/B4DZaEdvEzGsAw-/0/1745979110663?e=1751742000&v=beta&t=hC-NWqmHaxrHKl8SzyLv-oxBW9qlZ81ClhkQfpAt0II',
+    category: 'Web Development',
+    description: 'Fundamentos sobre como a web funciona, protocolos e arquiteturas.',
+    skills: ['HTTP/HTTPS', 'DNS', 'Arquitetura Web', 'Protocolos de Rede']
+  },
+  {
+    id: '12',
+    name: 'HTML + CSS BASICS',
+    issuer: 'Mate Academy',
+    date: '2024',
+    image: 'https://media.licdn.com/dms/image/v2/D4D2DAQEfTNzWgYCffg/profile-treasury-document-cover-images_480/B4DZaSQByDHQAw-/0/1746210398224?e=1751742000&v=beta&t=X7Xjs1Wp8gUX44xiIh6TomfHg6rtqM53lBp6wZ6Oi18',
+    category: 'Web Development',
+    description: 'Fundamentos de HTML e CSS para desenvolvimento web.',
+    skills: ['HTML5', 'CSS3', 'Responsive Design', 'Web Standards']
+  },
+  {
+    id: '13',
+    name: 'JAVASCRIPT BASICS EXTENDED',
+    issuer: 'Mate Academy',
+    date: '2024',
+    image: 'https://media.licdn.com/dms/image/v2/D4D2DAQEgAYVfzfW0cA/profile-treasury-document-cover-images_480/B4DZadQp5EGwAw-/0/1746395111922?e=1751742000&v=beta&t=q3ZKeE_ZhRorYfvBvbF3NUQMGDYS2gcKPQdsm6AZmF8',
+    category: 'Programming',
+    description: 'Conceitos avançados de JavaScript para desenvolvimento web moderno.',
+    skills: ['JavaScript ES6+', 'DOM Manipulation', 'Async/Await', 'Modern JS']
+  },
+  {
+    id: '14',
+    name: 'JAVASCRIPT BASICS',
+    issuer: 'Mate Academy',
+    date: '2024',
+    image: 'https://media.licdn.com/dms/image/v2/D4D2DAQGPAjIOv7EA8g/profile-treasury-document-cover-images_480/B4DZaEc6bxG8A0-/0/1745978895074?e=1751742000&v=beta&t=E35klWdhbZoY2CDRVygG6K7aPrDmWsqyYaXFDhqOXX8',
+    category: 'Programming',
+    description: 'Fundamentos da linguagem JavaScript para iniciantes.',
+    skills: ['JavaScript', 'Variáveis', 'Funções', 'Estruturas de Controle']
+  },
+  {
+    id: '15',
+    name: 'QA ETHICS',
+    issuer: 'Mate Academy',
+    date: '2024',
+    image: 'https://media.licdn.com/dms/image/v2/D4D2DAQEeutMYJKN3rQ/profile-treasury-document-cover-images_480/B4DZb59Q9mHEA4-/0/1747950310333?e=1751742000&v=beta&t=OpFvtNiAdp4ivgBO8Ku4gF72uSew3eBBEzUU3YcN2Yw',
+    category: 'QA',
+    description: 'Ética profissional e responsabilidades em Quality Assurance.',
+    skills: ['Ética Profissional', 'Responsabilidade', 'Confidencialidade', 'Integridade']
+  },
+  {
+    id: '16',
+    name: 'QA THEORY',
+    issuer: 'Mate Academy',
+    date: '2024',
+    image: 'https://media.licdn.com/dms/image/v2/D4D2DAQEi7HkUhgIvcQ/profile-treasury-document-cover-images_480/B4DZaEelAPG8Aw-/0/1745979331461?e=1751742000&v=beta&t=Tah2hBhIu7o7JzEOwOF4My2EJQzqAm-avRwOaKU-DtU',
+    category: 'QA',
+    description: 'Teoria fundamental de Quality Assurance e metodologias de teste.',
+    skills: ['Teoria de QA', 'Metodologias de Teste', 'Ciclo de Vida', 'Documentação']
+  },
+  {
+    id: '17',
+    name: 'SQL BASICS',
+    issuer: 'Mate Academy',
+    date: '2024',
+    image: 'https://media.licdn.com/dms/image/v2/D4D2DAQFM5zfA_DEZcQ/profile-treasury-document-cover-images_480/B4DZaEdLBrG0Aw-/0/1745978962970?e=1751742000&v=beta&t=Tlkx2zF9dzCdQ7OZhOALicFFkDQKPCzTAzHpFl3w7iI',
+    category: 'Database',
+    description: 'Fundamentos de SQL para manipulação e consulta de bancos de dados.',
+    skills: ['SQL', 'Consultas', 'Joins', 'Database Design']
+  },
+  {
+    id: '18',
+    name: 'TESTING WEB APPLICATIONS',
+    issuer: 'Mate Academy',
+    date: '2024',
+    image: 'https://media.licdn.com/dms/image/v2/D4D2DAQEOT5f5Oe8Jeg/profile-treasury-document-cover-images_480/B4DZayYxRYGwAw-/0/1746749560887?e=1751742000&v=beta&t=Pkdm83QAhOiW5I0dgSJQhL0Z_4cDj_kybq5Pw3mvqbI',
+    category: 'QA',
+    description: 'Técnicas específicas para teste de aplicações web modernas.',
+    skills: ['Web Testing', 'Cross-browser Testing', 'UI Testing', 'Functional Testing']
+  },
+  {
+    id: '19',
+    name: 'WORKING WITH INFRASTRUCTURE',
+    issuer: 'Mate Academy',
+    date: '2024',
+    image: 'https://media.licdn.com/dms/image/v2/D4D2DAQFrPyKART8jPA/profile-treasury-document-images_800/B4DZdwqauSGsAo-/1/1749941858066?e=1752105600&v=beta&t=1ByL-ycMXFNbP-r8V8LLS6QIYiiRE_09L9sMQ6qRTcs',
+    category: 'Infrastructure',
+    description: 'Conhecimentos sobre infraestrutura e DevOps para QA.',
+    skills: ['DevOps', 'CI/CD', 'Docker', 'Cloud Infrastructure']
   }
 ];
 
 export const technicalSkills: Skill[] = [
-  { name: 'Test Automation', level: 90, icon: 'Bot' },
-  { name: 'Manual Testing', level: 95, icon: 'Search' },
-  { name: 'API Testing', level: 85, icon: 'Globe' },
-  { name: 'Performance Testing', level: 80, icon: 'Zap' },
-  { name: 'Security Testing', level: 75, icon: 'Shield' },
-  { name: 'Mobile Testing', level: 85, icon: 'Smartphone' }
+  { name: 'Manual Testing', level: 75, icon: 'Search' },
+  { name: 'Test Documentation', level: 80, icon: 'Bot' },
+  { name: 'Bug Reporting', level: 85, icon: 'Globe' },
+  { name: 'Basic Automation', level: 60, icon: 'Zap' },
+  { name: 'API Testing', level: 65, icon: 'Shield' },
+  { name: 'Mobile Testing', level: 70, icon: 'Smartphone' }
 ];
 
 export const softSkills: Skill[] = [
-  { name: 'Problem Solving', level: 95, icon: 'Lightbulb' },
-  { name: 'Team Collaboration', level: 90, icon: 'Users' },
-  { name: 'Communication', level: 90, icon: 'MessageCircle' },
-  { name: 'Critical Thinking', level: 85, icon: 'Brain' },
-  { name: 'Attention to Detail', level: 95, icon: 'Eye' },
-  { name: 'Time Management', level: 85, icon: 'Clock' }
+  { name: 'Atenção aos Detalhes', level: 90, icon: 'Eye' },
+  { name: 'Comunicação', level: 85, icon: 'MessageCircle' },
+  { name: 'Organização', level: 88, icon: 'Users' },
+  { name: 'Pensamento Analítico', level: 80, icon: 'Brain' },
+  { name: 'Vontade de Aprender', level: 95, icon: 'Lightbulb' },
+  { name: 'Trabalho em Equipe', level: 85, icon: 'Clock' }
 ];
