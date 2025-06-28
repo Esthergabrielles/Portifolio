@@ -1,22 +1,40 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useDarkMode } from './hooks/useDarkMode';
 import WelcomeScreen from './components/WelcomeScreen';
 import Header from './components/Header';
 import Hero from './components/Hero';
 import About from './components/About';
+import Services from './components/Services';
 import Projects from './components/Projects';
+import Process from './components/Process';
 import Skills from './components/Skills';
-import Certificates from './components/Certificates';
+import Testimonials from './components/Testimonials';
+import Achievements from './components/Achievements';
 import Contact from './components/Contact';
 import BackToTop from './components/BackToTop';
+import LoadingScreen from './components/LoadingScreen';
 
 function App() {
   const { isDark, toggleDarkMode } = useDarkMode();
   const [showWelcome, setShowWelcome] = useState(true);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    // Simulate loading time for assets
+    const timer = setTimeout(() => {
+      setIsLoading(false);
+    }, 2000);
+
+    return () => clearTimeout(timer);
+  }, []);
 
   const handleWelcomeComplete = () => {
     setShowWelcome(false);
   };
+
+  if (isLoading) {
+    return <LoadingScreen />;
+  }
 
   return (
     <>
@@ -28,38 +46,63 @@ function App() {
         <Header isDark={isDark} toggleDarkMode={toggleDarkMode} />
         <Hero />
         <About />
+        <Services />
         <Projects />
+        <Process />
         <Skills />
-        <Certificates />
+        <Testimonials />
+        <Achievements />
         <Contact />
         <BackToTop />
         
-        {/* Enhanced Footer */}
-        <footer className="bg-gradient-to-br from-neutral-900 via-black to-neutral-800 text-white section-spacing relative overflow-hidden">
+        {/* Premium Footer */}
+        <footer className="bg-gradient-to-br from-slate-900 via-slate-800 to-black text-white section-spacing relative overflow-hidden">
           {/* Background Pattern */}
-          <div className="absolute inset-0 opacity-10">
-            <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_70%,rgba(47,128,237,0.1),transparent_50%)]" />
+          <div className="absolute inset-0 opacity-5">
+            <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_70%,rgba(99,102,241,0.1),transparent_50%)]" />
+            <div className="absolute inset-0 bg-[linear-gradient(45deg,transparent_48%,rgba(99,102,241,0.03)_49%,rgba(99,102,241,0.03)_51%,transparent_52%)] bg-[length:20px_20px]" />
           </div>
           
           <div className="container-12 relative z-10">
             <div className="col-span-12 text-center">
-              <div className="mb-8">
-                <div className="bg-gradient-to-br from-primary-500 to-primary-600 text-white w-16 h-16 rounded-2xl flex items-center justify-center font-poppins font-bold text-2xl mx-auto mb-6 shadow-2xl">
+              <div className="mb-12">
+                <div className="bg-gradient-to-br from-indigo-500 to-purple-600 text-white w-20 h-20 rounded-3xl flex items-center justify-center font-poppins font-bold text-3xl mx-auto mb-8 shadow-2xl">
                   ES
                 </div>
-                <h3 className="text-2xl font-poppins font-bold mb-4">Esther Souza</h3>
-                <p className="text-neutral-400 font-inter text-lg max-w-2xl mx-auto leading-relaxed">
-                  QA Engineer dedicada a garantir excelência em produtos digitais através de 
-                  testes rigorosos e metodologias ágeis.
+                <h3 className="text-3xl font-poppins font-bold mb-6">Esther Souza</h3>
+                <p className="text-slate-300 font-inter text-xl max-w-3xl mx-auto leading-relaxed mb-8">
+                  QA Engineer especializada em transformar ideias em produtos digitais excepcionais 
+                  através de testes rigorosos e metodologias ágeis de ponta.
                 </p>
+                
+                {/* Social Links */}
+                <div className="flex justify-center gap-6 mb-12">
+                  {[
+                    { name: 'LinkedIn', href: '#', icon: '💼' },
+                    { name: 'GitHub', href: '#', icon: '🔗' },
+                    { name: 'Email', href: '#', icon: '📧' }
+                  ].map((social, index) => (
+                    <a
+                      key={index}
+                      href={social.href}
+                      className="w-12 h-12 bg-slate-800/50 backdrop-blur-sm border border-slate-700 rounded-xl flex items-center justify-center text-xl hover:bg-indigo-500 hover:border-indigo-400 transition-all duration-300 hover:scale-110"
+                      aria-label={social.name}
+                    >
+                      {social.icon}
+                    </a>
+                  ))}
+                </div>
               </div>
               
-              <div className="border-t border-neutral-700 pt-8">
-                <p className="text-neutral-400 font-inter">
-                  © 2024 Esther Souza. Desenvolvido com ❤️ e atenção aos detalhes. 
-                  <br className="sm:hidden" />
-                  <span className="text-primary-400 font-medium">Qualidade em cada pixel.</span>
-                </p>
+              <div className="border-t border-slate-700 pt-8">
+                <div className="flex flex-col md:flex-row justify-between items-center gap-4">
+                  <p className="text-slate-400 font-inter">
+                    © 2024 Esther Souza. Todos os direitos reservados.
+                  </p>
+                  <p className="text-slate-400 font-inter">
+                    Desenvolvido com <span className="text-red-400">❤️</span> e atenção aos detalhes
+                  </p>
+                </div>
               </div>
             </div>
           </div>
