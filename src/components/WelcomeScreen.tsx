@@ -1,66 +1,131 @@
-// components/WelcomeScreen.tsx
 import { motion, AnimatePresence } from "framer-motion";
 import { useEffect, useState } from "react";
 
-export default function WelcomeScreen() {
+interface WelcomeScreenProps {
+  onComplete: () => void;
+}
+
+export default function WelcomeScreen({ onComplete }: WelcomeScreenProps) {
   const [showWelcome, setShowWelcome] = useState(true);
 
   useEffect(() => {
-    const timer = setTimeout(() => setShowWelcome(false), 5600);
+    const timer = setTimeout(() => {
+      setShowWelcome(false);
+      setTimeout(onComplete, 800);
+    }, 4200);
     return () => clearTimeout(timer);
-  }, []);
+  }, [onComplete]);
 
   return (
     <AnimatePresence>
       {showWelcome && (
-        <div className="h-screen w-full relative overflow-hidden font-sans bg-black">
-          {/* Background Image */}
+        <motion.div
+          initial={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.8, ease: "easeInOut" }}
+          className="fixed inset-0 z-50 h-screen w-full overflow-hidden bg-gradient-to-br from-neutral-900 via-neutral-800 to-black"
+        >
+          {/* Background Image with Overlay */}
           <motion.div
             initial={{ scale: 1.1, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 2.4, ease: "easeInOut" }}
-            className="absolute top-0 left-0 w-full h-full z-0 bg-cover bg-center"
+            animate={{ scale: 1, opacity: 0.3 }}
+            transition={{ duration: 2, ease: "easeOut" }}
+            className="absolute inset-0 bg-cover bg-center bg-no-repeat"
             style={{
-              backgroundImage:
-                "url('https://images.unsplash.com/photo-1503264116251-35a269479413?auto=format&fit=crop&w=1950&q=80')",
+              backgroundImage: "url('https://images.pexels.com/photos/3184306/pexels-photo-3184306.jpeg?auto=compress&cs=tinysrgb&w=1920&h=1080&fit=crop')",
             }}
           />
 
-          {/* Vertical Wipe to Half-Screen with gradient and blur */}
-          <motion.div
-            initial={{ x: "100%" }}
-            animate={{ x: "50%" }}
-            exit={{ x: "-100%" }}
-            transition={{ duration: 1.5, ease: "easeInOut", delay: 1.2 }}
-            className="absolute top-0 left-0 w-1/2 h-full z-20 bg-gradient-to-br from-white to-neutral-200 backdrop-blur-lg shadow-2xl"
-          >
-            <div className="flex items-center justify-center h-full">
-              <motion.div
-                initial={{ opacity: 0, y: 30 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 1.2, ease: "easeOut", delay: 2 }}
-                className="text-center"
-              >
-                <h1 className="text-black text-6xl md:text-8xl font-extrabold tracking-widest uppercase drop-shadow-md">
-                  Welcome
-                </h1>
-                <p className="mt-4 text-black/60 text-lg md:text-xl tracking-wide italic">
-                  Let’s build something extraordinary
-                </p>
-              </motion.div>
-            </div>
-          </motion.div>
+          {/* Gradient Overlay */}
+          <div className="absolute inset-0 bg-gradient-to-br from-neutral-900/90 via-neutral-800/80 to-black/90" />
 
-          {/* Subtle vignette fade */}
+          {/* Content Container */}
+          <div className="relative z-10 flex h-full items-center justify-center">
+            <motion.div
+              initial={{ opacity: 0, y: 40 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 1.2, ease: "easeOut", delay: 0.5 }}
+              className="text-center"
+            >
+              {/* Main Title */}
+              <motion.h1
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 1, delay: 1 }}
+                className="mb-6 font-poppins text-6xl font-bold tracking-wide text-white md:text-8xl"
+              >
+                Esther
+                <motion.span
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ duration: 0.8, delay: 1.5 }}
+                  className="ml-4 text-primary-400"
+                >
+                  Souza
+                </motion.span>
+              </motion.h1>
+
+              {/* Subtitle */}
+              <motion.p
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.8, delay: 2 }}
+                className="mb-8 font-inter text-xl tracking-wide text-neutral-300 md:text-2xl"
+              >
+                QA Engineer
+              </motion.p>
+
+              {/* Animated Line */}
+              <motion.div
+                initial={{ width: 0 }}
+                animate={{ width: "200px" }}
+                transition={{ duration: 1, delay: 2.5 }}
+                className="mx-auto h-0.5 bg-gradient-to-r from-transparent via-primary-400 to-transparent"
+              />
+
+              {/* Tagline */}
+              <motion.p
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ duration: 0.8, delay: 3 }}
+                className="mt-6 font-inter text-sm uppercase tracking-widest text-neutral-400"
+              >
+                Garantindo Excelência em Cada Detalhe
+              </motion.p>
+            </motion.div>
+          </div>
+
+          {/* Subtle Particles Effect */}
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ delay: 4.5, duration: 1 }}
-            className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/80 z-30"
-          />
-        </div>
+            transition={{ delay: 1, duration: 2 }}
+            className="absolute inset-0 overflow-hidden"
+          >
+            {[...Array(20)].map((_, i) => (
+              <motion.div
+                key={i}
+                initial={{ opacity: 0, y: 100 }}
+                animate={{ 
+                  opacity: [0, 1, 0],
+                  y: -100,
+                  x: Math.random() * 100 - 50
+                }}
+                transition={{
+                  duration: 3 + Math.random() * 2,
+                  delay: Math.random() * 2,
+                  repeat: Infinity,
+                  repeatDelay: Math.random() * 3
+                }}
+                className="absolute h-1 w-1 rounded-full bg-primary-400/30"
+                style={{
+                  left: `${Math.random() * 100}%`,
+                  top: '100%'
+                }}
+              />
+            ))}
+          </motion.div>
+        </motion.div>
       )}
     </AnimatePresence>
   );

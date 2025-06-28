@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Menu, X } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useScrollPosition } from '../hooks/useScrollPosition';
 import DarkModeToggle from './DarkModeToggle';
 
@@ -40,85 +41,155 @@ const Header: React.FC<HeaderProps> = ({ isDark, toggleDarkMode }) => {
   }, [isMenuOpen]);
 
   return (
-    <header className={`fixed top-0 left-0 right-0 z-40 transition-all duration-300 ${
-      isScrolled 
-        ? 'glass-card shadow-lg' 
-        : 'bg-transparent'
-    }`}>
+    <motion.header
+      initial={{ y: -100 }}
+      animate={{ y: 0 }}
+      transition={{ duration: 0.6, ease: "easeOut" }}
+      className={`fixed top-0 left-0 right-0 z-40 transition-all duration-500 ${
+        isScrolled 
+          ? 'bg-neutral-900/95 backdrop-blur-lg border-b border-neutral-800 shadow-2xl' 
+          : 'bg-transparent'
+      }`}
+    >
       <div className="container-12">
-        <div className="col-span-12 flex items-center justify-between h-16">
+        <div className="col-span-12 flex items-center justify-between h-20">
           {/* Logo */}
-          <div className="flex-shrink-0">
-            <div className="bg-primary-500 text-white w-12 h-12 rounded-full flex items-center justify-center font-poppins font-bold text-lg hover:scale-105 transition-transform duration-300 cursor-pointer shadow-lg">
-              ES
+          <motion.div 
+            className="flex-shrink-0"
+            whileHover={{ scale: 1.05 }}
+            transition={{ duration: 0.2 }}
+          >
+            <div className="relative">
+              <div className="bg-gradient-to-br from-primary-500 to-primary-600 text-white w-14 h-14 rounded-xl flex items-center justify-center font-poppins font-bold text-xl shadow-lg cursor-pointer">
+                ES
+              </div>
+              <div className="absolute inset-0 bg-gradient-to-br from-primary-400 to-primary-500 rounded-xl blur opacity-30 -z-10" />
             </div>
-          </div>
+          </motion.div>
 
           {/* Desktop Navigation */}
           <nav className="hidden md:flex space-x-8">
-            {menuItems.map((item) => (
-              <button
+            {menuItems.map((item, index) => (
+              <motion.button
                 key={item.href}
                 onClick={() => handleMenuClick(item.href)}
-                className="text-neutral-700 dark:text-neutral-300 hover:text-primary-500 dark:hover:text-primary-400 transition-colors duration-300 font-inter font-medium relative group"
+                className="relative text-neutral-300 hover:text-white transition-colors duration-300 font-inter font-medium text-lg group"
+                initial={{ opacity: 0, y: -20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: index * 0.1 }}
+                whileHover={{ y: -2 }}
               >
                 {item.label}
-                <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-primary-500 transition-all duration-300 group-hover:w-full"></span>
-              </button>
+                <motion.span 
+                  className="absolute -bottom-2 left-0 h-0.5 bg-gradient-to-r from-primary-400 to-primary-600 rounded-full"
+                  initial={{ width: 0 }}
+                  whileHover={{ width: '100%' }}
+                  transition={{ duration: 0.3 }}
+                />
+              </motion.button>
             ))}
           </nav>
 
           {/* Right side */}
           <div className="flex items-center space-x-4">
             <DarkModeToggle isDark={isDark} toggle={toggleDarkMode} />
-            <button
+            <motion.button
               onClick={() => handleMenuClick('#contact')}
-              className="hidden md:block bg-primary-500 text-white px-6 py-2 rounded-lg hover:bg-primary-600 transition-all duration-300 font-inter font-medium shadow-lg hover:shadow-xl hover:scale-105"
+              className="hidden md:block relative bg-gradient-to-r from-primary-500 to-primary-600 text-white px-6 py-3 rounded-xl font-inter font-semibold shadow-lg overflow-hidden group"
+              whileHover={{ scale: 1.05, y: -2 }}
+              whileTap={{ scale: 0.98 }}
+              transition={{ duration: 0.2 }}
             >
-              Contrate-me
-            </button>
+              <span className="relative z-10">Contrate-me</span>
+              <motion.div
+                className="absolute inset-0 bg-gradient-to-r from-primary-600 to-primary-700"
+                initial={{ x: '-100%' }}
+                whileHover={{ x: 0 }}
+                transition={{ duration: 0.3 }}
+              />
+            </motion.button>
 
             {/* Mobile menu button */}
-            <button
+            <motion.button
               onClick={() => setIsMenuOpen(!isMenuOpen)}
-              className={`md:hidden p-2 rounded-lg glass-card hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-all duration-300 ${isMenuOpen ? 'hamburger-open' : ''}`}
+              className="md:hidden p-3 rounded-xl bg-neutral-800/50 backdrop-blur-sm border border-neutral-700 text-neutral-300 hover:text-white transition-all duration-300"
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
               aria-label="Toggle menu"
             >
-              <div className="w-6 h-6 flex flex-col justify-center items-center">
-                <span className="hamburger-line w-6 h-0.5 bg-neutral-700 dark:bg-neutral-300 block mb-1"></span>
-                <span className="hamburger-line w-6 h-0.5 bg-neutral-700 dark:bg-neutral-300 block mb-1"></span>
-                <span className="hamburger-line w-6 h-0.5 bg-neutral-700 dark:bg-neutral-300 block"></span>
-              </div>
-            </button>
+              <AnimatePresence mode="wait">
+                {isMenuOpen ? (
+                  <motion.div
+                    key="close"
+                    initial={{ rotate: -90, opacity: 0 }}
+                    animate={{ rotate: 0, opacity: 1 }}
+                    exit={{ rotate: 90, opacity: 0 }}
+                    transition={{ duration: 0.2 }}
+                  >
+                    <X className="w-6 h-6" />
+                  </motion.div>
+                ) : (
+                  <motion.div
+                    key="menu"
+                    initial={{ rotate: 90, opacity: 0 }}
+                    animate={{ rotate: 0, opacity: 1 }}
+                    exit={{ rotate: -90, opacity: 0 }}
+                    transition={{ duration: 0.2 }}
+                  >
+                    <Menu className="w-6 h-6" />
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </motion.button>
           </div>
         </div>
 
         {/* Mobile Navigation Overlay */}
-        {isMenuOpen && (
-          <div className="md:hidden fixed inset-0 top-16 bg-black bg-opacity-50 backdrop-blur-sm">
-            <div className="glass-card h-full w-full animate-fade-in">
-              <div className="p-6 space-y-4">
+        <AnimatePresence>
+          {isMenuOpen && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.3 }}
+              className="md:hidden fixed inset-0 top-20 bg-neutral-900/98 backdrop-blur-lg z-50"
+            >
+              <motion.div
+                initial={{ y: -50, opacity: 0 }}
+                animate={{ y: 0, opacity: 1 }}
+                exit={{ y: -50, opacity: 0 }}
+                transition={{ duration: 0.4, ease: "easeOut" }}
+                className="p-8 space-y-6"
+              >
                 {menuItems.map((item, index) => (
-                  <button
+                  <motion.button
                     key={item.href}
                     onClick={() => handleMenuClick(item.href)}
-                    className={`block w-full text-left px-4 py-3 text-neutral-700 dark:text-neutral-300 hover:text-primary-500 dark:hover:text-primary-400 hover:bg-neutral-100 dark:hover:bg-neutral-800 rounded-lg transition-all duration-300 font-inter font-medium animate-slide-up animate-stagger-${index + 1}`}
+                    className="block w-full text-left px-6 py-4 text-2xl text-neutral-300 hover:text-white hover:bg-neutral-800/50 rounded-xl transition-all duration-300 font-inter font-medium"
+                    initial={{ x: -50, opacity: 0 }}
+                    animate={{ x: 0, opacity: 1 }}
+                    transition={{ duration: 0.4, delay: index * 0.1 }}
+                    whileHover={{ x: 10 }}
                   >
                     {item.label}
-                  </button>
+                  </motion.button>
                 ))}
-                <button
+                <motion.button
                   onClick={() => handleMenuClick('#contact')}
-                  className="block w-full text-left px-4 py-3 mt-6 bg-primary-500 text-white rounded-lg hover:bg-primary-600 transition-all duration-300 font-inter font-medium animate-slide-up animate-stagger-4"
+                  className="block w-full text-left px-6 py-4 mt-8 bg-gradient-to-r from-primary-500 to-primary-600 text-white rounded-xl font-inter font-semibold text-xl"
+                  initial={{ x: -50, opacity: 0 }}
+                  animate={{ x: 0, opacity: 1 }}
+                  transition={{ duration: 0.4, delay: 0.5 }}
+                  whileHover={{ scale: 1.02 }}
                 >
                   Contrate-me
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
+                </motion.button>
+              </motion.div>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
-    </header>
+    </motion.header>
   );
 };
 
