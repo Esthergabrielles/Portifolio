@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { ArrowLeft, FileText, Code, TestTube, Bug, Download, ExternalLink, Calendar, User, Target, CheckCircle, Award, Zap, Shield, Eye, Play, Pause, RotateCcw } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Project } from '../types';
+import DocumentViewer from './DocumentViewer';
 
 interface ProjectDetailsPageProps {
   project: Project;
@@ -10,7 +11,8 @@ interface ProjectDetailsPageProps {
 
 const ProjectDetailsPage: React.FC<ProjectDetailsPageProps> = ({ project, onClose }) => {
   const [activeTab, setActiveTab] = useState<'overview' | 'documentation' | 'testing' | 'results'>('overview');
-  const [selectedDocument, setSelectedDocument] = useState<string | null>(null);
+  const [selectedDocument, setSelectedDocument] = useState<any>(null);
+  const [showDocumentViewer, setShowDocumentViewer] = useState(false);
 
   const tabs = [
     { id: 'overview', label: 'Visão Geral', icon: Eye, color: 'from-blue-500 to-blue-600' },
@@ -26,6 +28,8 @@ const ProjectDetailsPage: React.FC<ProjectDetailsPageProps> = ({ project, onClos
       description: 'Documento que define escopo, abordagem, recursos e cronograma dos testes',
       icon: FileText,
       template: 'Template_Plano_de_Teste.pdf',
+      url: 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf',
+      type: 'pdf' as const,
       color: 'from-blue-500 to-blue-600'
     },
     {
@@ -34,6 +38,8 @@ const ProjectDetailsPage: React.FC<ProjectDetailsPageProps> = ({ project, onClos
       description: 'Conjunto de condições e variáveis para validar um requisito',
       icon: CheckCircle,
       template: 'Template_Casos_de_Teste.xlsx',
+      url: 'https://file-examples.com/storage/fe68c8c7c66b2b9c7e8c7e8/2017/10/file_example_XLS_10.xls',
+      type: 'doc' as const,
       color: 'from-green-500 to-green-600'
     },
     {
@@ -42,6 +48,8 @@ const ProjectDetailsPage: React.FC<ProjectDetailsPageProps> = ({ project, onClos
       description: 'Documento detalhado de falhas encontradas durante os testes',
       icon: Bug,
       template: 'Template_Bug_Report.pdf',
+      url: 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf',
+      type: 'pdf' as const,
       color: 'from-red-500 to-red-600'
     },
     {
@@ -50,6 +58,8 @@ const ProjectDetailsPage: React.FC<ProjectDetailsPageProps> = ({ project, onClos
       description: 'Resultado consolidado da execução dos testes',
       icon: Play,
       template: 'Template_Execucao_Teste.pdf',
+      url: 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf',
+      type: 'pdf' as const,
       color: 'from-purple-500 to-purple-600'
     },
     {
@@ -58,6 +68,8 @@ const ProjectDetailsPage: React.FC<ProjectDetailsPageProps> = ({ project, onClos
       description: 'Mapeia requisitos com casos de teste para garantir cobertura',
       icon: Target,
       template: 'Template_RTM.xlsx',
+      url: 'https://file-examples.com/storage/fe68c8c7c66b2b9c7e8c7e8/2017/10/file_example_XLS_10.xls',
+      type: 'doc' as const,
       color: 'from-indigo-500 to-indigo-600'
     },
     {
@@ -66,6 +78,8 @@ const ProjectDetailsPage: React.FC<ProjectDetailsPageProps> = ({ project, onClos
       description: 'Passo a passo detalhado para executar um teste específico',
       icon: Code,
       template: 'Template_Procedimento_Teste.pdf',
+      url: 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf',
+      type: 'pdf' as const,
       color: 'from-cyan-500 to-cyan-600'
     }
   ];
@@ -104,13 +118,28 @@ const ProjectDetailsPage: React.FC<ProjectDetailsPageProps> = ({ project, onClos
     { metric: 'Cobertura de Testes', value: '89%', icon: Target, color: 'text-purple-500' }
   ];
 
+  const handleDocumentView = (doc: any) => {
+    setSelectedDocument({
+      id: doc.id,
+      name: doc.name,
+      url: doc.url,
+      type: doc.type,
+      description: doc.description
+    });
+    setShowDocumentViewer(true);
+  };
+
   const handleDocumentDownload = (template: string) => {
     // Simular download de template
     const link = document.createElement('a');
     link.href = '#';
     link.download = template;
-    // Em produção, aqui seria o link real para o arquivo
     alert(`Download iniciado: ${template}\n\nEm produção, este seria um arquivo real de template de documentação QA.`);
+  };
+
+  const closeDocumentViewer = () => {
+    setShowDocumentViewer(false);
+    setSelectedDocument(null);
   };
 
   return (
@@ -299,12 +328,11 @@ const ProjectDetailsPage: React.FC<ProjectDetailsPageProps> = ({ project, onClos
                   {documentationTypes.map((doc, index) => (
                     <motion.div
                       key={doc.id}
-                      className="bg-white/80 backdrop-blur-sm border border-neutral-200 rounded-2xl p-6 hover:shadow-xl transition-all duration-300 group cursor-pointer"
+                      className="bg-white/80 backdrop-blur-sm border border-neutral-200 rounded-2xl p-6 hover:shadow-xl transition-all duration-300 group"
                       initial={{ opacity: 0, y: 20 }}
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ duration: 0.5, delay: index * 0.1 }}
                       whileHover={{ y: -5, scale: 1.02 }}
-                      onClick={() => handleDocumentDownload(doc.template)}
                     >
                       <div className={`bg-gradient-to-r ${doc.color} w-16 h-16 rounded-2xl flex items-center justify-center mb-4 shadow-lg group-hover:scale-110 transition-transform duration-300`}>
                         <doc.icon className="w-8 h-8 text-white" />
@@ -314,18 +342,31 @@ const ProjectDetailsPage: React.FC<ProjectDetailsPageProps> = ({ project, onClos
                         {doc.name}
                       </h3>
                       
-                      <p className="text-neutral-600 mb-4 font-inter leading-relaxed">
+                      <p className="text-neutral-600 mb-6 font-inter leading-relaxed">
                         {doc.description}
                       </p>
                       
-                      <motion.button
-                        className="w-full bg-gradient-to-r from-neutral-100 to-neutral-200 text-neutral-700 py-3 px-4 rounded-xl font-inter font-semibold flex items-center justify-center gap-2 hover:from-primary-500 hover:to-primary-600 hover:text-white transition-all duration-300"
-                        whileHover={{ scale: 1.02 }}
-                        whileTap={{ scale: 0.98 }}
-                      >
-                        <Download className="w-5 h-5" />
-                        Download Template
-                      </motion.button>
+                      <div className="space-y-3">
+                        <motion.button
+                          onClick={() => handleDocumentView(doc)}
+                          className="w-full bg-gradient-to-r from-blue-500 to-blue-600 text-white py-3 px-4 rounded-xl font-inter font-semibold flex items-center justify-center gap-2 hover:from-blue-600 hover:to-blue-700 transition-all duration-300"
+                          whileHover={{ scale: 1.02 }}
+                          whileTap={{ scale: 0.98 }}
+                        >
+                          <Eye className="w-5 h-5" />
+                          Visualizar
+                        </motion.button>
+                        
+                        <motion.button
+                          onClick={() => handleDocumentDownload(doc.template)}
+                          className="w-full bg-gradient-to-r from-neutral-100 to-neutral-200 text-neutral-700 py-3 px-4 rounded-xl font-inter font-semibold flex items-center justify-center gap-2 hover:from-primary-500 hover:to-primary-600 hover:text-white transition-all duration-300"
+                          whileHover={{ scale: 1.02 }}
+                          whileTap={{ scale: 0.98 }}
+                        >
+                          <Download className="w-5 h-5" />
+                          Download Template
+                        </motion.button>
+                      </div>
                     </motion.div>
                   ))}
                 </div>
@@ -496,6 +537,13 @@ const ProjectDetailsPage: React.FC<ProjectDetailsPageProps> = ({ project, onClos
           </AnimatePresence>
         </div>
       </div>
+
+      {/* Document Viewer Modal */}
+      <DocumentViewer
+        document={selectedDocument}
+        isOpen={showDocumentViewer}
+        onClose={closeDocumentViewer}
+      />
     </motion.div>
   );
 };

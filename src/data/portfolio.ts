@@ -206,10 +206,10 @@ export const certificates: Certificate[] = [
   }
 ];
 
-// Logos oficiais de alta qualidade com URLs confiáveis
+// Logos oficiais de alta qualidade - URLs confiáveis e padronizados
 export const brandLogos: { [key: string]: string } = {
   // Instituições Educacionais
-  'Estácio': 'https://logoeps.com/wp-content/uploads/2013/03/estacio-vector-logo.png',
+  'Estácio': 'https://upload.wikimedia.org/wikipedia/commons/thumb/f/f7/Logo_Estacio.svg/200px-Logo_Estacio.svg.png',
   'Mate Academy': 'https://mate.academy/static/images/logo.svg',
   
   // Ferramentas QA e Gestão
@@ -241,41 +241,45 @@ export const brandLogos: { [key: string]: string } = {
   // Metodologias
   'Scrum': 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/trello/trello-plain.svg',
   
-  // Comunicação
-  'WhatsApp': 'https://upload.wikimedia.org/wikipedia/commons/6/6b/WhatsApp.svg'
+  // Automação
+  'Selenium': 'https://selenium.dev/images/selenium_logo_square_green.png',
+  'Appium': 'https://appium.io/docs/en/2.1/assets/images/appium-logo-horiz.png',
+  
+  // IDEs
+  'Android Studio': 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/androidstudio/androidstudio-original.svg',
+  
+  // Terminal
+  'Terminal': 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/bash/bash-original.svg'
 };
 
-// Mapeamento de logos das ferramentas com URLs de alta qualidade
+// Mapeamento de logos das ferramentas com URLs padronizados
 export const toolLogos: { [key: string]: string } = {
   // Ferramentas de QA e Gestão
-  'Jira': brandLogos['Jira'],
-  'TestRail': brandLogos['TestRail'],
+  'Jira': 'https://cdn.worldvectorlogo.com/logos/jira-1.svg',
+  'TestRail': 'https://www.gurock.com/images/brand/testrail-icon-color.svg',
   
   // Controle de Versão e Terminal
-  'Git / GitHub': brandLogos['Git'],
+  'Git / GitHub': 'https://git-scm.com/images/logos/downloads/Git-Icon-1788C.svg',
   'Terminal Unix / Bash': 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/bash/bash-original.svg',
   
   // Testes de API e Banco de Dados
-  'Postman': brandLogos['Postman'],
-  'DBeaver': brandLogos['DBeaver'],
-  'SQL': brandLogos['SQL'],
+  'Postman': 'https://www.vectorlogo.zone/logos/getpostman/getpostman-icon.svg',
+  'DBeaver': 'https://dbeaver.io/wp-content/uploads/2015/09/beaver-head.png',
+  'SQL': 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/mysql/mysql-original.svg',
   
   // Desenvolvimento Web
-  'Chrome DevTools': brandLogos['Chrome'],
-  'HTML / CSS': brandLogos['HTML'],
-  'JavaScript': brandLogos['JavaScript'],
+  'Chrome DevTools': 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/chrome/chrome-original.svg',
+  'HTML / CSS': 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/html5/html5-original.svg',
+  'JavaScript': 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/javascript/javascript-original.svg',
   
   // Dados e Formatos
   'XML / JSON': 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/json/json-original.svg',
   
   // Sistema Operacional
-  'Windows': brandLogos['Windows'],
+  'Windows': 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/windows8/windows8-original.svg',
   
   // Metodologias
-  'Scrum / Kanban': brandLogos['Scrum'],
-  
-  // WhatsApp para contato
-  'WhatsApp': brandLogos['WhatsApp']
+  'Scrum / Kanban': 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/trello/trello-plain.svg'
 };
 
 export const technicalSkills: Skill[] = [

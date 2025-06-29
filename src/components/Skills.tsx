@@ -65,46 +65,55 @@ const Skills: React.FC = () => {
     
     return (
       <motion.div 
-        className="bg-white/80 dark:bg-neutral-800/50 backdrop-blur-sm border border-neutral-200 dark:border-neutral-700 rounded-3xl p-6 shadow-lg hover:shadow-2xl transition-all duration-500 group"
+        className="bg-white/90 dark:bg-neutral-800/60 backdrop-blur-sm border border-neutral-200 dark:border-neutral-700 rounded-3xl p-8 shadow-xl hover:shadow-2xl transition-all duration-500 group"
         initial={{ opacity: 0, scale: 0.9 }}
         whileInView={{ opacity: 1, scale: 1 }}
         transition={{ duration: 0.6, delay: delay * 0.1 }}
         viewport={{ once: true }}
         whileHover={{ scale: 1.02, y: -8 }}
       >
-        <div className="flex items-center justify-between mb-6">
-          <div className="flex items-center gap-4">
+        <div className="flex items-center justify-between mb-8">
+          <div className="flex items-center gap-6">
             <motion.div 
-              className={`bg-gradient-to-r ${colors.bg} p-4 rounded-2xl shadow-lg group-hover:scale-110 transition-transform duration-300 relative overflow-hidden`}
+              className={`bg-gradient-to-r ${colors.bg} p-5 rounded-2xl shadow-lg group-hover:scale-110 transition-transform duration-300 relative overflow-hidden`}
               whileHover={{ rotate: 5 }}
             >
               {toolLogo ? (
-                <img 
-                  src={toolLogo} 
-                  alt={skill.name}
-                  className="w-7 h-7 object-contain"
-                  onError={(e) => {
-                    // Fallback para ícone se a imagem falhar
-                    const target = e.target as HTMLImageElement;
-                    target.style.display = 'none';
-                    target.nextElementSibling?.classList.remove('hidden');
-                  }}
-                />
-              ) : null}
-              <Icon className={`w-7 h-7 text-white ${toolLogo ? 'hidden' : ''}`} />
+                <div className="logo-container w-8 h-8">
+                  <img 
+                    src={toolLogo} 
+                    alt={skill.name}
+                    className="logo-image w-full h-full object-contain"
+                    onError={(e) => {
+                      // Fallback para ícone se a imagem falhar
+                      const target = e.target as HTMLImageElement;
+                      target.style.display = 'none';
+                      const fallback = target.parentElement?.querySelector('.logo-fallback');
+                      if (fallback) {
+                        (fallback as HTMLElement).style.display = 'flex';
+                      }
+                    }}
+                  />
+                  <div className="logo-fallback hidden">
+                    <Icon className="w-6 h-6" />
+                  </div>
+                </div>
+              ) : (
+                <Icon className="w-8 h-8 text-white" />
+              )}
             </motion.div>
             <div>
-              <h4 className="font-bold text-xl text-neutral-900 dark:text-white font-inter">
+              <h4 className="font-bold text-xl text-neutral-900 dark:text-white font-inter mb-2">
                 {skill.name}
               </h4>
-              <span className={`text-sm font-medium px-3 py-1 rounded-full ${colors.badge}`}>
+              <span className={`text-sm font-medium px-4 py-2 rounded-full ${colors.badge}`}>
                 {getSkillLabel(skill.level)}
               </span>
             </div>
           </div>
           <div className="text-right">
             <motion.span 
-              className={`text-3xl font-bold ${colors.text} font-poppins`}
+              className={`text-4xl font-bold ${colors.text} font-poppins`}
               initial={{ scale: 0 }}
               animate={{ scale: animated ? 1 : 0 }}
               transition={{ duration: 0.5, delay: 0.3 }}
@@ -115,9 +124,9 @@ const Skills: React.FC = () => {
         </div>
         
         <div className="relative">
-          <div className="w-full bg-neutral-200 dark:bg-neutral-700 rounded-full h-4 overflow-hidden shadow-inner">
+          <div className="progress-bar-premium w-full h-5 overflow-hidden shadow-inner">
             <motion.div 
-              className={`bg-gradient-to-r ${colors.bg} h-4 rounded-full shadow-sm relative overflow-hidden`}
+              className={`progress-fill-premium bg-gradient-to-r ${colors.bg} h-5 rounded-full shadow-sm relative overflow-hidden`}
               initial={{ width: 0 }}
               animate={{ width: animated ? `${skill.level}%` : '0%' }}
               transition={{ duration: 1.5, ease: "easeOut", delay: 0.5 }}
@@ -129,6 +138,15 @@ const Skills: React.FC = () => {
               />
             </motion.div>
           </div>
+          
+          {/* Progress milestones */}
+          <div className="flex justify-between mt-3 text-xs text-neutral-500 dark:text-neutral-400 font-inter">
+            <span>0%</span>
+            <span>25%</span>
+            <span>50%</span>
+            <span>75%</span>
+            <span>100%</span>
+          </div>
         </div>
       </motion.div>
     );
@@ -139,7 +157,7 @@ const Skills: React.FC = () => {
     
     return (
       <motion.div
-        className="bg-white/80 dark:bg-neutral-800/50 backdrop-blur-sm border border-neutral-200 dark:border-neutral-700 p-8 rounded-3xl shadow-lg hover:shadow-2xl transition-all duration-500 text-center group cursor-pointer relative overflow-hidden"
+        className="bg-white/90 dark:bg-neutral-800/60 backdrop-blur-sm border border-neutral-200 dark:border-neutral-700 p-10 rounded-3xl shadow-xl hover:shadow-2xl transition-all duration-500 text-center group cursor-pointer relative overflow-hidden"
         initial={{ opacity: 0, scale: 0.8 }}
         whileInView={{ opacity: 1, scale: 1 }}
         transition={{ duration: 0.5, delay: delay * 0.1 }}
@@ -153,22 +171,22 @@ const Skills: React.FC = () => {
         />
         
         <motion.div 
-          className="bg-gradient-to-br from-primary-500 to-primary-600 w-20 h-20 rounded-3xl flex items-center justify-center mx-auto mb-6 shadow-xl group-hover:shadow-2xl relative z-10"
+          className="bg-gradient-to-br from-primary-500 to-primary-600 w-24 h-24 rounded-3xl flex items-center justify-center mx-auto mb-8 shadow-xl group-hover:shadow-2xl relative z-10"
           whileHover={{ rotate: 10, scale: 1.1 }}
           transition={{ duration: 0.3 }}
         >
-          <Icon className="w-10 h-10 text-white" />
+          <Icon className="w-12 h-12 text-white" />
         </motion.div>
         
-        <h4 className="font-bold text-xl text-neutral-900 dark:text-white mb-4 font-inter relative z-10">
+        <h4 className="font-bold text-2xl text-neutral-900 dark:text-white mb-6 font-inter relative z-10">
           {skill.name}
         </h4>
         
-        <div className="flex items-center justify-center gap-1 mb-4 relative z-10">
+        <div className="flex items-center justify-center gap-2 mb-6 relative z-10">
           {[...Array(5)].map((_, i) => (
             <motion.div
               key={i}
-              className={`w-3 h-3 rounded-full ${
+              className={`w-4 h-4 rounded-full ${
                 i < Math.floor(skill.level / 20) ? 'bg-primary-500' : 'bg-neutral-300 dark:bg-neutral-600'
               }`}
               initial={{ scale: 0 }}
@@ -178,7 +196,7 @@ const Skills: React.FC = () => {
           ))}
         </div>
         
-        <div className="text-lg font-bold text-primary-500 font-poppins relative z-10">
+        <div className="text-2xl font-bold text-primary-500 font-poppins relative z-10">
           {skill.level}%
         </div>
       </motion.div>
@@ -219,7 +237,7 @@ const Skills: React.FC = () => {
             {achievements.map((achievement, index) => (
               <motion.div
                 key={index}
-                className="bg-white/80 dark:bg-neutral-800/50 backdrop-blur-sm border border-neutral-200 dark:border-neutral-700 p-8 rounded-3xl shadow-lg text-center group"
+                className="bg-white/90 dark:bg-neutral-800/60 backdrop-blur-sm border border-neutral-200 dark:border-neutral-700 p-10 rounded-3xl shadow-xl text-center group"
                 initial={{ opacity: 0, y: 30 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6, delay: index * 0.2 }}
@@ -227,15 +245,15 @@ const Skills: React.FC = () => {
                 whileHover={{ scale: 1.05, y: -8 }}
               >
                 <motion.div 
-                  className="bg-gradient-to-r from-primary-500 to-primary-600 w-20 h-20 rounded-3xl flex items-center justify-center mx-auto mb-6 shadow-xl group-hover:shadow-2xl"
+                  className="bg-gradient-to-r from-primary-500 to-primary-600 w-24 h-24 rounded-3xl flex items-center justify-center mx-auto mb-8 shadow-xl group-hover:shadow-2xl"
                   whileHover={{ rotate: 5, scale: 1.1 }}
                 >
-                  <achievement.icon className="w-10 h-10 text-white" />
+                  <achievement.icon className="w-12 h-12 text-white" />
                 </motion.div>
-                <h3 className="text-4xl font-bold text-neutral-900 dark:text-white mb-2 font-poppins">
+                <h3 className="text-5xl font-bold text-neutral-900 dark:text-white mb-3 font-poppins">
                   {achievement.value}
                 </h3>
-                <p className="text-lg font-semibold text-neutral-700 dark:text-neutral-300 mb-2 font-inter">
+                <p className="text-xl font-semibold text-neutral-700 dark:text-neutral-300 mb-3 font-inter">
                   {achievement.label}
                 </p>
                 <p className="text-sm text-neutral-500 dark:text-neutral-400 font-inter">
@@ -249,12 +267,12 @@ const Skills: React.FC = () => {
         {/* Category Selector */}
         <div className="col-span-12 mb-12">
           <div className="flex justify-center">
-            <div className="bg-white/80 dark:bg-neutral-800/50 backdrop-blur-sm border border-neutral-200 dark:border-neutral-700 rounded-2xl p-2 shadow-lg">
+            <div className="bg-white/90 dark:bg-neutral-800/60 backdrop-blur-sm border border-neutral-200 dark:border-neutral-700 rounded-3xl p-3 shadow-xl">
               {skillCategories.map((category) => (
                 <motion.button
                   key={category.id}
                   onClick={() => setActiveCategory(category.id as 'technical' | 'documentation' | 'soft')}
-                  className={`px-8 py-4 rounded-xl font-inter font-semibold transition-all duration-300 flex items-center gap-3 ${
+                  className={`px-10 py-5 rounded-2xl font-inter font-semibold transition-all duration-300 flex items-center gap-4 text-lg ${
                     activeCategory === category.id
                       ? 'bg-gradient-to-r from-primary-500 to-primary-600 text-white shadow-xl'
                       : 'text-neutral-700 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-neutral-700'
@@ -262,9 +280,9 @@ const Skills: React.FC = () => {
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
                 >
-                  <span className="text-xl">{category.emoji}</span>
+                  <span className="text-2xl">{category.emoji}</span>
                   {category.label}
-                  <span className={`text-xs px-2 py-1 rounded-full ${
+                  <span className={`text-sm px-3 py-1 rounded-full ${
                     activeCategory === category.id
                       ? 'bg-white/20 text-white'
                       : 'bg-neutral-200 dark:bg-neutral-600 text-neutral-600 dark:text-neutral-300'

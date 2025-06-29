@@ -2,12 +2,15 @@ import React, { useState, useEffect } from 'react';
 import { Menu, X } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useScrollPosition } from '../hooks/useScrollPosition';
+import { useDarkMode } from '../hooks/useDarkMode';
 import EggChickLogo from './EggChickLogo';
+import DarkModeToggle from './DarkModeToggle';
 
 const Header: React.FC = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const scrollY = useScrollPosition();
   const isScrolled = scrollY > 50;
+  const { isDark, toggleDarkMode } = useDarkMode();
 
   const menuItems = [
     { href: '#about', label: 'Sobre' },
@@ -43,7 +46,7 @@ const Header: React.FC = () => {
       transition={{ duration: 0.6, ease: "easeOut" }}
       className={`fixed top-0 left-0 right-0 z-40 transition-all duration-500 ${
         isScrolled 
-          ? 'bg-white/95 backdrop-blur-lg border-b border-neutral-200 shadow-2xl' 
+          ? 'bg-white/95 dark:bg-slate-900/95 backdrop-blur-lg border-b border-neutral-200 dark:border-slate-700 shadow-2xl' 
           : 'bg-transparent'
       }`}
     >
@@ -65,7 +68,7 @@ const Header: React.FC = () => {
               <motion.button
                 key={item.href}
                 onClick={() => handleMenuClick(item.href)}
-                className="relative text-neutral-700 hover:text-indigo-600 transition-colors duration-300 font-inter font-medium text-lg group"
+                className="relative text-neutral-700 dark:text-neutral-300 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors duration-300 font-inter font-medium text-lg group"
                 initial={{ opacity: 0, y: -20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5, delay: index * 0.1 }}
@@ -84,6 +87,9 @@ const Header: React.FC = () => {
 
           {/* Right side */}
           <div className="flex items-center space-x-4">
+            {/* Dark Mode Toggle */}
+            <DarkModeToggle isDark={isDark} toggle={toggleDarkMode} />
+
             <motion.button
               onClick={() => handleMenuClick('#contact')}
               className="hidden md:block relative bg-gradient-to-r from-indigo-500 to-purple-600 text-white px-6 py-3 rounded-xl font-inter font-semibold shadow-lg overflow-hidden group"
@@ -103,7 +109,7 @@ const Header: React.FC = () => {
             {/* Mobile menu button */}
             <motion.button
               onClick={() => setIsMenuOpen(!isMenuOpen)}
-              className="md:hidden p-3 rounded-xl bg-neutral-100 border border-neutral-200 text-neutral-700 hover:text-indigo-600 transition-all duration-300"
+              className="md:hidden p-3 rounded-xl bg-neutral-100 dark:bg-slate-800 border border-neutral-200 dark:border-slate-700 text-neutral-700 dark:text-neutral-300 hover:text-indigo-600 dark:hover:text-indigo-400 transition-all duration-300"
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               aria-label="Toggle menu"
@@ -143,7 +149,7 @@ const Header: React.FC = () => {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               transition={{ duration: 0.3 }}
-              className="md:hidden fixed inset-0 top-20 bg-white/98 backdrop-blur-lg z-50"
+              className="md:hidden fixed inset-0 top-20 bg-white/98 dark:bg-slate-900/98 backdrop-blur-lg z-50"
             >
               <motion.div
                 initial={{ y: -50, opacity: 0 }}
@@ -156,7 +162,7 @@ const Header: React.FC = () => {
                   <motion.button
                     key={item.href}
                     onClick={() => handleMenuClick(item.href)}
-                    className="block w-full text-left px-6 py-4 text-2xl text-neutral-700 hover:text-indigo-600 hover:bg-neutral-50 rounded-xl transition-all duration-300 font-inter font-medium"
+                    className="block w-full text-left px-6 py-4 text-2xl text-neutral-700 dark:text-neutral-300 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-neutral-50 dark:hover:bg-slate-800 rounded-xl transition-all duration-300 font-inter font-medium"
                     initial={{ x: -50, opacity: 0 }}
                     animate={{ x: 0, opacity: 1 }}
                     transition={{ duration: 0.4, delay: index * 0.1 }}

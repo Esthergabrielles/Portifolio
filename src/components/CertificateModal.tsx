@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { X, ZoomIn, ZoomOut, RotateCw, Download, Maximize2, ExternalLink } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Certificate } from '../types';
@@ -12,6 +12,44 @@ interface CertificateModalProps {
 const CertificateModal: React.FC<CertificateModalProps> = ({ certificate, isOpen, onClose }) => {
   const [zoom, setZoom] = useState(1);
   const [rotation, setRotation] = useState(0);
+
+  // Gerenciamento do scroll e overflow do body
+  useEffect(() => {
+    if (isOpen) {
+      // Salva a posição atual do scroll
+      const scrollY = window.scrollY;
+      document.body.style.position = 'fixed';
+      document.body.style.top = `-${scrollY}px`;
+      document.body.style.width = '100%';
+      document.body.style.overflow = 'hidden';
+    } else {
+      // Restaura o scroll
+      const scrollY = document.body.style.top;
+      document.body.style.position = '';
+      document.body.style.top = '';
+      document.body.style.width = '';
+      document.body.style.overflow = '';
+      if (scrollY) {
+        window.scrollTo(0, parseInt(scrollY || '0') * -1);
+      }
+    }
+
+    return () => {
+      // Cleanup
+      document.body.style.position = '';
+      document.body.style.top = '';
+      document.body.style.width = '';
+      document.body.style.overflow = '';
+    };
+  }, [isOpen]);
+
+  // Reset zoom e rotation quando o modal fecha
+  useEffect(() => {
+    if (!isOpen) {
+      setZoom(1);
+      setRotation(0);
+    }
+  }, [isOpen]);
 
   if (!certificate) return null;
 
@@ -36,6 +74,19 @@ const CertificateModal: React.FC<CertificateModalProps> = ({ certificate, isOpen
     }
   };
 
+  const handleKeyDown = (e: KeyboardEvent) => {
+    if (e.key === 'Escape') {
+      onClose();
+    }
+  };
+
+  useEffect(() => {
+    if (isOpen) {
+      document.addEventListener('keydown', handleKeyDown);
+      return () => document.removeEventListener('keydown', handleKeyDown);
+    }
+  }, [isOpen]);
+
   return (
     <AnimatePresence>
       {isOpen && (
@@ -43,77 +94,88 @@ const CertificateModal: React.FC<CertificateModalProps> = ({ certificate, isOpen
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          className="fixed inset-0 z-50 flex items-center justify-center p-4"
+          transition={{ duration: 0.3 }}
+          className="fixed inset-0 z-[9999] flex items-center justify-center"
+          style={{ 
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            margin: 0,
+            padding: '1rem'
+          }}
           onClick={handleBackdropClick}
         >
-          {/* Backdrop */}
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="absolute inset-0 bg-black/80 backdrop-blur-sm"
-          />
+          {/* Backdrop Premium */}
+          <div className="absolute inset-0 bg-black/90 backdrop-blur-xl" />
 
-          {/* Modal Content */}
+          {/* Modal Content - Totalmente Centralizado */}
           <motion.div
-            initial={{ opacity: 0, scale: 0.9, y: 20 }}
+            initial={{ opacity: 0, scale: 0.8, y: 50 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.9, y: 20 }}
-            transition={{ duration: 0.3, ease: "easeOut" }}
-            className="relative bg-white dark:bg-neutral-800 rounded-3xl max-w-6xl w-full max-h-[95vh] overflow-hidden shadow-2xl border border-neutral-200 dark:border-neutral-700"
+            exit={{ opacity: 0, scale: 0.8, y: 50 }}
+            transition={{ 
+              duration: 0.4, 
+              ease: [0.4, 0, 0.2, 1],
+              type: "spring",
+              damping: 25,
+              stiffness: 300
+            }}
+            className="relative bg-white dark:bg-neutral-800 rounded-3xl w-full max-w-7xl h-[90vh] overflow-hidden shadow-2xl border border-neutral-200 dark:border-neutral-700 flex flex-col"
             onClick={(e) => e.stopPropagation()}
           >
-            {/* Header */}
-            <div className="sticky top-0 bg-gradient-to-r from-indigo-500 to-purple-600 text-white p-6 z-20">
+            {/* Header Premium */}
+            <div className="bg-gradient-to-r from-indigo-500 to-purple-600 text-white p-6 flex-shrink-0">
               <div className="flex items-center justify-between">
-                <div>
-                  <h3 className="text-2xl font-poppins font-bold">
+                <div className="flex-1 min-w-0 mr-4">
+                  <h3 className="text-2xl md:text-3xl font-poppins font-bold truncate">
                     {certificate.name}
                   </h3>
-                  <p className="text-white/80 font-inter">
+                  <p className="text-white/90 font-inter text-lg mt-1">
                     {certificate.issuer} • {certificate.date}
                   </p>
                 </div>
                 
-                {/* Controls */}
-                <div className="flex items-center gap-3">
+                {/* Controls Premium */}
+                <div className="flex items-center gap-2 flex-shrink-0">
                   <motion.button
                     onClick={handleZoomOut}
-                    className="p-3 bg-white/20 backdrop-blur-sm rounded-xl hover:bg-white/30 transition-all duration-300"
+                    className="p-3 bg-white/20 backdrop-blur-sm rounded-xl hover:bg-white/30 transition-all duration-300 shadow-lg"
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
-                    title="Zoom Out"
+                    title="Diminuir Zoom"
                   >
                     <ZoomOut className="w-5 h-5" />
                   </motion.button>
                   
-                  <span className="text-white/80 font-mono text-sm min-w-[60px] text-center">
+                  <div className="text-white/90 font-mono text-sm min-w-[60px] text-center bg-white/10 px-3 py-2 rounded-lg">
                     {Math.round(zoom * 100)}%
-                  </span>
+                  </div>
                   
                   <motion.button
                     onClick={handleZoomIn}
-                    className="p-3 bg-white/20 backdrop-blur-sm rounded-xl hover:bg-white/30 transition-all duration-300"
+                    className="p-3 bg-white/20 backdrop-blur-sm rounded-xl hover:bg-white/30 transition-all duration-300 shadow-lg"
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
-                    title="Zoom In"
+                    title="Aumentar Zoom"
                   >
                     <ZoomIn className="w-5 h-5" />
                   </motion.button>
                   
                   <motion.button
                     onClick={handleRotate}
-                    className="p-3 bg-white/20 backdrop-blur-sm rounded-xl hover:bg-white/30 transition-all duration-300"
+                    className="p-3 bg-white/20 backdrop-blur-sm rounded-xl hover:bg-white/30 transition-all duration-300 shadow-lg"
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
-                    title="Rotate"
+                    title="Rotacionar"
                   >
                     <RotateCw className="w-5 h-5" />
                   </motion.button>
                   
                   <motion.button
                     onClick={handleDownload}
-                    className="p-3 bg-white/20 backdrop-blur-sm rounded-xl hover:bg-white/30 transition-all duration-300"
+                    className="p-3 bg-white/20 backdrop-blur-sm rounded-xl hover:bg-white/30 transition-all duration-300 shadow-lg"
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
                     title="Download"
@@ -123,20 +185,20 @@ const CertificateModal: React.FC<CertificateModalProps> = ({ certificate, isOpen
                   
                   <motion.button
                     onClick={() => window.open(certificate.image, '_blank')}
-                    className="p-3 bg-white/20 backdrop-blur-sm rounded-xl hover:bg-white/30 transition-all duration-300"
+                    className="p-3 bg-white/20 backdrop-blur-sm rounded-xl hover:bg-white/30 transition-all duration-300 shadow-lg"
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
-                    title="Open in New Tab"
+                    title="Abrir em Nova Aba"
                   >
                     <Maximize2 className="w-5 h-5" />
                   </motion.button>
                   
                   <motion.button
                     onClick={onClose}
-                    className="p-3 bg-red-500/20 backdrop-blur-sm rounded-xl hover:bg-red-500/30 transition-all duration-300"
+                    className="p-3 bg-red-500/30 backdrop-blur-sm rounded-xl hover:bg-red-500/50 transition-all duration-300 shadow-lg ml-2"
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
-                    title="Close"
+                    title="Fechar"
                   >
                     <X className="w-5 h-5" />
                   </motion.button>
@@ -145,12 +207,12 @@ const CertificateModal: React.FC<CertificateModalProps> = ({ certificate, isOpen
             </div>
 
             {/* Certificate Viewer */}
-            <div className="flex h-[calc(95vh-120px)]">
-              {/* Image Container */}
-              <div className="flex-1 bg-neutral-100 dark:bg-neutral-900 overflow-auto">
+            <div className="flex flex-1 min-h-0">
+              {/* Image Container Premium */}
+              <div className="flex-1 bg-gradient-to-br from-neutral-50 to-neutral-100 dark:from-neutral-900 dark:to-neutral-800 overflow-auto">
                 <div className="flex items-center justify-center min-h-full p-8">
                   <motion.div
-                    className="bg-white rounded-2xl shadow-2xl overflow-hidden"
+                    className="bg-white rounded-2xl shadow-2xl overflow-hidden border border-neutral-200 dark:border-neutral-700"
                     style={{
                       transform: `scale(${zoom}) rotate(${rotation}deg)`,
                       transformOrigin: 'center center'
@@ -160,106 +222,115 @@ const CertificateModal: React.FC<CertificateModalProps> = ({ certificate, isOpen
                     <img
                       src={certificate.image}
                       alt={certificate.name}
-                      className="max-w-none w-auto h-auto"
+                      className="block max-w-none"
                       style={{ 
-                        maxWidth: 'none',
                         width: 'auto',
-                        height: 'auto'
+                        height: 'auto',
+                        minWidth: '600px',
+                        maxWidth: '1200px'
                       }}
                       onLoad={(e) => {
                         const img = e.target as HTMLImageElement;
-                        const containerWidth = img.parentElement?.clientWidth || 800;
-                        const containerHeight = img.parentElement?.clientHeight || 600;
-                        const scaleX = (containerWidth - 100) / img.naturalWidth;
-                        const scaleY = (containerHeight - 100) / img.naturalHeight;
-                        const initialScale = Math.min(scaleX, scaleY, 1);
-                        setZoom(initialScale);
+                        const container = img.closest('.overflow-auto');
+                        if (container) {
+                          const containerWidth = container.clientWidth - 100;
+                          const containerHeight = container.clientHeight - 100;
+                          const scaleX = containerWidth / img.naturalWidth;
+                          const scaleY = containerHeight / img.naturalHeight;
+                          const initialScale = Math.min(scaleX, scaleY, 1);
+                          setZoom(Math.max(initialScale * 0.9, 0.5));
+                        }
+                      }}
+                      onError={(e) => {
+                        console.error('Erro ao carregar imagem do certificado:', e);
                       }}
                     />
                   </motion.div>
                 </div>
               </div>
 
-              {/* Info Panel */}
-              <div className="w-80 bg-white dark:bg-neutral-800 border-l border-neutral-200 dark:border-neutral-700 overflow-y-auto">
+              {/* Info Panel Premium */}
+              <div className="w-80 bg-white dark:bg-neutral-800 border-l border-neutral-200 dark:border-neutral-700 overflow-y-auto flex-shrink-0">
                 <div className="p-6">
-                  <h4 className="text-xl font-poppins font-bold text-neutral-900 dark:text-white mb-4">
-                    Certificate Details
+                  <h4 className="text-xl font-poppins font-bold text-neutral-900 dark:text-white mb-6">
+                    Detalhes do Certificado
                   </h4>
                   
-                  <div className="space-y-4 mb-6">
-                    <div>
-                      <p className="text-sm text-neutral-500 dark:text-neutral-400 mb-1">Issuer</p>
-                      <p className="font-semibold text-neutral-900 dark:text-white">{certificate.issuer}</p>
+                  <div className="space-y-6 mb-8">
+                    <div className="bg-gradient-to-r from-indigo-50 to-purple-50 dark:from-indigo-900/20 dark:to-purple-900/20 p-4 rounded-2xl border border-indigo-200 dark:border-indigo-800">
+                      <p className="text-sm text-indigo-600 dark:text-indigo-400 mb-1 font-semibold">Instituição</p>
+                      <p className="font-bold text-neutral-900 dark:text-white text-lg">{certificate.issuer}</p>
                     </div>
                     
-                    <div>
-                      <p className="text-sm text-neutral-500 dark:text-neutral-400 mb-1">Date</p>
-                      <p className="font-semibold text-neutral-900 dark:text-white">{certificate.date}</p>
+                    <div className="bg-gradient-to-r from-emerald-50 to-teal-50 dark:from-emerald-900/20 dark:to-teal-900/20 p-4 rounded-2xl border border-emerald-200 dark:border-emerald-800">
+                      <p className="text-sm text-emerald-600 dark:text-emerald-400 mb-1 font-semibold">Data de Conclusão</p>
+                      <p className="font-bold text-neutral-900 dark:text-white text-lg">{certificate.date}</p>
                     </div>
                     
-                    <div>
-                      <p className="text-sm text-neutral-500 dark:text-neutral-400 mb-1">Category</p>
-                      <span className="inline-block px-3 py-1 bg-indigo-100 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-300 rounded-full text-sm font-medium">
+                    <div className="bg-gradient-to-r from-amber-50 to-orange-50 dark:from-amber-900/20 dark:to-orange-900/20 p-4 rounded-2xl border border-amber-200 dark:border-amber-800">
+                      <p className="text-sm text-amber-600 dark:text-amber-400 mb-1 font-semibold">Categoria</p>
+                      <span className="inline-block px-4 py-2 bg-gradient-to-r from-indigo-500 to-purple-600 text-white rounded-full text-sm font-bold shadow-lg">
                         {certificate.category}
                       </span>
                     </div>
                   </div>
 
                   {certificate.description && (
-                    <div className="mb-6">
-                      <h5 className="font-bold text-neutral-900 dark:text-white mb-2">Description</h5>
-                      <p className="text-neutral-700 dark:text-neutral-300 text-sm leading-relaxed">
+                    <div className="mb-8">
+                      <h5 className="font-bold text-neutral-900 dark:text-white mb-3 text-lg">Sobre o Curso</h5>
+                      <p className="text-neutral-700 dark:text-neutral-300 text-sm leading-relaxed bg-neutral-50 dark:bg-neutral-700/50 p-4 rounded-xl">
                         {certificate.description}
                       </p>
                     </div>
                   )}
 
                   {certificate.skills && certificate.skills.length > 0 && (
-                    <div className="mb-6">
-                      <h5 className="font-bold text-neutral-900 dark:text-white mb-3">Skills</h5>
+                    <div className="mb-8">
+                      <h5 className="font-bold text-neutral-900 dark:text-white mb-4 text-lg">Habilidades Desenvolvidas</h5>
                       <div className="flex flex-wrap gap-2">
                         {certificate.skills.map((skill, index) => (
-                          <span
+                          <motion.span
                             key={index}
-                            className="px-2 py-1 bg-neutral-100 dark:bg-neutral-700 text-neutral-700 dark:text-neutral-300 rounded text-xs"
+                            className="px-3 py-2 bg-gradient-to-r from-neutral-100 to-neutral-200 dark:from-neutral-700 dark:to-neutral-600 text-neutral-700 dark:text-neutral-300 rounded-xl text-xs font-medium border border-neutral-300 dark:border-neutral-600"
+                            whileHover={{ scale: 1.05 }}
+                            transition={{ duration: 0.2 }}
                           >
                             {skill}
-                          </span>
+                          </motion.span>
                         ))}
                       </div>
                     </div>
                   )}
 
-                  {/* Action Buttons */}
-                  <div className="space-y-3">
+                  {/* Action Buttons Premium */}
+                  <div className="space-y-4">
                     <motion.button
                       onClick={() => window.open(certificate.image, '_blank')}
-                      className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-blue-500 to-blue-600 text-white px-4 py-3 rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all duration-300"
-                      whileHover={{ scale: 1.02 }}
+                      className="w-full flex items-center justify-center gap-3 bg-gradient-to-r from-blue-500 to-blue-600 text-white px-6 py-4 rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all duration-300"
+                      whileHover={{ scale: 1.02, y: -2 }}
                       whileTap={{ scale: 0.98 }}
                     >
-                      <ExternalLink className="w-4 h-4" />
-                      View Original
+                      <ExternalLink className="w-5 h-5" />
+                      Ver Original
                     </motion.button>
                     
                     <motion.button
                       onClick={handleDownload}
-                      className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-green-500 to-green-600 text-white px-4 py-3 rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all duration-300"
-                      whileHover={{ scale: 1.02 }}
+                      className="w-full flex items-center justify-center gap-3 bg-gradient-to-r from-green-500 to-green-600 text-white px-6 py-4 rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all duration-300"
+                      whileHover={{ scale: 1.02, y: -2 }}
                       whileTap={{ scale: 0.98 }}
                     >
-                      <Download className="w-4 h-4" />
+                      <Download className="w-5 h-5" />
                       Download
                     </motion.button>
                     
                     <motion.button
                       onClick={handleReset}
-                      className="w-full flex items-center justify-center gap-2 bg-neutral-200 dark:bg-neutral-700 text-neutral-700 dark:text-neutral-300 px-4 py-3 rounded-xl font-semibold hover:bg-neutral-300 dark:hover:bg-neutral-600 transition-all duration-300"
-                      whileHover={{ scale: 1.02 }}
+                      className="w-full flex items-center justify-center gap-3 bg-neutral-200 dark:bg-neutral-700 text-neutral-700 dark:text-neutral-300 px-6 py-4 rounded-xl font-semibold hover:bg-neutral-300 dark:hover:bg-neutral-600 transition-all duration-300"
+                      whileHover={{ scale: 1.02, y: -2 }}
                       whileTap={{ scale: 0.98 }}
                     >
-                      Reset View
+                      Resetar Visualização
                     </motion.button>
                   </div>
                 </div>
