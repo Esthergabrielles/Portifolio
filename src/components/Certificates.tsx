@@ -1,9 +1,12 @@
 import React, { useState } from 'react';
-import { Award, Calendar, ExternalLink, Download, CheckCircle, Star, Trophy, Medal, Search, Filter, Eye, X } from 'lucide-react';
+import { Award, Calendar, ExternalLink, Download, CheckCircle, Star, Trophy, Medal, Search, Filter, Eye, X, ZoomIn, RotateCw, Maximize2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { certificates } from '../data/portfolio';
+import { certificates, brandLogos } from '../data/portfolio';
 import AnimatedSection from './AnimatedSection';
+import CertificateModal from './CertificateModal';
 import { Certificate } from '../types';
+import { useLanguage } from '../hooks/useLanguage';
+import { t } from '../data/translations';
 
 const Certificates: React.FC = () => {
   const [selectedCertificate, setSelectedCertificate] = useState<Certificate | null>(null);
@@ -11,6 +14,7 @@ const Certificates: React.FC = () => {
   const [hoveredCard, setHoveredCard] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [showCertificateModal, setShowCertificateModal] = useState(false);
+  const { language } = useLanguage();
 
   const categories = ['All', 'QA', 'Programming', 'Web Development', 'Business', 'Foundation', 'Database', 'Infrastructure', 'Sustainability', 'Higher Education', 'AI'];
 
@@ -54,10 +58,10 @@ const Certificates: React.FC = () => {
   };
 
   const stats = [
-    { icon: Award, label: 'Certificações Ativas', value: certificates.length, color: 'text-blue-500' },
-    { icon: Star, label: 'Instituições', value: '2', color: 'text-yellow-500' },
-    { icon: CheckCircle, label: 'Áreas de Expertise', value: categories.length - 1, color: 'text-green-500' },
-    { icon: Trophy, label: 'Horas de Estudo', value: '400+', color: 'text-purple-500' }
+    { icon: Award, label: t('activeCertifications', language), value: certificates.length, color: 'text-blue-500' },
+    { icon: Star, label: t('institutions', language), value: '2', color: 'text-yellow-500' },
+    { icon: CheckCircle, label: t('expertiseAreas', language), value: categories.length - 1, color: 'text-green-500' },
+    { icon: Trophy, label: t('studyHours', language), value: '400+', color: 'text-purple-500' }
   ];
 
   const handleCertificateClick = (certificate: Certificate) => {
@@ -70,219 +74,14 @@ const Certificates: React.FC = () => {
     setSelectedCertificate(null);
   };
 
-  // Modal que aparece no hover
-  const HoverModal: React.FC<{ certificate: Certificate; position: { x: number; y: number } }> = ({ certificate, position }) => (
-    <motion.div
-      initial={{ opacity: 0, scale: 0.8, y: 20 }}
-      animate={{ opacity: 1, scale: 1, y: 0 }}
-      exit={{ opacity: 0, scale: 0.8, y: 20 }}
-      transition={{ duration: 0.2 }}
-      className="fixed z-50 pointer-events-none"
-      style={{
-        left: Math.min(position.x + 20, window.innerWidth - 400),
-        top: Math.min(position.y - 100, window.innerHeight - 300),
-      }}
-    >
-      <div className="bg-white dark:bg-neutral-800 rounded-2xl shadow-2xl border border-neutral-200 dark:border-neutral-700 p-6 max-w-sm backdrop-blur-sm">
-        <div className="relative mb-4">
-          <img
-            src={certificate.image}
-            alt={certificate.name}
-            className="w-full h-32 object-cover rounded-xl"
-          />
-          <div className="absolute top-2 right-2 bg-green-500 text-white p-1 rounded-full">
-            <CheckCircle className="w-4 h-4" />
-          </div>
-        </div>
-        
-        <h4 className="font-bold text-lg text-neutral-900 dark:text-white mb-2 line-clamp-2">
-          {certificate.name}
-        </h4>
-        
-        <p className="text-neutral-600 dark:text-neutral-300 mb-3 font-medium">
-          {certificate.issuer}
-        </p>
-        
-        {certificate.description && (
-          <p className="text-sm text-neutral-500 dark:text-neutral-400 mb-3 line-clamp-2">
-            {certificate.description}
-          </p>
-        )}
-        
-        <div className="flex items-center justify-between">
-          <span className="text-xs text-neutral-500 dark:text-neutral-400 flex items-center gap-1">
-            <Calendar className="w-3 h-3" />
-            {certificate.date}
-          </span>
-          <span className={`text-xs px-2 py-1 bg-gradient-to-r ${getCategoryColor(certificate.category)} text-white rounded-full`}>
-            {certificate.category}
-          </span>
-        </div>
-      </div>
-    </motion.div>
-  );
-
-  // Modal de visualização do certificado
-  const CertificateModal: React.FC = () => {
-    if (!selectedCertificate) return null;
-
-    return (
-      <AnimatePresence>
-        {showCertificateModal && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm"
-            onClick={closeCertificateModal}
-          >
-            <motion.div
-              initial={{ opacity: 0, scale: 0.9, y: 20 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.9, y: 20 }}
-              transition={{ duration: 0.3 }}
-              className="bg-white dark:bg-neutral-800 rounded-3xl max-w-4xl w-full max-h-[90vh] overflow-y-auto shadow-2xl relative"
-              onClick={(e) => e.stopPropagation()}
-            >
-              {/* Header do Modal */}
-              <div className="sticky top-0 bg-white dark:bg-neutral-800 border-b border-neutral-200 dark:border-neutral-700 p-6 rounded-t-3xl z-10">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-4">
-                    <div className={`bg-gradient-to-r ${getCategoryColor(selectedCertificate.category)} w-12 h-12 rounded-xl flex items-center justify-center shadow-lg`}>
-                      {React.createElement(getCategoryIcon(selectedCertificate.category), { className: "w-6 h-6 text-white" })}
-                    </div>
-                    <div>
-                      <h3 className="text-2xl font-poppins font-bold text-neutral-900 dark:text-white">
-                        Certificado Digital
-                      </h3>
-                      <p className="text-neutral-600 dark:text-neutral-300 font-inter">
-                        {selectedCertificate.issuer} • {selectedCertificate.date}
-                      </p>
-                    </div>
-                  </div>
-                  <button
-                    onClick={closeCertificateModal}
-                    className="p-2 rounded-full hover:bg-neutral-100 dark:hover:bg-neutral-700 transition-colors duration-200"
-                  >
-                    <X className="w-6 h-6 text-neutral-600 dark:text-neutral-300" />
-                  </button>
-                </div>
-              </div>
-
-              {/* Conteúdo do Modal */}
-              <div className="p-8">
-                {/* Imagem Real do Certificado */}
-                <div className="relative mb-8">
-                  <div className="bg-white dark:bg-neutral-900 rounded-2xl p-4 shadow-2xl border border-neutral-200 dark:border-neutral-700">
-                    <img
-                      src={selectedCertificate.image}
-                      alt={selectedCertificate.name}
-                      className="w-full h-auto object-contain rounded-xl cursor-zoom-in"
-                      onClick={() => window.open(selectedCertificate.image, '_blank')}
-                    />
-                  </div>
-                  <div className="absolute top-2 right-2 bg-green-500 text-white p-2 rounded-full shadow-lg">
-                    <CheckCircle className="w-5 h-5" />
-                  </div>
-                </div>
-
-                {/* Informações do Certificado */}
-                <div className="bg-gradient-to-br from-white to-neutral-50 dark:from-neutral-800 dark:to-neutral-900 border-2 border-neutral-200 dark:border-neutral-700 rounded-2xl p-8 mb-6">
-                  <div className="text-center mb-6">
-                    <div className={`bg-gradient-to-r ${getCategoryColor(selectedCertificate.category)} w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4 shadow-xl`}>
-                      {React.createElement(getCategoryIcon(selectedCertificate.category), { className: "w-8 h-8 text-white" })}
-                    </div>
-                    <h2 className="text-3xl font-poppins font-bold text-neutral-900 dark:text-white mb-2">
-                      {selectedCertificate.name}
-                    </h2>
-                    <p className="text-xl text-neutral-600 dark:text-neutral-300 font-inter">
-                      {selectedCertificate.issuer}
-                    </p>
-                  </div>
-
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-                    <div className="text-center">
-                      <p className="text-sm text-neutral-500 dark:text-neutral-400 mb-2 font-inter uppercase tracking-wide">
-                        Data de Conclusão
-                      </p>
-                      <p className="text-lg font-semibold text-neutral-900 dark:text-white font-inter">
-                        {selectedCertificate.date}
-                      </p>
-                    </div>
-                    <div className="text-center">
-                      <p className="text-sm text-neutral-500 dark:text-neutral-400 mb-2 font-inter uppercase tracking-wide">
-                        Categoria
-                      </p>
-                      <span className={`inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r ${getCategoryColor(selectedCertificate.category)} text-white rounded-full font-semibold`}>
-                        {React.createElement(getCategoryIcon(selectedCertificate.category), { className: "w-4 h-4" })}
-                        {selectedCertificate.category}
-                      </span>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Informações Adicionais */}
-                {selectedCertificate.description && (
-                  <div className="bg-gradient-to-r from-neutral-50 to-neutral-100 dark:from-neutral-800 dark:to-neutral-900 rounded-2xl p-6 mb-6">
-                    <h4 className="font-bold text-lg text-neutral-900 dark:text-white mb-3 font-inter">
-                      Sobre o Curso
-                    </h4>
-                    <p className="text-neutral-700 dark:text-neutral-300 font-inter leading-relaxed">
-                      {selectedCertificate.description}
-                    </p>
-                  </div>
-                )}
-
-                {/* Habilidades */}
-                {selectedCertificate.skills && selectedCertificate.skills.length > 0 && (
-                  <div className="mb-6">
-                    <h4 className="font-bold text-lg text-neutral-900 dark:text-white mb-4 font-inter">
-                      Habilidades Desenvolvidas
-                    </h4>
-                    <div className="flex flex-wrap gap-3">
-                      {selectedCertificate.skills.map((skill, index) => (
-                        <span
-                          key={index}
-                          className={`px-4 py-2 bg-gradient-to-r ${getCategoryColor(selectedCertificate.category)} text-white rounded-full font-medium font-inter shadow-lg`}
-                        >
-                          {skill}
-                        </span>
-                      ))}
-                    </div>
-                  </div>
-                )}
-
-                {/* Ações */}
-                <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                  <motion.button
-                    onClick={() => window.open(selectedCertificate.image, '_blank')}
-                    className="flex items-center justify-center gap-2 bg-gradient-to-r from-blue-500 to-blue-600 text-white px-6 py-3 rounded-xl font-inter font-semibold shadow-lg hover:shadow-xl transition-all duration-300"
-                    whileHover={{ scale: 1.02 }}
-                    whileTap={{ scale: 0.98 }}
-                  >
-                    <ExternalLink className="w-5 h-5" />
-                    Ver Certificado Original
-                  </motion.button>
-                  <motion.button
-                    onClick={closeCertificateModal}
-                    className="flex items-center justify-center gap-2 bg-neutral-200 dark:bg-neutral-700 text-neutral-700 dark:text-neutral-300 px-6 py-3 rounded-xl font-inter font-semibold hover:bg-neutral-300 dark:hover:bg-neutral-600 transition-all duration-300"
-                    whileHover={{ scale: 1.02 }}
-                    whileTap={{ scale: 0.98 }}
-                  >
-                    Fechar
-                  </motion.button>
-                </div>
-              </div>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-    );
+  // Get brand logo for issuer
+  const getIssuerLogo = (issuer: string) => {
+    return brandLogos[issuer] || null;
   };
 
   return (
     <section id="certificates" className="section-spacing bg-gradient-to-br from-neutral-50 via-white to-neutral-100 dark:from-neutral-800 dark:via-neutral-900 dark:to-black relative overflow-hidden">
-      {/* Background Pattern */}
+      {/* Background Pattern Premium */}
       <div className="absolute inset-0 opacity-5">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_80%_20%,rgba(47,128,237,0.1),transparent_50%)]" />
         <div className="absolute inset-0 bg-[linear-gradient(120deg,transparent_48%,rgba(47,128,237,0.03)_49%,rgba(47,128,237,0.03)_51%,transparent_52%)] bg-[length:50px_50px]" />
@@ -298,18 +97,17 @@ const Certificates: React.FC = () => {
               viewport={{ once: true }}
             >
               <h2 className="text-5xl md:text-6xl font-poppins font-bold text-neutral-900 dark:text-white mb-6">
-                Meus Troféus Digitais 🏆
+                {t('digitalTrophies', language)} 🏆
               </h2>
               <div className="w-24 h-1 bg-gradient-to-r from-primary-400 to-primary-600 mx-auto mb-8 rounded-full" />
               <p className="text-xl md:text-2xl text-neutral-600 dark:text-neutral-300 max-w-4xl mx-auto leading-relaxed font-inter">
-                Cada certificação é uma batalha vencida, uma nova habilidade desbloqueada. 
-                Clique nos certificados para visualizar em detalhes!
+                {t('certificatesSubtitle', language)}
               </p>
             </motion.div>
           </AnimatedSection>
         </div>
 
-        {/* Stats */}
+        {/* Stats Premium */}
         <div className="col-span-12 mb-16">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
             {stats.map((stat, index) => (
@@ -339,22 +137,22 @@ const Certificates: React.FC = () => {
           </div>
         </div>
 
-        {/* Search and Filter */}
+        {/* Search and Filter Premium */}
         <div className="col-span-12 mb-12">
           <div className="flex flex-col md:flex-row gap-6 items-center justify-between">
-            {/* Search */}
+            {/* Search Premium */}
             <div className="relative flex-1 max-w-md">
               <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-neutral-400" />
               <input
                 type="text"
-                placeholder="Buscar certificações..."
+                placeholder={t('searchCertifications', language)}
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="w-full pl-12 pr-4 py-3 bg-white/80 dark:bg-neutral-800/50 backdrop-blur-sm border border-neutral-200 dark:border-neutral-700 rounded-2xl focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all duration-300 font-inter"
               />
             </div>
 
-            {/* Filter Buttons */}
+            {/* Filter Buttons Premium */}
             <div className="flex flex-wrap gap-3">
               {categories.map((category, index) => {
                 const Icon = getCategoryIcon(category);
@@ -392,7 +190,7 @@ const Certificates: React.FC = () => {
           </div>
         </div>
 
-        {/* Certificates Grid */}
+        {/* Certificates Grid Premium */}
         <div className="col-span-12">
           <motion.div 
             className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
@@ -402,6 +200,7 @@ const Certificates: React.FC = () => {
               {filteredCertificates.map((certificate, index) => {
                 const CategoryIcon = getCategoryIcon(certificate.category);
                 const categoryColor = getCategoryColor(certificate.category);
+                const issuerLogo = getIssuerLogo(certificate.issuer);
                 
                 return (
                   <motion.div
@@ -412,18 +211,10 @@ const Certificates: React.FC = () => {
                     exit={{ opacity: 0, scale: 0.9 }}
                     transition={{ duration: 0.3, delay: index * 0.05 }}
                     className="group cursor-pointer"
-                    onMouseEnter={(e) => {
-                      setHoveredCard(certificate.id);
-                      setSelectedCertificate(certificate);
-                    }}
-                    onMouseLeave={() => {
-                      setHoveredCard(null);
-                      setSelectedCertificate(null);
-                    }}
                     onClick={() => handleCertificateClick(certificate)}
                   >
                     <motion.div
-                      className="bg-white/80 dark:bg-neutral-800/50 backdrop-blur-sm border border-neutral-200 dark:border-neutral-700 rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 overflow-hidden h-full"
+                      className="bg-white/90 dark:bg-neutral-800/60 backdrop-blur-sm border border-neutral-200 dark:border-neutral-700 rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-500 overflow-hidden h-full"
                       whileHover={{ y: -8, scale: 1.02 }}
                     >
                       <div className="relative overflow-hidden h-32">
@@ -435,10 +226,10 @@ const Certificates: React.FC = () => {
                           transition={{ duration: 0.4 }}
                         />
                         
-                        {/* Overlay */}
+                        {/* Overlay Premium */}
                         <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                         
-                        {/* Verified Badge */}
+                        {/* Verified Badge Premium */}
                         <motion.div
                           className="absolute top-2 right-2 bg-green-500 text-white p-1.5 rounded-full shadow-lg"
                           animate={{ 
@@ -450,7 +241,7 @@ const Certificates: React.FC = () => {
                           <CheckCircle className="w-3 h-3" />
                         </motion.div>
 
-                        {/* Category Badge */}
+                        {/* Category Badge Premium */}
                         <motion.div
                           className={`absolute bottom-2 left-2 bg-gradient-to-r ${categoryColor} text-white px-2 py-1 rounded-full flex items-center gap-1 opacity-0 group-hover:opacity-100`}
                           initial={{ y: 10, opacity: 0 }}
@@ -461,7 +252,7 @@ const Certificates: React.FC = () => {
                           <span className="text-xs font-medium">{certificate.category}</span>
                         </motion.div>
 
-                        {/* Hover Icon */}
+                        {/* Hover Icon Premium */}
                         <motion.div
                           className="absolute top-2 left-2 bg-white/90 dark:bg-neutral-800/90 backdrop-blur-sm p-1.5 rounded-full opacity-0 group-hover:opacity-100"
                           initial={{ scale: 0, rotate: -180 }}
@@ -473,13 +264,27 @@ const Certificates: React.FC = () => {
                       </div>
                       
                       <div className="p-4">
+                        {/* Issuer with Logo */}
+                        <div className="flex items-center gap-2 mb-3">
+                          {issuerLogo && (
+                            <img 
+                              src={issuerLogo} 
+                              alt={certificate.issuer}
+                              className="w-6 h-6 object-contain rounded"
+                              onError={(e) => {
+                                const target = e.target as HTMLImageElement;
+                                target.style.display = 'none';
+                              }}
+                            />
+                          )}
+                          <p className="text-neutral-600 dark:text-neutral-300 font-inter text-xs font-medium">
+                            {certificate.issuer}
+                          </p>
+                        </div>
+
                         <h3 className="font-bold text-neutral-900 dark:text-white mb-2 text-sm line-clamp-2 font-inter group-hover:text-primary-500 transition-colors duration-300">
                           {certificate.name}
                         </h3>
-                        
-                        <p className="text-neutral-600 dark:text-neutral-300 mb-3 font-inter text-xs font-medium">
-                          {certificate.issuer}
-                        </p>
                         
                         <div className="flex items-center justify-between">
                           <div className="flex items-center gap-1 text-neutral-500 dark:text-neutral-400 text-xs font-inter">
@@ -513,29 +318,23 @@ const Certificates: React.FC = () => {
             >
               <Search className="w-16 h-16 text-neutral-400 mx-auto mb-4" />
               <h3 className="text-xl font-bold text-neutral-900 dark:text-white mb-2">
-                Nenhuma certificação encontrada
+                {t('noCertificatesFound', language)}
               </h3>
               <p className="text-neutral-600 dark:text-neutral-300">
-                Tente ajustar os filtros ou termo de busca
+                {t('adjustFilters', language)}
               </p>
             </motion.div>
           )}
         </div>
 
-        {/* Hover Modal */}
-        <AnimatePresence>
-          {selectedCertificate && hoveredCard && !showCertificateModal && (
-            <HoverModal 
-              certificate={selectedCertificate} 
-              position={{ x: 0, y: 0 }} 
-            />
-          )}
-        </AnimatePresence>
+        {/* Certificate Modal Premium */}
+        <CertificateModal 
+          certificate={selectedCertificate}
+          isOpen={showCertificateModal}
+          onClose={closeCertificateModal}
+        />
 
-        {/* Certificate Modal */}
-        <CertificateModal />
-
-        {/* Achievement Section */}
+        {/* Achievement Section Premium */}
         <div className="col-span-12 mt-16">
           <motion.div
             className="bg-gradient-to-r from-primary-500 to-purple-600 rounded-3xl p-12 text-white text-center relative overflow-hidden"
@@ -554,25 +353,23 @@ const Certificates: React.FC = () => {
               </motion.div>
               
               <h3 className="text-3xl md:text-4xl font-poppins font-bold mb-6">
-                Colecionando Conhecimento 📚
+                {t('collectingKnowledge', language)} 📚
               </h3>
               <p className="text-xl mb-8 max-w-3xl mx-auto font-inter opacity-90 leading-relaxed">
-                Cada certificação representa horas de dedicação e aprendizado. 
-                Minha coleção continua crescendo, sempre em busca de novas habilidades 
-                e conhecimentos que me tornem uma profissional ainda melhor.
+                {t('coursesMotivation', language)}
               </p>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-center">
                 <div>
                   <div className="text-3xl font-bold mb-2">{certificates.length}</div>
-                  <div className="text-sm opacity-80">Certificações Conquistadas</div>
+                  <div className="text-sm opacity-80">{t('conqueredCertifications', language)}</div>
                 </div>
                 <div>
                   <div className="text-3xl font-bold mb-2">400+</div>
-                  <div className="text-sm opacity-80">Horas de Estudo</div>
+                  <div className="text-sm opacity-80">{t('studyHours', language)}</div>
                 </div>
                 <div>
                   <div className="text-3xl font-bold mb-2">∞</div>
-                  <div className="text-sm opacity-80">Sede de Aprender</div>
+                  <div className="text-sm opacity-80">{t('knowledgeThirst', language)}</div>
                 </div>
               </div>
             </div>

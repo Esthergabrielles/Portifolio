@@ -1,12 +1,14 @@
 import React, { useState, useEffect } from 'react';
-import { Bot, Search, Globe, Zap, Shield, Smartphone, Lightbulb, Users, MessageCircle, Brain, Eye, Clock, Award, TrendingUp, Star, Trophy } from 'lucide-react';
+import { Bot, Search, Globe, Zap, Shield, Smartphone, Lightbulb, Users, MessageCircle, Brain, Eye, Clock, Award, TrendingUp, Star, Trophy, FileText } from 'lucide-react';
 import { motion } from 'framer-motion';
-import { technicalSkills, softSkills } from '../data/portfolio';
+import { technicalSkills, qaDocumentations, softSkills, toolLogos } from '../data/portfolio';
 import { useIntersectionObserver } from '../hooks/useIntersectionObserver';
+import { useLanguage } from '../hooks/useLanguage';
+import { t } from '../data/translations';
 import AnimatedSection from './AnimatedSection';
 
 const iconMap: { [key: string]: React.ElementType } = {
-  Bot, Search, Globe, Zap, Shield, Smartphone, Lightbulb, Users, MessageCircle, Brain, Eye, Clock
+  Bot, Search, Globe, Zap, Shield, Smartphone, Lightbulb, Users, MessageCircle, Brain, Eye, Clock, FileText
 };
 
 const Skills: React.FC = () => {
@@ -14,18 +16,21 @@ const Skills: React.FC = () => {
     threshold: 0.3,
     triggerOnce: true,
   });
+  const { language } = useLanguage();
 
-  const [activeCategory, setActiveCategory] = useState<'technical' | 'soft'>('technical');
+  const [activeCategory, setActiveCategory] = useState<'technical' | 'documentation' | 'soft'>('technical');
 
   const skillCategories = [
-    { id: 'technical', label: 'Arsenal Técnico', emoji: '⚡', count: technicalSkills.length },
-    { id: 'soft', label: 'Superpoderes Pessoais', emoji: '🧠', count: softSkills.length }
+    { id: 'technical', label: t('technicalArsenal', language), emoji: '⚡', count: technicalSkills.length },
+    { id: 'documentation', label: t('qaDocumentations', language), emoji: '📋', count: qaDocumentations.length },
+    { id: 'soft', label: t('personalSuperpowers', language), emoji: '🧠', count: softSkills.length }
   ];
 
   const achievements = [
-    { icon: Trophy, label: 'Tecnologias', value: '6', description: 'Em desenvolvimento' },
-    { icon: Star, label: 'Progresso QA', value: '93%', description: 'No bootcamp atual' },
-    { icon: Award, label: 'Experiência', value: '2+', description: 'Anos em processos administrativos' }
+    { icon: Trophy, label: t('technologies', language), value: technicalSkills.length.toString(), description: t('inDevelopment', language) },
+    { icon: FileText, label: t('qaDocumentations', language), value: qaDocumentations.length.toString(), description: 'Tipos dominados' },
+    { icon: Star, label: t('qaProgress', language), value: '93%', description: t('currentBootcamp', language) },
+    { icon: Award, label: t('experience', language), value: '2+', description: t('administrativeProcesses', language) }
   ];
 
   const SkillCard: React.FC<{ skill: typeof technicalSkills[0]; delay: number; isActive: boolean }> = ({ skill, delay, isActive }) => {
@@ -49,13 +54,14 @@ const Skills: React.FC = () => {
     };
 
     const getSkillLabel = (level: number) => {
-      if (level >= 90) return 'Ninja 🥷';
-      if (level >= 80) return 'Expert 🎯';
-      if (level >= 70) return 'Avançado 🚀';
-      return 'Aprendendo 📚';
+      if (level >= 90) return `${t('ninja', language)} 🥷`;
+      if (level >= 80) return `${t('expert', language)} 🎯`;
+      if (level >= 70) return `${t('advanced', language)} 🚀`;
+      return `${t('learning', language)} 📚`;
     };
 
     const colors = getSkillColor(skill.level);
+    const toolLogo = toolLogos[skill.name];
     
     return (
       <motion.div 
@@ -69,10 +75,23 @@ const Skills: React.FC = () => {
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-4">
             <motion.div 
-              className={`bg-gradient-to-r ${colors.bg} p-4 rounded-2xl shadow-lg group-hover:scale-110 transition-transform duration-300`}
+              className={`bg-gradient-to-r ${colors.bg} p-4 rounded-2xl shadow-lg group-hover:scale-110 transition-transform duration-300 relative overflow-hidden`}
               whileHover={{ rotate: 5 }}
             >
-              <Icon className="w-7 h-7 text-white" />
+              {toolLogo ? (
+                <img 
+                  src={toolLogo} 
+                  alt={skill.name}
+                  className="w-7 h-7 object-contain"
+                  onError={(e) => {
+                    // Fallback para ícone se a imagem falhar
+                    const target = e.target as HTMLImageElement;
+                    target.style.display = 'none';
+                    target.nextElementSibling?.classList.remove('hidden');
+                  }}
+                />
+              ) : null}
+              <Icon className={`w-7 h-7 text-white ${toolLogo ? 'hidden' : ''}`} />
             </motion.div>
             <div>
               <h4 className="font-bold text-xl text-neutral-900 dark:text-white font-inter">
@@ -184,12 +203,11 @@ const Skills: React.FC = () => {
               viewport={{ once: true }}
             >
               <h2 className="text-5xl md:text-6xl font-poppins font-bold text-neutral-900 dark:text-white mb-6">
-                Meu Arsenal Completo 🎯
+                {t('completeArsenal', language)} 🎯
               </h2>
               <div className="w-24 h-1 bg-gradient-to-r from-primary-400 to-primary-600 mx-auto mb-8 rounded-full" />
               <p className="text-xl md:text-2xl text-neutral-600 dark:text-neutral-300 max-w-4xl mx-auto leading-relaxed font-inter">
-                Ferramentas, tecnologias e habilidades que estou desenvolvendo para 
-                me tornar uma profissional QA completa
+                {t('skillsSubtitle', language)}
               </p>
             </motion.div>
           </AnimatedSection>
@@ -197,7 +215,7 @@ const Skills: React.FC = () => {
 
         {/* Achievements */}
         <div className="col-span-12 mb-16">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
             {achievements.map((achievement, index) => (
               <motion.div
                 key={index}
@@ -235,7 +253,7 @@ const Skills: React.FC = () => {
               {skillCategories.map((category) => (
                 <motion.button
                   key={category.id}
-                  onClick={() => setActiveCategory(category.id as 'technical' | 'soft')}
+                  onClick={() => setActiveCategory(category.id as 'technical' | 'documentation' | 'soft')}
                   className={`px-8 py-4 rounded-xl font-inter font-semibold transition-all duration-300 flex items-center gap-3 ${
                     activeCategory === category.id
                       ? 'bg-gradient-to-r from-primary-500 to-primary-600 text-white shadow-xl'
@@ -272,6 +290,17 @@ const Skills: React.FC = () => {
                 />
               ))}
             </div>
+          ) : activeCategory === 'documentation' ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+              {qaDocumentations.map((skill, index) => (
+                <SkillCard 
+                  key={skill.name} 
+                  skill={skill} 
+                  delay={index} 
+                  isActive={activeCategory === 'documentation'}
+                />
+              ))}
+            </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
               {softSkills.map((skill, index) => (
@@ -297,25 +326,23 @@ const Skills: React.FC = () => {
             
             <div className="relative z-10">
               <h3 className="text-3xl md:text-4xl font-poppins font-bold mb-6">
-                Aprendizado Contínuo é Minha Paixão 🎓
+                {t('documentationSpecialty', language)} 📋
               </h3>
               <p className="text-xl mb-8 max-w-3xl mx-auto font-inter opacity-90 leading-relaxed">
-                Cada dia é uma oportunidade de aprender algo novo. Meu objetivo é sempre 
-                evoluir e me tornar uma profissional QA cada vez melhor, combinando 
-                minha experiência administrativa com conhecimentos técnicos.
+                {t('documentationMotivation', language)}
               </p>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-center">
                 <div>
-                  <div className="text-3xl font-bold mb-2">93%</div>
-                  <div className="text-sm opacity-80">Progresso no Bootcamp QA</div>
+                  <div className="text-3xl font-bold mb-2">95%</div>
+                  <div className="text-sm opacity-80">Bug Reports</div>
                 </div>
                 <div>
-                  <div className="text-3xl font-bold mb-2">2+</div>
-                  <div className="text-sm opacity-80">Anos em Processos</div>
+                  <div className="text-3xl font-bold mb-2">90%</div>
+                  <div className="text-sm opacity-80">Test Cases</div>
                 </div>
                 <div>
-                  <div className="text-3xl font-bold mb-2">∞</div>
-                  <div className="text-sm opacity-80">Sede de Aprender</div>
+                  <div className="text-3xl font-bold mb-2">85%</div>
+                  <div className="text-sm opacity-80">Test Plans</div>
                 </div>
               </div>
             </div>

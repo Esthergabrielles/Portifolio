@@ -1,6 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import { useDarkMode } from './hooks/useDarkMode';
-import { useLanguage } from './hooks/useLanguage';
 import WelcomeScreen from './components/WelcomeScreen';
 import Header from './components/Header';
 import Hero from './components/Hero';
@@ -15,11 +13,8 @@ import Contact from './components/Contact';
 import BackToTop from './components/BackToTop';
 import LoadingScreen from './components/LoadingScreen';
 import InteractiveElements from './components/InteractiveElements';
-import { t } from './data/translations';
 
 function App() {
-  const { isDark, toggleDarkMode } = useDarkMode();
-  const { language } = useLanguage();
   const [showWelcome, setShowWelcome] = useState(true);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -46,8 +41,8 @@ function App() {
       {showWelcome && <WelcomeScreen onComplete={handleWelcomeComplete} />}
       
       {/* Main Portfolio Content */}
-      <div className={`min-h-screen transition-all duration-1000 ${isDark ? 'dark' : ''} ${showWelcome ? 'opacity-0 scale-95' : 'opacity-100 scale-100'}`}>
-        <Header isDark={isDark} toggleDarkMode={toggleDarkMode} />
+      <div className={`min-h-screen transition-all duration-1000 ${showWelcome ? 'opacity-0 scale-95' : 'opacity-100 scale-100'}`}>
+        <Header />
         <Hero />
         <About />
         <Projects />
@@ -76,7 +71,7 @@ function App() {
                 </div>
                 <h3 className="text-3xl font-poppins font-bold mb-6">Esther Gabrielle</h3>
                 <p className="text-slate-300 font-inter text-xl max-w-3xl mx-auto leading-relaxed mb-8">
-                  {t('footerDescription', language)}
+                  Transformando ideias em realidade através de testes de qualidade excepcional. Cada bug encontrado é um problema evitado, cada teste é um passo rumo à perfeição.
                 </p>
                 
                 {/* Social Links */}
@@ -103,10 +98,10 @@ function App() {
               <div className="border-t border-slate-700 pt-8">
                 <div className="flex flex-col md:flex-row justify-between items-center gap-4">
                   <p className="text-slate-400 font-inter">
-                    © 2024 Esther Gabrielle. {t('allRightsReserved', language)}
+                    © 2024 Esther Gabrielle. Todos os direitos reservados.
                   </p>
                   <p className="text-slate-400 font-inter">
-                    {t('developedWith', language)} <span className="text-red-400">❤️</span> {t('attentionToDetail', language)}
+                    Desenvolvido com <span className="text-red-400">❤️</span> e muita atenção aos detalhes
                   </p>
                 </div>
               </div>

@@ -1,16 +1,17 @@
 import React, { useState } from 'react';
-import { ExternalLink, Github, Eye, Award, TrendingUp, Shield, Zap } from 'lucide-react';
+import { ExternalLink, Github, Eye, Award, TrendingUp, Shield, Zap, FileText, Code, TestTube, Bug } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { projects } from '../data/portfolio';
 import { useLanguage } from '../hooks/useLanguage';
 import { t } from '../data/translations';
-import Modal from './Modal';
 import AnimatedSection from './AnimatedSection';
 import { Project } from '../types';
+import ProjectDetailsPage from './ProjectDetailsPage';
 
 const Projects: React.FC = () => {
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
   const [filter, setFilter] = useState<string>('All');
+  const [showProjectDetails, setShowProjectDetails] = useState(false);
   const { language } = useLanguage();
 
   const testTypes = ['All', 'Functional Testing', 'Security Testing', 'API Testing', 'Performance Testing'];
@@ -38,6 +39,25 @@ const Projects: React.FC = () => {
       default: return 'from-primary-500 to-primary-600';
     }
   };
+
+  const handleProjectClick = (project: Project) => {
+    setSelectedProject(project);
+    setShowProjectDetails(true);
+  };
+
+  const closeProjectDetails = () => {
+    setShowProjectDetails(false);
+    setSelectedProject(null);
+  };
+
+  if (showProjectDetails && selectedProject) {
+    return (
+      <ProjectDetailsPage 
+        project={selectedProject} 
+        onClose={closeProjectDetails}
+      />
+    );
+  }
 
   return (
     <section id="projects" className="section-spacing bg-gradient-to-br from-neutral-100 via-white to-neutral-50 dark:from-black dark:via-neutral-900 dark:to-neutral-800 relative overflow-hidden">
@@ -121,7 +141,7 @@ const Projects: React.FC = () => {
                     <motion.div 
                       className="bg-white/80 dark:bg-neutral-800/50 backdrop-blur-sm border border-neutral-200 dark:border-neutral-700 rounded-3xl shadow-lg hover:shadow-2xl transition-all duration-500 overflow-hidden cursor-pointer"
                       whileHover={{ y: -10, scale: 1.02 }}
-                      onClick={() => setSelectedProject(project)}
+                      onClick={() => handleProjectClick(project)}
                     >
                       <div className="relative overflow-hidden">
                         <motion.img
@@ -204,79 +224,6 @@ const Projects: React.FC = () => {
             </AnimatePresence>
           </motion.div>
         </div>
-
-        {/* Project Details Modal */}
-        <Modal isOpen={!!selectedProject} onClose={() => setSelectedProject(null)}>
-          {selectedProject && (
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5 }}
-            >
-              <div className="relative mb-8">
-                <img
-                  src={selectedProject.image}
-                  alt={selectedProject.name}
-                  className="w-full h-80 object-cover rounded-2xl"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent rounded-2xl" />
-                <div className="absolute bottom-6 left-6">
-                  <span className={`inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r ${getTypeColor(selectedProject.type)} text-white rounded-full font-medium`}>
-                    {React.createElement(getTypeIcon(selectedProject.type), { className: "w-4 h-4" })}
-                    {selectedProject.type}
-                  </span>
-                </div>
-              </div>
-              
-              <div className="flex items-center justify-between mb-6">
-                <h3 className="text-3xl font-poppins font-bold text-neutral-900 dark:text-white">
-                  {selectedProject.name}
-                </h3>
-                <div className="flex items-center gap-2">
-                  <TrendingUp className="w-5 h-5 text-green-500" />
-                  <span className="text-green-500 font-medium">{t('projectCompleted', language)}</span>
-                </div>
-              </div>
-              
-              <p className="text-lg text-neutral-600 dark:text-neutral-300 mb-2 font-inter">
-                <strong className="text-primary-500">{t('client', language)}:</strong> {selectedProject.company}
-              </p>
-              
-              <p className="text-neutral-700 dark:text-neutral-300 mb-8 leading-relaxed font-inter text-lg">
-                {selectedProject.details}
-              </p>
-              
-              <div className="mb-8">
-                <h4 className="text-xl font-poppins font-bold text-neutral-900 dark:text-white mb-4">
-                  {t('technologiesAndTools', language)}
-                </h4>
-                <div className="flex flex-wrap gap-3">
-                  {selectedProject.technologies.map((tech, index) => (
-                    <motion.span
-                      key={index}
-                      className="px-4 py-2 bg-gradient-to-r from-primary-100 to-primary-200 dark:from-primary-900/30 dark:to-primary-800/30 text-primary-700 dark:text-primary-300 rounded-full font-medium font-inter border border-primary-200 dark:border-primary-700"
-                      initial={{ opacity: 0, scale: 0.8 }}
-                      animate={{ opacity: 1, scale: 1 }}
-                      transition={{ duration: 0.3, delay: index * 0.1 }}
-                      whileHover={{ scale: 1.05 }}
-                    >
-                      {tech}
-                    </motion.span>
-                  ))}
-                </div>
-              </div>
-
-              <div className="bg-gradient-to-r from-primary-50 to-primary-100 dark:from-primary-900/20 dark:to-primary-800/20 p-6 rounded-2xl border border-primary-200 dark:border-primary-700">
-                <h4 className="text-lg font-poppins font-bold text-neutral-900 dark:text-white mb-2">
-                  {t('achievedResults', language)}
-                </h4>
-                <p className="text-neutral-700 dark:text-neutral-300 font-inter">
-                  {t('projectSuccess', language)}
-                </p>
-              </div>
-            </motion.div>
-          )}
-        </Modal>
       </div>
     </section>
   );

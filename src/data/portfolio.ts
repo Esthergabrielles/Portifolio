@@ -85,16 +85,6 @@ export const certificates: Certificate[] = [
     skills: ['Fundamentos de TI', 'Metodologias', 'Planejamento de Carreira', 'Soft Skills']
   },
   {
-    id: '8',
-    name: 'GENERAL ESSENTIALS',
-    issuer: 'Mate Academy',
-    date: '2024',
-    image: 'https://media.licdn.com/dms/image/v2/D4D2DAQEi7HkUhgIvcQ/profile-treasury-document-cover-images_480/B4DZaEelAPG8Aw-/0/1745979331461?e=1751742000&v=beta&t=Tah2hBhIu7o7JzEOwOF4My2EJQzqAm-avRwOaKU-DtU',
-    category: 'Foundation',
-    description: 'Conhecimentos essenciais gerais para profissionais de tecnologia.',
-    skills: ['Conhecimentos Gerais', 'Fundamentos', 'Metodologias', 'Boas Práticas']
-  },
-  {
     id: '9',
     name: 'GESTÃO DE PROJETOS DE SUSTENTABILIDADE',
     issuer: 'Mate Academy',
@@ -115,11 +105,21 @@ export const certificates: Certificate[] = [
     skills: ['Git', 'Terminal', 'Controle de Versão', 'Command Line']
   },
   {
+    id: '10b',
+    name: 'GIT AND TERMINAL - Theory',
+    issuer: 'Mate Academy',
+    date: '2024',
+    image: 'https://media.licdn.com/dms/image/v2/D4D2DAQGQQSwF09GY8A/profile-treasury-document-cover-images_480/B4DZaEdvEzGsAw-/0/1745979110663?e=1751742000&v=beta&t=hC-NWqmHaxrHKl8SzyLv-oxBW9qlZ81ClhkQfpAt0II',
+    category: 'Development',
+    description: 'Fundamentos teóricos de controle de versão Git e uso de terminal.',
+    skills: ['Git Theory', 'Terminal Concepts', 'Version Control Theory', 'Command Line Fundamentals']
+  },
+  {
     id: '11',
     name: 'HOW THE WEB WORKS',
     issuer: 'Mate Academy',
     date: '2024',
-    image: 'https://media.licdn.com/dms/image/v2/D4D2DAQGQQSwF09GY8A/profile-treasury-document-cover-images_480/B4DZaEdvEzGsAw-/0/1745979110663?e=1751742000&v=beta&t=hC-NWqmHaxrHKl8SzyLv-oxBW9qlZ81ClhkQfpAt0II',
+    image: 'https://media.licdn.com/dms/image/v2/D4D2DAQG3NJsyFNMfGg/profile-treasury-document-cover-images_480/B4DZe8nyXWGkAw-/0/1751216236982?e=1751821200&v=beta&t=vziwaC5gq9U0BZNFEDePOpYCYTPNaw5r9iNQhjWaZmc',
     category: 'Web Development',
     description: 'Fundamentos sobre como a web funciona, protocolos e arquiteturas.',
     skills: ['HTTP/HTTPS', 'DNS', 'Arquitetura Web', 'Protocolos de Rede']
@@ -169,7 +169,7 @@ export const certificates: Certificate[] = [
     name: 'QA THEORY',
     issuer: 'Mate Academy',
     date: '2024',
-    image: 'https://media.licdn.com/dms/image/v2/D4D2DAQEi7HkUhgIvcQ/profile-treasury-document-cover-images_480/B4DZaEelAPG8Aw-/0/1745979331461?e=1751742000&v=beta&t=Tah2hBhIu7o7JzEOwOF4My2EJQzqAm-avRwOaKU-DtU',
+    image: 'https://media.licdn.com/dms/image/v2/D4D2DAQFEFp5kZciIcg/profile-treasury-document-cover-images_480/B4DZaI5dTgGgA0-/0/1746053486694?e=1751821200&v=beta&t=15pXGhChW8Gq5t83MvXawPohigBSYc_3xrRzFBpchME',
     category: 'QA',
     description: 'Teoria fundamental de Quality Assurance e metodologias de teste.',
     skills: ['Teoria de QA', 'Metodologias de Teste', 'Ciclo de Vida', 'Documentação']
@@ -206,13 +206,115 @@ export const certificates: Certificate[] = [
   }
 ];
 
+// Logos oficiais de alta qualidade com URLs confiáveis
+export const brandLogos: { [key: string]: string } = {
+  // Instituições Educacionais
+  'Estácio': 'https://logoeps.com/wp-content/uploads/2013/03/estacio-vector-logo.png',
+  'Mate Academy': 'https://mate.academy/static/images/logo.svg',
+  
+  // Ferramentas QA e Gestão
+  'Jira': 'https://cdn.worldvectorlogo.com/logos/jira-1.svg',
+  'TestRail': 'https://www.gurock.com/images/brand/testrail-icon-color.svg',
+  
+  // Controle de Versão
+  'Git': 'https://git-scm.com/images/logos/downloads/Git-Icon-1788C.svg',
+  'GitHub': 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/github/github-original.svg',
+  
+  // Testes de API
+  'Postman': 'https://www.vectorlogo.zone/logos/getpostman/getpostman-icon.svg',
+  
+  // Banco de Dados
+  'DBeaver': 'https://dbeaver.io/wp-content/uploads/2015/09/beaver-head.png',
+  'SQL': 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/mysql/mysql-original.svg',
+  
+  // Navegadores
+  'Chrome': 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/chrome/chrome-original.svg',
+  
+  // Linguagens
+  'HTML': 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/html5/html5-original.svg',
+  'CSS': 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/css3/css3-original.svg',
+  'JavaScript': 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/javascript/javascript-original.svg',
+  
+  // Sistema Operacional
+  'Windows': 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/windows8/windows8-original.svg',
+  
+  // Metodologias
+  'Scrum': 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/trello/trello-plain.svg',
+  
+  // Comunicação
+  'WhatsApp': 'https://upload.wikimedia.org/wikipedia/commons/6/6b/WhatsApp.svg'
+};
+
+// Mapeamento de logos das ferramentas com URLs de alta qualidade
+export const toolLogos: { [key: string]: string } = {
+  // Ferramentas de QA e Gestão
+  'Jira': brandLogos['Jira'],
+  'TestRail': brandLogos['TestRail'],
+  
+  // Controle de Versão e Terminal
+  'Git / GitHub': brandLogos['Git'],
+  'Terminal Unix / Bash': 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/bash/bash-original.svg',
+  
+  // Testes de API e Banco de Dados
+  'Postman': brandLogos['Postman'],
+  'DBeaver': brandLogos['DBeaver'],
+  'SQL': brandLogos['SQL'],
+  
+  // Desenvolvimento Web
+  'Chrome DevTools': brandLogos['Chrome'],
+  'HTML / CSS': brandLogos['HTML'],
+  'JavaScript': brandLogos['JavaScript'],
+  
+  // Dados e Formatos
+  'XML / JSON': 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/json/json-original.svg',
+  
+  // Sistema Operacional
+  'Windows': brandLogos['Windows'],
+  
+  // Metodologias
+  'Scrum / Kanban': brandLogos['Scrum'],
+  
+  // WhatsApp para contato
+  'WhatsApp': brandLogos['WhatsApp']
+};
+
 export const technicalSkills: Skill[] = [
-  { name: 'Manual Testing', level: 75, icon: 'Search' },
-  { name: 'Test Documentation', level: 80, icon: 'Bot' },
-  { name: 'Bug Reporting', level: 85, icon: 'Globe' },
-  { name: 'Basic Automation', level: 60, icon: 'Zap' },
-  { name: 'API Testing', level: 65, icon: 'Shield' },
-  { name: 'Mobile Testing', level: 70, icon: 'Smartphone' }
+  // Ferramentas de QA e Gestão
+  { name: 'Jira', level: 90, icon: 'Bot' },
+  { name: 'TestRail', level: 85, icon: 'Search' },
+  
+  // Controle de Versão e Terminal
+  { name: 'Git / GitHub', level: 70, icon: 'Globe' },
+  { name: 'Terminal Unix / Bash', level: 60, icon: 'Zap' },
+  
+  // Testes de API e Banco de Dados
+  { name: 'Postman', level: 80, icon: 'Shield' },
+  { name: 'DBeaver', level: 75, icon: 'Bot' },
+  { name: 'SQL', level: 75, icon: 'Search' },
+  
+  // Desenvolvimento Web
+  { name: 'Chrome DevTools', level: 80, icon: 'Eye' },
+  { name: 'HTML / CSS', level: 70, icon: 'Globe' },
+  { name: 'JavaScript', level: 50, icon: 'Zap' },
+  
+  // Dados e Formatos
+  { name: 'XML / JSON', level: 75, icon: 'Shield' },
+  
+  // Sistema Operacional
+  { name: 'Windows', level: 95, icon: 'Smartphone' },
+  
+  // Metodologias
+  { name: 'Scrum / Kanban', level: 85, icon: 'Users' }
+];
+
+// Nova seção: Documentações de QA
+export const qaDocumentations: Skill[] = [
+  { name: 'Plano de Teste (Test Plan)', level: 85, icon: 'FileText' },
+  { name: 'Casos de Teste (Test Cases)', level: 90, icon: 'Search' },
+  { name: 'Procedimento de Teste', level: 80, icon: 'Globe' },
+  { name: 'Matriz de Rastreabilidade (RTM)', level: 65, icon: 'Shield' },
+  { name: 'Relatório de Execução de Teste', level: 80, icon: 'Eye' },
+  { name: 'Relatório de Defeitos (Bug Report)', level: 95, icon: 'Zap' }
 ];
 
 export const softSkills: Skill[] = [

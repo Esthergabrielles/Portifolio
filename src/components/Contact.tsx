@@ -2,8 +2,6 @@ import React, { useState } from 'react';
 import { Mail, Phone, MapPin, Send, Linkedin, Copy, Check, AlertCircle, MessageSquare, Clock, Users, ExternalLink } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useFormValidation } from '../hooks/useFormValidation';
-import { useLanguage } from '../hooks/useLanguage';
-import { t } from '../data/translations';
 import { sendEmail, sendEmailViaMailto } from '../services/emailService';
 import AnimatedSection from './AnimatedSection';
 
@@ -12,7 +10,6 @@ const Contact: React.FC = () => {
   const [copied, setCopied] = useState(false);
   const [copiedPhone, setCopiedPhone] = useState(false);
   const [submitStatus, setSubmitStatus] = useState<'idle' | 'success' | 'error'>('idle');
-  const { language } = useLanguage();
 
   const formConfig = {
     name: { required: true, minLength: 2, maxLength: 50 },
@@ -81,9 +78,7 @@ const Contact: React.FC = () => {
 
   const openWhatsApp = () => {
     const message = encodeURIComponent(
-      language === 'pt' 
-        ? 'Olá Esther! Vi seu portfólio e gostaria de conversar sobre oportunidades.'
-        : 'Hello Esther! I saw your portfolio and would like to talk about opportunities.'
+      'Olá Esther! Vi seu portfólio e gostaria de conversar sobre oportunidades.'
     );
     window.open(`https://wa.me/5519989261419?text=${message}`, '_blank');
   };
@@ -91,7 +86,7 @@ const Contact: React.FC = () => {
   const contactInfo = [
     {
       icon: Mail,
-      label: t('professionalEmail', language),
+      label: 'Email Profissional',
       value: 'esthergabriellesouza@gmail.com',
       action: copyEmail,
       color: 'from-blue-500 to-blue-600',
@@ -99,16 +94,17 @@ const Contact: React.FC = () => {
     },
     {
       icon: Phone,
-      label: t('phoneWhatsApp', language),
+      label: 'Telefone/WhatsApp',
       value: '(19) 98926-1419',
       action: copyPhone,
       whatsappAction: openWhatsApp,
       color: 'from-green-500 to-green-600',
-      copied: copiedPhone
+      copied: copiedPhone,
+      whatsappLogo: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQXSU8Y-kQZi0bZuPCCIJxtRr1K54PB96jwtQ&s'
     },
     {
       icon: MapPin,
-      label: t('location', language),
+      label: 'Localização',
       value: 'Santa Bárbara d\'Oeste, SP - Brasil',
       color: 'from-purple-500 to-purple-600'
     }
@@ -120,15 +116,15 @@ const Contact: React.FC = () => {
       label: 'LinkedIn',
       href: 'https://linkedin.com/in/esthergabrielle',
       color: 'from-blue-600 to-blue-700',
-      description: t('connectWithMe', language)
+      description: 'Conecte-se comigo'
     }
   ];
 
   const getFieldClassName = (fieldName: string) => {
-    const baseClass = "w-full px-6 py-4 border rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-transparent bg-white/80 dark:bg-neutral-800/50 backdrop-blur-sm text-neutral-900 dark:text-white transition-all duration-300 font-inter";
+    const baseClass = "w-full px-6 py-4 border rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-transparent bg-white/80 backdrop-blur-sm text-neutral-900 transition-all duration-300 font-inter";
     
     if (!touched[fieldName]) {
-      return `${baseClass} border-neutral-300 dark:border-neutral-600`;
+      return `${baseClass} border-neutral-300`;
     }
     
     if (errors[fieldName]) {
@@ -139,7 +135,7 @@ const Contact: React.FC = () => {
   };
 
   return (
-    <section id="contact" className="section-spacing bg-gradient-to-br from-white via-neutral-50 to-neutral-100 dark:from-neutral-900 dark:via-black dark:to-neutral-800 relative overflow-hidden">
+    <section id="contact" className="section-spacing bg-gradient-to-br from-white via-neutral-50 to-neutral-100 relative overflow-hidden">
       {/* Background Pattern */}
       <div className="absolute inset-0 opacity-5">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(47,128,237,0.1),transparent_50%)]" />
@@ -155,12 +151,12 @@ const Contact: React.FC = () => {
               transition={{ duration: 0.8 }}
               viewport={{ once: true }}
             >
-              <h2 className="text-5xl md:text-6xl font-poppins font-bold text-neutral-900 dark:text-white mb-6">
-                {t('letsChat2', language)}
+              <h2 className="text-5xl md:text-6xl font-poppins font-bold text-neutral-900 mb-6">
+                Vamos Conversar?
               </h2>
               <div className="w-24 h-1 bg-gradient-to-r from-primary-400 to-primary-600 mx-auto mb-8 rounded-full" />
-              <p className="text-xl md:text-2xl text-neutral-600 dark:text-neutral-300 max-w-4xl mx-auto leading-relaxed font-inter">
-                {t('contactSubtitle', language)}
+              <p className="text-xl md:text-2xl text-neutral-600 max-w-4xl mx-auto leading-relaxed font-inter">
+                Estou sempre aberta a novas oportunidades e colaborações. Entre em contato para discutirmos como posso contribuir com seu projeto.
               </p>
             </motion.div>
           </AnimatedSection>
@@ -170,13 +166,13 @@ const Contact: React.FC = () => {
         <div className="col-span-12 mb-16">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {[
-              { icon: MessageSquare, label: t('quickResponse', language), value: '< 24h', color: 'from-blue-500 to-blue-600' },
-              { icon: Clock, label: t('availability', language), value: t('immediate', language), color: 'from-green-500 to-green-600' },
-              { icon: Users, label: t('projects', language), value: t('acceptNewProjects', language), color: 'from-purple-500 to-purple-600' }
+              { icon: MessageSquare, label: 'Resposta Rápida', value: '< 24h', color: 'from-blue-500 to-blue-600' },
+              { icon: Clock, label: 'Disponibilidade', value: 'Imediata', color: 'from-green-500 to-green-600' },
+              { icon: Users, label: 'Projetos', value: 'Aceito Novos', color: 'from-purple-500 to-purple-600' }
             ].map((stat, index) => (
               <motion.div
                 key={index}
-                className="bg-white/80 dark:bg-neutral-800/50 backdrop-blur-sm border border-neutral-200 dark:border-neutral-700 p-6 rounded-2xl shadow-lg text-center"
+                className="bg-white/80 backdrop-blur-sm border border-neutral-200 p-6 rounded-2xl shadow-lg text-center"
                 initial={{ opacity: 0, scale: 0.9 }}
                 whileInView={{ opacity: 1, scale: 1 }}
                 transition={{ duration: 0.5, delay: index * 0.1 }}
@@ -186,10 +182,10 @@ const Contact: React.FC = () => {
                 <div className={`bg-gradient-to-r ${stat.color} w-12 h-12 rounded-xl flex items-center justify-center mx-auto mb-3 shadow-lg`}>
                   <stat.icon className="w-6 h-6 text-white" />
                 </div>
-                <h3 className="text-lg font-bold text-neutral-900 dark:text-white mb-1 font-poppins">
+                <h3 className="text-lg font-bold text-neutral-900 mb-1 font-poppins">
                   {stat.value}
                 </h3>
-                <p className="text-neutral-600 dark:text-neutral-300 font-inter text-sm">
+                <p className="text-neutral-600 font-inter text-sm">
                   {stat.label}
                 </p>
               </motion.div>
@@ -206,15 +202,15 @@ const Contact: React.FC = () => {
               transition={{ duration: 0.8 }}
               viewport={{ once: true }}
             >
-              <h3 className="text-3xl md:text-4xl font-poppins font-bold text-neutral-900 dark:text-white mb-12">
-                {t('contactInfo', language)}
+              <h3 className="text-3xl md:text-4xl font-poppins font-bold text-neutral-900 mb-12">
+                Informações de Contato
               </h3>
               
               <div className="space-y-6 mb-12">
                 {contactInfo.map((info, index) => (
                   <motion.div
                     key={index}
-                    className="flex items-center space-x-6 p-6 bg-white/80 dark:bg-neutral-800/50 backdrop-blur-sm border border-neutral-200 dark:border-neutral-700 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300"
+                    className="flex items-center space-x-6 p-6 bg-white/80 backdrop-blur-sm border border-neutral-200 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300"
                     initial={{ opacity: 0, x: -30 }}
                     whileInView={{ opacity: 1, x: 0 }}
                     transition={{ duration: 0.6, delay: index * 0.1 }}
@@ -225,19 +221,19 @@ const Contact: React.FC = () => {
                       <info.icon className="w-6 h-6 text-white" />
                     </div>
                     <div className="flex-1">
-                      <p className="text-sm text-neutral-500 dark:text-neutral-400 font-inter font-medium mb-1">
+                      <p className="text-sm text-neutral-500 font-inter font-medium mb-1">
                         {info.label}
                       </p>
                       <div className="flex items-center gap-3">
-                        <span className="text-lg text-neutral-900 dark:text-white font-semibold font-inter">
+                        <span className="text-lg text-neutral-900 font-semibold font-inter">
                           {info.value}
                         </span>
                         <div className="flex gap-2">
                           {info.action && (
                             <motion.button
                               onClick={info.action}
-                              className="p-2 rounded-lg hover:bg-neutral-100 dark:hover:bg-neutral-700 transition-colors duration-300"
-                              title={language === 'pt' ? 'Copiar' : 'Copy'}
+                              className="p-2 rounded-lg hover:bg-neutral-100 transition-colors duration-300"
+                              title="Copiar"
                               whileHover={{ scale: 1.1 }}
                               whileTap={{ scale: 0.9 }}
                             >
@@ -251,12 +247,24 @@ const Contact: React.FC = () => {
                           {info.whatsappAction && (
                             <motion.button
                               onClick={info.whatsappAction}
-                              className="p-2 rounded-lg bg-green-500 hover:bg-green-600 text-white transition-colors duration-300"
+                              className="p-2 rounded-lg bg-green-500 hover:bg-green-600 text-white transition-colors duration-300 flex items-center justify-center"
                               title="WhatsApp"
                               whileHover={{ scale: 1.1 }}
                               whileTap={{ scale: 0.9 }}
                             >
-                              <MessageSquare className="w-5 h-5" />
+                              {info.whatsappLogo ? (
+                                <img 
+                                  src={info.whatsappLogo} 
+                                  alt="WhatsApp"
+                                  className="w-5 h-5 object-contain"
+                                  onError={(e) => {
+                                    const target = e.target as HTMLImageElement;
+                                    target.style.display = 'none';
+                                    target.nextElementSibling?.classList.remove('hidden');
+                                  }}
+                                />
+                              ) : null}
+                              <MessageSquare className={`w-5 h-5 ${info.whatsappLogo ? 'hidden' : ''}`} />
                             </motion.button>
                           )}
                         </div>
@@ -268,8 +276,8 @@ const Contact: React.FC = () => {
 
               {/* Social Links */}
               <div>
-                <h4 className="text-2xl font-poppins font-bold text-neutral-900 dark:text-white mb-6">
-                  {t('socialNetworks', language)}
+                <h4 className="text-2xl font-poppins font-bold text-neutral-900 mb-6">
+                  Redes Sociais
                 </h4>
                 <div className="grid grid-cols-1 gap-4">
                   {socialLinks.map((social, index) => (
@@ -307,19 +315,19 @@ const Contact: React.FC = () => {
               transition={{ duration: 0.8 }}
               viewport={{ once: true }}
             >
-              <h3 className="text-3xl md:text-4xl font-poppins font-bold text-neutral-900 dark:text-white mb-12">
-                {t('sendMessage', language)}
+              <h3 className="text-3xl md:text-4xl font-poppins font-bold text-neutral-900 mb-12">
+                Envie uma Mensagem
               </h3>
               
               <motion.form 
                 onSubmit={handleSubmit} 
-                className="space-y-6 bg-white/80 dark:bg-neutral-800/50 backdrop-blur-sm border border-neutral-200 dark:border-neutral-700 p-8 rounded-3xl shadow-xl"
+                className="space-y-6 bg-white/80 backdrop-blur-sm border border-neutral-200 p-8 rounded-3xl shadow-xl"
                 whileHover={{ scale: 1.01 }}
                 transition={{ duration: 0.3 }}
               >
                 <div>
-                  <label htmlFor="name" className="block text-lg font-semibold text-neutral-700 dark:text-neutral-300 mb-3 font-inter">
-                    {t('fullName', language)} *
+                  <label htmlFor="name" className="block text-lg font-semibold text-neutral-700 mb-3 font-inter">
+                    Nome Completo *
                   </label>
                   <input
                     type="text"
@@ -329,7 +337,7 @@ const Contact: React.FC = () => {
                     onChange={(e) => handleChange('name', e.target.value)}
                     onBlur={() => handleBlur('name')}
                     className={getFieldClassName('name')}
-                    placeholder={t('yourFullName', language)}
+                    placeholder="Seu nome completo"
                   />
                   {touched.name && errors.name && (
                     <motion.p 
@@ -344,8 +352,8 @@ const Contact: React.FC = () => {
                 </div>
 
                 <div>
-                  <label htmlFor="email" className="block text-lg font-semibold text-neutral-700 dark:text-neutral-300 mb-3 font-inter">
-                    {t('professionalEmail', language)} *
+                  <label htmlFor="email" className="block text-lg font-semibold text-neutral-700 mb-3 font-inter">
+                    Email Profissional *
                   </label>
                   <input
                     type="email"
@@ -355,7 +363,7 @@ const Contact: React.FC = () => {
                     onChange={(e) => handleChange('email', e.target.value)}
                     onBlur={() => handleBlur('email')}
                     className={getFieldClassName('email')}
-                    placeholder={t('yourEmail', language)}
+                    placeholder="seu.email@empresa.com"
                   />
                   {touched.email && errors.email && (
                     <motion.p 
@@ -370,8 +378,8 @@ const Contact: React.FC = () => {
                 </div>
 
                 <div>
-                  <label htmlFor="message" className="block text-lg font-semibold text-neutral-700 dark:text-neutral-300 mb-3 font-inter">
-                    {t('message', language)} *
+                  <label htmlFor="message" className="block text-lg font-semibold text-neutral-700 mb-3 font-inter">
+                    Mensagem *
                   </label>
                   <textarea
                     id="message"
@@ -381,7 +389,7 @@ const Contact: React.FC = () => {
                     onChange={(e) => handleChange('message', e.target.value)}
                     onBlur={() => handleBlur('message')}
                     className={`${getFieldClassName('message')} resize-none`}
-                    placeholder={t('messagePlaceholder', language)}
+                    placeholder="Conte-me sobre seu projeto, oportunidade ou como posso ajudar..."
                   />
                   {touched.message && errors.message && (
                     <motion.p 
@@ -397,37 +405,37 @@ const Contact: React.FC = () => {
 
                 {submitStatus === 'success' && (
                   <motion.div 
-                    className="p-6 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 rounded-xl font-inter border border-green-200 dark:border-green-700"
+                    className="p-6 bg-green-100 text-green-700 rounded-xl font-inter border border-green-200"
                     initial={{ opacity: 0, scale: 0.9 }}
                     animate={{ opacity: 1, scale: 1 }}
                   >
                     <div className="flex items-center gap-2 mb-2">
                       <Check className="w-5 h-5" />
-                      <span className="font-semibold">{t('messageSuccess', language)}</span>
+                      <span className="font-semibold">Mensagem enviada com sucesso!</span>
                     </div>
-                    <p>{t('messageSuccessDesc', language)}</p>
+                    <p>Entrarei em contato em breve. Obrigada pelo interesse!</p>
                   </motion.div>
                 )}
 
                 {submitStatus === 'error' && (
                   <motion.div 
-                    className="p-6 bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300 rounded-xl font-inter border border-red-200 dark:border-red-700"
+                    className="p-6 bg-red-100 text-red-700 rounded-xl font-inter border border-red-200"
                     initial={{ opacity: 0, scale: 0.9 }}
                     animate={{ opacity: 1, scale: 1 }}
                   >
                     <div className="flex items-center gap-2 mb-2">
                       <AlertCircle className="w-5 h-5" />
-                      <span className="font-semibold">{t('messageError', language)}</span>
+                      <span className="font-semibold">Erro ao enviar mensagem</span>
                     </div>
-                    <p className="mb-3">{t('tryAgain', language)}</p>
+                    <p className="mb-3">Tente novamente ou use o botão abaixo para abrir seu cliente de email.</p>
                     <motion.button
                       type="button"
                       onClick={() => sendEmailViaMailto(data)}
-                      className="flex items-center gap-2 text-red-700 dark:text-red-300 hover:text-red-800 dark:hover:text-red-200 font-semibold"
+                      className="flex items-center gap-2 text-red-700 hover:text-red-800 font-semibold"
                       whileHover={{ scale: 1.05 }}
                     >
                       <ExternalLink className="w-4 h-4" />
-                      {t('openEmailClient', language)}
+                      Abrir cliente de email
                     </motion.button>
                   </motion.div>
                 )}
@@ -442,18 +450,18 @@ const Contact: React.FC = () => {
                   {isSubmitting ? (
                     <>
                       <div className="w-6 h-6 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                      {t('sendingMessage', language)}
+                      Enviando...
                     </>
                   ) : (
                     <>
-                      {t('sendMessage2', language)}
+                      Enviar Mensagem
                       <Send className="w-6 h-6" />
                     </>
                   )}
                 </motion.button>
 
-                <p className="text-sm text-neutral-500 dark:text-neutral-400 font-inter text-center">
-                  {t('privacyNote', language)}
+                <p className="text-sm text-neutral-500 font-inter text-center">
+                  Ao enviar esta mensagem, você concorda que eu entre em contato através do email fornecido.
                 </p>
               </motion.form>
             </motion.div>

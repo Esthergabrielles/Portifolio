@@ -1,28 +1,16 @@
 import React from 'react';
-import { ArrowRight, Download, Sparkles, Award, TrendingUp } from 'lucide-react';
+import { ArrowRight, Sparkles, Award, TrendingUp } from 'lucide-react';
 import { motion } from 'framer-motion';
-import { useLanguage } from '../hooks/useLanguage';
-import { t } from '../data/translations';
 import AnimatedSection from './AnimatedSection';
 
 const Hero: React.FC = () => {
-  const { language } = useLanguage();
-
   const handleContactClick = () => {
     const element = document.querySelector('#contact');
     element?.scrollIntoView({ behavior: 'smooth' });
   };
 
-  const handleDownloadCV = () => {
-    const cvFile = language === 'en' ? '/cv-esther-gabrielle-en.pdf' : '/cv-esther-gabrielle.pdf';
-    const link = document.createElement('a');
-    link.href = cvFile;
-    link.download = language === 'en' ? 'CV-Esther-Gabrielle-EN.pdf' : 'CV-Esther-Gabrielle.pdf';
-    link.click();
-  };
-
   return (
-    <section className="relative min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-900 via-slate-800 to-black pt-16 overflow-hidden">
+    <section className="relative min-h-screen flex items-center justify-center bg-gradient-to-br from-white via-indigo-50 to-purple-100 pt-16 overflow-hidden">
       {/* Premium Background Pattern */}
       <div className="absolute inset-0 opacity-10">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(99,102,241,0.15),transparent_50%)]" />
@@ -102,20 +90,20 @@ const Hero: React.FC = () => {
               >
                 <div className="flex items-center gap-2 bg-emerald-500/20 backdrop-blur-sm border border-emerald-500/30 px-4 py-2 rounded-full">
                   <div className="w-2 h-2 bg-emerald-400 rounded-full animate-pulse" />
-                  <span className="text-emerald-300 font-inter font-medium text-sm">
-                    {t('availableForProjects', language)}
+                  <span className="text-emerald-700 font-inter font-medium text-sm">
+                    Disponível para novos projetos
                   </span>
                 </div>
               </motion.div>
               
               <motion.h1 
-                className="font-poppins text-6xl md:text-8xl font-bold text-white mb-8 leading-tight"
+                className="font-poppins text-6xl md:text-8xl font-bold text-slate-800 mb-8 leading-tight"
                 initial={{ opacity: 0, y: 30 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.8, delay: 0.4 }}
               >
-                {t('hello', language)}{' '}
-                <span className="bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">
+                Olá, sou a{' '}
+                <span className="bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 bg-clip-text text-transparent">
                   Esther Gabrielle
                 </span>
               </motion.h1>
@@ -128,10 +116,10 @@ const Hero: React.FC = () => {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.8, delay: 0.6 }}
               >
-                <h2 className="text-3xl md:text-4xl text-slate-200 mb-4 leading-relaxed font-inter font-light">
-                  {t('qaSpecialist', language)}{' '}
-                  <span className="text-indigo-400 font-semibold">{t('qualityTesting', language)}</span>{' '}
-                  {t('organizationalProcesses', language)}
+                <h2 className="text-3xl md:text-4xl text-slate-700 mb-4 leading-relaxed font-inter font-light">
+                  QA Junior especializada em{' '}
+                  <span className="text-indigo-600 font-semibold">testes de qualidade</span>{' '}
+                  e processos organizacionais
                 </h2>
                 <div className="w-32 h-1 bg-gradient-to-r from-indigo-400 to-purple-400 mx-auto rounded-full" />
               </motion.div>
@@ -139,12 +127,13 @@ const Hero: React.FC = () => {
 
             <AnimatedSection animation="slide-up" delay={3} className="element-spacing">
               <motion.p 
-                className="text-xl text-slate-300 mb-12 max-w-3xl mx-auto font-inter leading-relaxed"
+                className="text-xl text-slate-600 mb-12 max-w-3xl mx-auto font-inter leading-relaxed"
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.8, delay: 0.8 }}
               >
-                {t('heroDescription', language)}
+                Iniciando minha carreira em QA com paixão por encontrar bugs e garantir qualidade. 
+                Sempre em busca de aprender e crescer na área de tecnologia.
               </motion.p>
             </AnimatedSection>
 
@@ -157,9 +146,9 @@ const Hero: React.FC = () => {
                 transition={{ duration: 0.8, delay: 1 }}
               >
                 {[
-                  { number: '5+', label: t('studyProjects', language), icon: TrendingUp },
-                  { number: '95%', label: t('dedicationToStudies', language), icon: Award },
-                  { number: '1+', label: t('learningYear', language), icon: Sparkles }
+                  { number: '5+', label: 'Projetos de Estudo', icon: TrendingUp },
+                  { number: '95%', label: 'Dedicação aos Estudos', icon: Award },
+                  { number: '1+', label: 'Ano de Aprendizado', icon: Sparkles }
                 ].map((stat, index) => (
                   <motion.div
                     key={index}
@@ -167,10 +156,10 @@ const Hero: React.FC = () => {
                     whileHover={{ scale: 1.05, y: -5 }}
                     transition={{ duration: 0.3 }}
                   >
-                    <div className="bg-slate-800/50 backdrop-blur-sm border border-slate-700 rounded-2xl p-6 hover:border-indigo-500/50 transition-all duration-300">
-                      <stat.icon className="w-8 h-8 text-indigo-400 mx-auto mb-3" />
-                      <h3 className="text-3xl font-bold text-white mb-2 font-poppins">{stat.number}</h3>
-                      <p className="text-slate-300 font-inter">{stat.label}</p>
+                    <div className="bg-white/80 backdrop-blur-sm border border-slate-200 rounded-2xl p-6 hover:border-indigo-300 transition-all duration-300">
+                      <stat.icon className="w-8 h-8 text-indigo-500 mx-auto mb-3" />
+                      <h3 className="text-3xl font-bold text-slate-800 mb-2 font-poppins">{stat.number}</h3>
+                      <p className="text-slate-600 font-inter">{stat.label}</p>
                     </div>
                   </motion.div>
                 ))}
@@ -192,27 +181,10 @@ const Hero: React.FC = () => {
                   whileTap={{ scale: 0.98 }}
                   transition={{ duration: 0.2 }}
                 >
-                  <span className="relative z-10">{t('letsChat', language)}</span>
+                  <span className="relative z-10">Vamos Conversar</span>
                   <ArrowRight className="w-6 h-6 group-hover:translate-x-1 transition-transform duration-300 relative z-10" />
                   <motion.div
                     className="absolute inset-0 bg-gradient-to-r from-purple-600 to-pink-600"
-                    initial={{ x: '-100%' }}
-                    whileHover={{ x: 0 }}
-                    transition={{ duration: 0.3 }}
-                  />
-                </motion.button>
-                
-                <motion.button 
-                  onClick={handleDownloadCV}
-                  className="group relative bg-slate-800/50 backdrop-blur-sm border border-slate-700 text-slate-200 px-10 py-5 rounded-2xl font-inter font-semibold text-lg flex items-center gap-3 overflow-hidden hover:border-indigo-500/50"
-                  whileHover={{ scale: 1.05, y: -3 }}
-                  whileTap={{ scale: 0.98 }}
-                  transition={{ duration: 0.2 }}
-                >
-                  <span className="relative z-10">{t('downloadCV', language)}</span>
-                  <Download className="w-6 h-6 group-hover:translate-y-1 transition-transform duration-300 relative z-10" />
-                  <motion.div
-                    className="absolute inset-0 bg-slate-700/30"
                     initial={{ x: '-100%' }}
                     whileHover={{ x: 0 }}
                     transition={{ duration: 0.3 }}
