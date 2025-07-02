@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Send, Plus, Trash2, Copy, Download, Save, Play, Settings, Eye, Code, History, Folder, Search, X, ChevronDown, ChevronRight } from 'lucide-react';
+import { Send, Plus, Trash2, Copy, Download, Save, Play, Settings, Eye, Code, History, Folder, Search, X, ChevronDown, ChevronRight, AlertCircle, CheckCircle, Upload, FileText, UploadCloud as CloudUpload } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 interface PostmanCollection {
@@ -10,6 +10,7 @@ interface PostmanCollection {
   variables: PostmanVariable[];
   createdAt: string;
   updatedAt: string;
+  isImported?: boolean;
 }
 
 interface PostmanRequest {
@@ -58,23 +59,311 @@ const PostmanInterface: React.FC = () => {
   const [response, setResponse] = useState<Response | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [environment, setEnvironment] = useState<{ [key: string]: string }>({});
+  
+  // Upload states
+  const [showUploadModal, setShowUploadModal] = useState(false);
+  const [uploadStatus, setUploadStatus] = useState<'idle' | 'uploading' | 'success' | 'error'>('idle');
+  const [uploadMessage, setUploadMessage] = useState('');
 
-  // Carregar coleções do localStorage
-  useEffect(() => {
-    const savedCollections = localStorage.getItem('postman_collections');
-    if (savedCollections) {
-      const parsedCollections = JSON.parse(savedCollections);
-      setCollections(parsedCollections);
-      
-      // Auto-selecionar primeira coleção se existir
-      if (parsedCollections.length > 0) {
-        setSelectedCollection(parsedCollections[0]);
-        setExpandedCollections(new Set([parsedCollections[0].id]));
-        
-        // Auto-selecionar primeiro request se existir
-        if (parsedCollections[0].requests.length > 0) {
-          loadRequest(parsedCollections[0].requests[0]);
+  // Coleções reais funcionais
+  const realCollections: PostmanCollection[] = [
+    {
+      id: '1',
+      name: 'JSONPlaceholder API Tests',
+      description: 'Testes completos da API JSONPlaceholder para demonstração',
+      createdAt: '2024-01-15',
+      updatedAt: '2024-01-20',
+      variables: [
+        { key: 'baseUrl', value: 'https://jsonplaceholder.typicode.com', type: 'default' },
+        { key: 'userId', value: '1', type: 'default' }
+      ],
+      requests: [
+        {
+          id: 'req1',
+          name: 'Get All Posts',
+          method: 'GET',
+          url: '{{baseUrl}}/posts',
+          headers: [
+            { key: 'Accept', value: 'application/json', enabled: true }
+          ],
+          body: '',
+          bodyType: 'none',
+          description: 'Busca todos os posts disponíveis',
+          tests: `
+pm.test("Status code is 200", function () {
+    pm.response.to.have.status(200);
+});
+
+pm.test("Response is an array", function () {
+    pm.expect(pm.response.json()).to.be.an('array');
+});
+
+pm.test("Posts have required fields", function () {
+    const posts = pm.response.json();
+    pm.expect(posts[0]).to.have.property('id');
+    pm.expect(posts[0]).to.have.property('title');
+    pm.expect(posts[0]).to.have.property('body');
+});`
+        },
+        {
+          id: 'req2',
+          name: 'Get Single Post',
+          method: 'GET',
+          url: '{{baseUrl}}/posts/{{userId}}',
+          headers: [
+            { key: 'Accept', value: 'application/json', enabled: true }
+          ],
+          body: '',
+          bodyType: 'none',
+          description: 'Busca um post específico por ID',
+          tests: `
+pm.test("Status code is 200", function () {
+    pm.response.to.have.status(200);
+});
+
+pm.test("Post has correct structure", function () {
+    const post = pm.response.json();
+    pm.expect(post).to.have.property('id');
+    pm.expect(post).to.have.property('userId');
+    pm.expect(post).to.have.property('title');
+    pm.expect(post).to.have.property('body');
+});`
+        },
+        {
+          id: 'req3',
+          name: 'Create New Post',
+          method: 'POST',
+          url: '{{baseUrl}}/posts',
+          headers: [
+            { key: 'Content-Type', value: 'application/json', enabled: true },
+            { key: 'Accept', value: 'application/json', enabled: true }
+          ],
+          body: JSON.stringify({
+            title: 'Teste QA - Novo Post',
+            body: 'Este é um post criado durante os testes de QA da API',
+            userId: 1
+          }, null, 2),
+          bodyType: 'json',
+          description: 'Cria um novo post via API',
+          tests: `
+pm.test("Status code is 201", function () {
+    pm.response.to.have.status(201);
+});
+
+pm.test("Post was created with ID", function () {
+    const newPost = pm.response.json();
+    pm.expect(newPost).to.have.property('id');
+    pm.expect(newPost.title).to.eql('Teste QA - Novo Post');
+});`
+        },
+        {
+          id: 'req4',
+          name: 'Update Post',
+          method: 'PUT',
+          url: '{{baseUrl}}/posts/1',
+          headers: [
+            { key: 'Content-Type', value: 'application/json', enabled: true }
+          ],
+          body: JSON.stringify({
+            id: 1,
+            title: 'Post Atualizado - QA Test',
+            body: 'Conteúdo atualizado durante teste de QA',
+            userId: 1
+          }, null, 2),
+          bodyType: 'json',
+          description: 'Atualiza um post existente'
+        },
+        {
+          id: 'req5',
+          name: 'Delete Post',
+          method: 'DELETE',
+          url: '{{baseUrl}}/posts/1',
+          headers: [],
+          body: '',
+          bodyType: 'none',
+          description: 'Remove um post específico',
+          tests: `
+pm.test("Status code is 200", function () {
+    pm.response.to.have.status(200);
+});`
         }
+      ]
+    },
+    {
+      id: '2',
+      name: 'ReqRes API Tests',
+      description: 'Testes de autenticação e usuários com ReqRes API',
+      createdAt: '2024-01-10',
+      updatedAt: '2024-01-18',
+      variables: [
+        { key: 'reqresUrl', value: 'https://reqres.in/api', type: 'default' },
+        { key: 'authToken', value: '', type: 'secret' }
+      ],
+      requests: [
+        {
+          id: 'req6',
+          name: 'List Users',
+          method: 'GET',
+          url: '{{reqresUrl}}/users?page=2',
+          headers: [
+            { key: 'Accept', value: 'application/json', enabled: true }
+          ],
+          body: '',
+          bodyType: 'none',
+          description: 'Lista usuários com paginação',
+          tests: `
+pm.test("Status code is 200", function () {
+    pm.response.to.have.status(200);
+});
+
+pm.test("Response has pagination", function () {
+    const response = pm.response.json();
+    pm.expect(response).to.have.property('page');
+    pm.expect(response).to.have.property('data');
+    pm.expect(response.data).to.be.an('array');
+});`
+        },
+        {
+          id: 'req7',
+          name: 'Create User',
+          method: 'POST',
+          url: '{{reqresUrl}}/users',
+          headers: [
+            { key: 'Content-Type', value: 'application/json', enabled: true }
+          ],
+          body: JSON.stringify({
+            name: 'Esther Gabrielle',
+            job: 'QA Tester'
+          }, null, 2),
+          bodyType: 'json',
+          description: 'Cria um novo usuário',
+          tests: `
+pm.test("Status code is 201", function () {
+    pm.response.to.have.status(201);
+});
+
+pm.test("User created successfully", function () {
+    const user = pm.response.json();
+    pm.expect(user).to.have.property('id');
+    pm.expect(user).to.have.property('createdAt');
+    pm.expect(user.name).to.eql('Esther Gabrielle');
+});`
+        },
+        {
+          id: 'req8',
+          name: 'Login User',
+          method: 'POST',
+          url: '{{reqresUrl}}/login',
+          headers: [
+            { key: 'Content-Type', value: 'application/json', enabled: true }
+          ],
+          body: JSON.stringify({
+            email: 'eve.holt@reqres.in',
+            password: 'cityslicka'
+          }, null, 2),
+          bodyType: 'json',
+          description: 'Autentica usuário e obtém token',
+          tests: `
+pm.test("Status code is 200", function () {
+    pm.response.to.have.status(200);
+});
+
+pm.test("Token is returned", function () {
+    const response = pm.response.json();
+    pm.expect(response).to.have.property('token');
+    
+    // Salva o token para uso em outras requisições
+    pm.environment.set("authToken", response.token);
+});`
+        }
+      ]
+    },
+    {
+      id: '3',
+      name: 'HTTP Status Tests',
+      description: 'Testes de diferentes códigos de status HTTP',
+      createdAt: '2024-01-12',
+      updatedAt: '2024-01-19',
+      variables: [
+        { key: 'httpbinUrl', value: 'https://httpbin.org', type: 'default' }
+      ],
+      requests: [
+        {
+          id: 'req9',
+          name: 'Test 200 OK',
+          method: 'GET',
+          url: '{{httpbinUrl}}/status/200',
+          headers: [],
+          body: '',
+          bodyType: 'none',
+          description: 'Testa resposta 200 OK',
+          tests: `
+pm.test("Status code is 200", function () {
+    pm.response.to.have.status(200);
+});`
+        },
+        {
+          id: 'req10',
+          name: 'Test 404 Not Found',
+          method: 'GET',
+          url: '{{httpbinUrl}}/status/404',
+          headers: [],
+          body: '',
+          bodyType: 'none',
+          description: 'Testa resposta 404 Not Found',
+          tests: `
+pm.test("Status code is 404", function () {
+    pm.response.to.have.status(404);
+});`
+        },
+        {
+          id: 'req11',
+          name: 'Test POST with JSON',
+          method: 'POST',
+          url: '{{httpbinUrl}}/post',
+          headers: [
+            { key: 'Content-Type', value: 'application/json', enabled: true }
+          ],
+          body: JSON.stringify({
+            testData: 'QA Testing',
+            timestamp: new Date().toISOString(),
+            tester: 'Esther Gabrielle'
+          }, null, 2),
+          bodyType: 'json',
+          description: 'Testa POST com dados JSON',
+          tests: `
+pm.test("Status code is 200", function () {
+    pm.response.to.have.status(200);
+});
+
+pm.test("Request data is echoed back", function () {
+    const response = pm.response.json();
+    pm.expect(response).to.have.property('json');
+    pm.expect(response.json.testData).to.eql('QA Testing');
+});`
+        }
+      ]
+    }
+  ];
+
+  // Carregar coleções na inicialização
+  useEffect(() => {
+    // Carregar coleções salvas do localStorage
+    const savedCollections = localStorage.getItem('postman_imported_collections');
+    const importedCollections = savedCollections ? JSON.parse(savedCollections) : [];
+    
+    // Combinar coleções reais com importadas
+    const allCollections = [...realCollections, ...importedCollections];
+    setCollections(allCollections);
+    
+    // Auto-selecionar primeira coleção
+    if (allCollections.length > 0) {
+      setSelectedCollection(allCollections[0]);
+      setExpandedCollections(new Set([allCollections[0].id]));
+      
+      // Auto-selecionar primeiro request
+      if (allCollections[0].requests.length > 0) {
+        loadRequest(allCollections[0].requests[0]);
       }
     }
   }, []);
@@ -98,6 +387,159 @@ const PostmanInterface: React.FC = () => {
     { name: 'PATCH', color: 'text-purple-500 bg-purple-100 dark:bg-purple-900/30' }
   ];
 
+  // Função para processar arquivo de coleção do Postman
+  const parsePostmanCollection = (fileContent: string): PostmanCollection | null => {
+    try {
+      const data = JSON.parse(fileContent);
+      
+      // Verificar se é um arquivo de coleção válido do Postman
+      if (!data.info || !data.item) {
+        throw new Error('Formato de coleção inválido');
+      }
+
+      // Processar requests recursivamente
+      const processItems = (items: any[]): PostmanRequest[] => {
+        const requests: PostmanRequest[] = [];
+        
+        items.forEach((item, index) => {
+          if (item.item) {
+            // É uma pasta, processar recursivamente
+            requests.push(...processItems(item.item));
+          } else if (item.request) {
+            // É um request
+            const request = item.request;
+            const url = typeof request.url === 'string' ? request.url : request.url?.raw || '';
+            
+            // Processar headers
+            const headers = request.header ? request.header.map((h: any) => ({
+              key: h.key || '',
+              value: h.value || '',
+              enabled: !h.disabled
+            })) : [];
+
+            // Processar body
+            let body = '';
+            let bodyType: 'none' | 'json' | 'form-data' | 'x-www-form-urlencoded' = 'none';
+            
+            if (request.body) {
+              if (request.body.mode === 'raw') {
+                body = request.body.raw || '';
+                bodyType = 'json';
+              } else if (request.body.mode === 'formdata') {
+                bodyType = 'form-data';
+              } else if (request.body.mode === 'urlencoded') {
+                bodyType = 'x-www-form-urlencoded';
+              }
+            }
+
+            // Processar testes
+            let tests = '';
+            if (item.event) {
+              const testEvent = item.event.find((e: any) => e.listen === 'test');
+              if (testEvent && testEvent.script && testEvent.script.exec) {
+                tests = testEvent.script.exec.join('\n');
+              }
+            }
+
+            requests.push({
+              id: `imported_${Date.now()}_${index}`,
+              name: item.name || 'Unnamed Request',
+              method: request.method || 'GET',
+              url,
+              headers,
+              body,
+              bodyType,
+              description: request.description || item.description || '',
+              tests: tests || undefined
+            });
+          }
+        });
+        
+        return requests;
+      };
+
+      // Processar variáveis
+      const variables: PostmanVariable[] = [];
+      if (data.variable) {
+        data.variable.forEach((v: any) => {
+          variables.push({
+            key: v.key || '',
+            value: v.value || '',
+            type: v.type === 'secret' ? 'secret' : 'default'
+          });
+        });
+      }
+
+      const collection: PostmanCollection = {
+        id: `imported_${Date.now()}`,
+        name: data.info.name || 'Coleção Importada',
+        description: data.info.description || 'Coleção importada do Postman',
+        requests: processItems(data.item),
+        variables,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+        isImported: true
+      };
+
+      return collection;
+    } catch (error) {
+      console.error('Erro ao processar coleção:', error);
+      return null;
+    }
+  };
+
+  // Função para fazer upload da coleção
+  const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    setUploadStatus('uploading');
+    setUploadMessage('Processando arquivo...');
+
+    try {
+      const fileContent = await file.text();
+      const collection = parsePostmanCollection(fileContent);
+
+      if (!collection) {
+        throw new Error('Arquivo de coleção inválido');
+      }
+
+      // Salvar no localStorage
+      const savedCollections = localStorage.getItem('postman_imported_collections');
+      const importedCollections = savedCollections ? JSON.parse(savedCollections) : [];
+      importedCollections.push(collection);
+      localStorage.setItem('postman_imported_collections', JSON.stringify(importedCollections));
+
+      // Atualizar estado
+      const allCollections = [...realCollections, ...importedCollections];
+      setCollections(allCollections);
+
+      // Selecionar a coleção importada
+      setSelectedCollection(collection);
+      setExpandedCollections(new Set([collection.id]));
+      
+      if (collection.requests.length > 0) {
+        loadRequest(collection.requests[0]);
+      }
+
+      setUploadStatus('success');
+      setUploadMessage(`Coleção "${collection.name}" importada com sucesso! ${collection.requests.length} requests carregados.`);
+      
+      setTimeout(() => {
+        setShowUploadModal(false);
+        setUploadStatus('idle');
+        setUploadMessage('');
+      }, 2000);
+
+    } catch (error) {
+      setUploadStatus('error');
+      setUploadMessage(`Erro ao importar: ${error.message}`);
+    }
+
+    // Reset input
+    event.target.value = '';
+  };
+
   // Substituir variáveis na URL
   const processUrl = (rawUrl: string) => {
     let processedUrl = rawUrl;
@@ -120,7 +562,7 @@ const PostmanInterface: React.FC = () => {
     setActiveTab('request');
   };
 
-  // Enviar request
+  // Enviar request REAL
   const handleSendRequest = async () => {
     setIsLoading(true);
     setActiveTab('response');
@@ -128,6 +570,8 @@ const PostmanInterface: React.FC = () => {
     try {
       const startTime = Date.now();
       const processedUrl = processUrl(url);
+      
+      console.log('Enviando request para:', processedUrl);
       
       // Preparar headers
       const requestHeaders: { [key: string]: string } = {};
@@ -147,6 +591,7 @@ const PostmanInterface: React.FC = () => {
       const requestOptions: RequestInit = {
         method: selectedMethod,
         headers: requestHeaders,
+        mode: 'cors',
       };
 
       // Adicionar body para POST, PUT, PATCH
@@ -160,9 +605,13 @@ const PostmanInterface: React.FC = () => {
         requestOptions.body = processedBody;
       }
 
+      console.log('Request options:', requestOptions);
+
       const response = await fetch(processedUrl, requestOptions);
       const responseText = await response.text();
       const endTime = Date.now();
+
+      console.log('Response recebida:', response.status, response.statusText);
 
       // Processar headers da resposta
       const responseHeaders: { [key: string]: string } = {};
@@ -170,18 +619,26 @@ const PostmanInterface: React.FC = () => {
         responseHeaders[key] = value;
       });
 
+      // Calcular tamanho da resposta
+      const responseSize = new Blob([responseText]).size;
+      const sizeFormatted = responseSize > 1024 
+        ? `${(responseSize / 1024).toFixed(2)} KB`
+        : `${responseSize} bytes`;
+
       setResponse({
         status: response.status,
         statusText: response.statusText,
         headers: responseHeaders,
         body: responseText,
         time: endTime - startTime,
-        size: new Blob([responseText]).size + ' bytes'
+        size: sizeFormatted
       });
 
       // Executar testes se existirem
       if (selectedRequest?.tests) {
         try {
+          console.log('Executando testes...');
+          
           // Simular ambiente de testes do Postman
           const pm = {
             test: (name: string, fn: () => void) => {
@@ -202,7 +659,13 @@ const PostmanInterface: React.FC = () => {
                   }
                 }
               },
-              json: () => JSON.parse(responseText)
+              json: () => {
+                try {
+                  return JSON.parse(responseText);
+                } catch {
+                  throw new Error('Response is not valid JSON');
+                }
+              }
             },
             expect: (value: any) => ({
               to: {
@@ -211,6 +674,9 @@ const PostmanInterface: React.FC = () => {
                     if (type === 'array' && !Array.isArray(value)) {
                       throw new Error(`Expected array, got ${typeof value}`);
                     }
+                    if (type === 'object' && (typeof value !== 'object' || Array.isArray(value))) {
+                      throw new Error(`Expected object, got ${typeof value}`);
+                    }
                   }
                 },
                 have: {
@@ -218,10 +684,23 @@ const PostmanInterface: React.FC = () => {
                     if (!(prop in value)) {
                       throw new Error(`Expected property ${prop}`);
                     }
+                    return {
+                      eql: (expectedValue: any) => {
+                        if (value[prop] !== expectedValue) {
+                          throw new Error(`Expected ${prop} to equal ${expectedValue}, got ${value[prop]}`);
+                        }
+                      }
+                    };
                   }
                 }
               }
-            })
+            }),
+            environment: {
+              set: (key: string, value: string) => {
+                setEnvironment(prev => ({ ...prev, [key]: value }));
+                console.log(`Environment variable set: ${key} = ${value}`);
+              }
+            }
           };
 
           // Executar testes
@@ -232,11 +711,16 @@ const PostmanInterface: React.FC = () => {
       }
 
     } catch (error) {
+      console.error('Erro na requisição:', error);
       setResponse({
         status: 0,
         statusText: 'Network Error',
         headers: {},
-        body: JSON.stringify({ error: error.message }, null, 2),
+        body: JSON.stringify({ 
+          error: 'Erro de rede ou CORS',
+          message: error.message,
+          details: 'Verifique se a URL está correta e se o servidor permite requisições CORS'
+        }, null, 2),
         time: 0,
         size: '0 bytes'
       });
@@ -283,112 +767,122 @@ const PostmanInterface: React.FC = () => {
       <div className="w-80 bg-neutral-50 dark:bg-neutral-800 border-r border-neutral-200 dark:border-neutral-700 overflow-y-auto flex-shrink-0">
         {/* Header */}
         <div className="bg-gradient-to-r from-orange-500 to-orange-600 text-white p-4">
-          <div className="flex items-center gap-3">
-            <div className="w-8 h-8 bg-white/20 rounded-lg flex items-center justify-center">
-              <Send className="w-5 h-5" />
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="w-8 h-8 bg-white/20 rounded-lg flex items-center justify-center">
+                <Send className="w-5 h-5" />
+              </div>
+              <div>
+                <h2 className="text-lg font-bold">Collections</h2>
+                <p className="text-sm opacity-90">{collections.length} coleções</p>
+              </div>
             </div>
-            <div>
-              <h2 className="text-lg font-bold">Collections</h2>
-              <p className="text-sm opacity-90">{collections.length} coleções</p>
-            </div>
+            
+            {/* Upload Button */}
+            <motion.button
+              onClick={() => setShowUploadModal(true)}
+              className="bg-white/20 hover:bg-white/30 p-2 rounded-lg transition-colors duration-300 flex items-center gap-2"
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              title="Importar Coleção"
+            >
+              <Upload className="w-5 h-5" />
+            </motion.button>
           </div>
         </div>
 
         {/* Collections List */}
         <div className="p-4">
-          {collections.length === 0 ? (
-            <div className="text-center py-8">
-              <Folder className="w-12 h-12 text-neutral-400 mx-auto mb-3" />
-              <p className="text-neutral-600 dark:text-neutral-400 text-sm">
-                Nenhuma coleção encontrada
-              </p>
-              <p className="text-neutral-500 dark:text-neutral-500 text-xs mt-1">
-                Importe coleções via painel admin
-              </p>
-            </div>
-          ) : (
-            <div className="space-y-2">
-              {collections.map((collection) => (
-                <div key={collection.id} className="border border-neutral-200 dark:border-neutral-600 rounded-lg overflow-hidden">
-                  {/* Collection Header */}
-                  <motion.div
-                    className={`p-3 cursor-pointer transition-colors duration-200 ${
-                      selectedCollection?.id === collection.id
-                        ? 'bg-orange-100 dark:bg-orange-900/30 border-orange-300 dark:border-orange-600'
-                        : 'bg-white dark:bg-neutral-700 hover:bg-neutral-50 dark:hover:bg-neutral-600'
-                    }`}
-                    onClick={() => {
-                      setSelectedCollection(collection);
-                      toggleCollection(collection.id);
-                    }}
-                    whileHover={{ scale: 1.01 }}
-                    whileTap={{ scale: 0.99 }}
-                  >
-                    <div className="flex items-center gap-2">
-                      <motion.div
-                        animate={{ rotate: expandedCollections.has(collection.id) ? 90 : 0 }}
-                        transition={{ duration: 0.2 }}
-                      >
-                        <ChevronRight className="w-4 h-4 text-neutral-500" />
-                      </motion.div>
-                      <Folder className="w-4 h-4 text-orange-500" />
-                      <div className="flex-1 min-w-0">
-                        <h3 className="font-medium text-sm truncate text-neutral-900 dark:text-white">
-                          {collection.name}
-                        </h3>
-                        <p className="text-xs text-neutral-500 dark:text-neutral-400">
-                          {collection.requests.length} requests
-                        </p>
-                      </div>
+          <div className="space-y-2">
+            {collections.map((collection) => (
+              <div key={collection.id} className="border border-neutral-200 dark:border-neutral-600 rounded-lg overflow-hidden">
+                {/* Collection Header */}
+                <motion.div
+                  className={`p-3 cursor-pointer transition-colors duration-200 ${
+                    selectedCollection?.id === collection.id
+                      ? 'bg-orange-100 dark:bg-orange-900/30 border-orange-300 dark:border-orange-600'
+                      : 'bg-white dark:bg-neutral-700 hover:bg-neutral-50 dark:hover:bg-neutral-600'
+                  }`}
+                  onClick={() => {
+                    setSelectedCollection(collection);
+                    toggleCollection(collection.id);
+                  }}
+                  whileHover={{ scale: 1.01 }}
+                  whileTap={{ scale: 0.99 }}
+                >
+                  <div className="flex items-center gap-2">
+                    <motion.div
+                      animate={{ rotate: expandedCollections.has(collection.id) ? 90 : 0 }}
+                      transition={{ duration: 0.2 }}
+                    >
+                      <ChevronRight className="w-4 h-4 text-neutral-500" />
+                    </motion.div>
+                    <Folder className="w-4 h-4 text-orange-500" />
+                    <div className="flex-1 min-w-0">
+                      <h3 className="font-medium text-sm truncate text-neutral-900 dark:text-white">
+                        {collection.name}
+                        {collection.isImported && (
+                          <span className="ml-2 text-xs bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300 px-2 py-0.5 rounded-full">
+                            Importada
+                          </span>
+                        )}
+                      </h3>
+                      <p className="text-xs text-neutral-500 dark:text-neutral-400">
+                        {collection.requests.length} requests
+                      </p>
                     </div>
-                  </motion.div>
+                    <div className="flex items-center gap-1">
+                      <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse" title="Funcional" />
+                      <span className="text-xs text-green-600 dark:text-green-400 font-medium">LIVE</span>
+                    </div>
+                  </div>
+                </motion.div>
 
-                  {/* Requests List */}
-                  <AnimatePresence>
-                    {expandedCollections.has(collection.id) && (
-                      <motion.div
-                        initial={{ height: 0, opacity: 0 }}
-                        animate={{ height: 'auto', opacity: 1 }}
-                        exit={{ height: 0, opacity: 0 }}
-                        transition={{ duration: 0.2 }}
-                        className="overflow-hidden"
-                      >
-                        <div className="bg-neutral-50 dark:bg-neutral-800 border-t border-neutral-200 dark:border-neutral-600">
-                          {collection.requests.map((request) => (
-                            <motion.div
-                              key={request.id}
-                              className={`p-3 cursor-pointer border-b border-neutral-200 dark:border-neutral-600 last:border-b-0 transition-colors duration-200 ${
-                                selectedRequest?.id === request.id
-                                  ? 'bg-blue-100 dark:bg-blue-900/30'
-                                  : 'hover:bg-neutral-100 dark:hover:bg-neutral-700'
-                              }`}
-                              onClick={() => loadRequest(request)}
-                              whileHover={{ x: 5 }}
-                              whileTap={{ scale: 0.98 }}
-                            >
-                              <div className="flex items-center gap-2">
-                                <span className={`px-2 py-1 text-xs font-medium rounded ${
-                                  methods.find(m => m.name === request.method)?.color
-                                }`}>
-                                  {request.method}
-                                </span>
-                                <span className="text-sm font-medium text-neutral-900 dark:text-white truncate flex-1">
-                                  {request.name}
-                                </span>
-                              </div>
-                              <p className="text-xs text-neutral-500 dark:text-neutral-400 mt-1 truncate font-mono">
-                                {request.url}
-                              </p>
-                            </motion.div>
-                          ))}
-                        </div>
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
-                </div>
-              ))}
-            </div>
-          )}
+                {/* Requests List */}
+                <AnimatePresence>
+                  {expandedCollections.has(collection.id) && (
+                    <motion.div
+                      initial={{ height: 0, opacity: 0 }}
+                      animate={{ height: 'auto', opacity: 1 }}
+                      exit={{ height: 0, opacity: 0 }}
+                      transition={{ duration: 0.2 }}
+                      className="overflow-hidden"
+                    >
+                      <div className="bg-neutral-50 dark:bg-neutral-800 border-t border-neutral-200 dark:border-neutral-600">
+                        {collection.requests.map((request) => (
+                          <motion.div
+                            key={request.id}
+                            className={`p-3 cursor-pointer border-b border-neutral-200 dark:border-neutral-600 last:border-b-0 transition-colors duration-200 ${
+                              selectedRequest?.id === request.id
+                                ? 'bg-blue-100 dark:bg-blue-900/30'
+                                : 'hover:bg-neutral-100 dark:hover:bg-neutral-700'
+                            }`}
+                            onClick={() => loadRequest(request)}
+                            whileHover={{ x: 5 }}
+                            whileTap={{ scale: 0.98 }}
+                          >
+                            <div className="flex items-center gap-2">
+                              <span className={`px-2 py-1 text-xs font-medium rounded ${
+                                methods.find(m => m.name === request.method)?.color
+                              }`}>
+                                {request.method}
+                              </span>
+                              <span className="text-sm font-medium text-neutral-900 dark:text-white truncate flex-1">
+                                {request.name}
+                              </span>
+                            </div>
+                            <p className="text-xs text-neutral-500 dark:text-neutral-400 mt-1 truncate font-mono">
+                              {request.url}
+                            </p>
+                          </motion.div>
+                        ))}
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
+            ))}
+          </div>
         </div>
 
         {/* Environment Variables */}
@@ -426,16 +920,14 @@ const PostmanInterface: React.FC = () => {
             <div>
               <h2 className="text-xl font-bold">API Testing Interface</h2>
               <p className="text-sm opacity-90">
-                {selectedRequest ? selectedRequest.name : 'Selecione um request'}
+                {selectedRequest ? selectedRequest.name : 'Selecione um request para começar'}
               </p>
             </div>
             <div className="flex items-center gap-2">
-              <button className="p-2 hover:bg-white/10 rounded-lg transition-colors">
-                <Settings className="w-5 h-5" />
-              </button>
-              <button className="p-2 hover:bg-white/10 rounded-lg transition-colors">
-                <History className="w-5 h-5" />
-              </button>
+              <div className="flex items-center gap-1 bg-white/20 px-3 py-1 rounded-full">
+                <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse" />
+                <span className="text-xs font-medium">Sistema Funcional</span>
+              </div>
             </div>
           </div>
         </div>
@@ -460,7 +952,7 @@ const PostmanInterface: React.FC = () => {
               type="text"
               value={url}
               onChange={(e) => setUrl(e.target.value)}
-              placeholder="Enter request URL"
+              placeholder="Enter request URL (ex: {{baseUrl}}/posts)"
               className="flex-1 px-4 py-3 border border-neutral-300 dark:border-neutral-600 rounded-lg bg-white dark:bg-neutral-800 text-neutral-900 dark:text-white"
             />
             
@@ -584,7 +1076,7 @@ const PostmanInterface: React.FC = () => {
                       <textarea
                         value={body}
                         onChange={(e) => setBody(e.target.value)}
-                        placeholder="Enter request body"
+                        placeholder="Enter request body (JSON format)"
                         className="w-full h-40 px-4 py-3 border border-neutral-300 dark:border-neutral-600 rounded-lg bg-white dark:bg-neutral-800 text-neutral-900 dark:text-white font-mono text-sm resize-none"
                       />
                     )}
@@ -594,7 +1086,7 @@ const PostmanInterface: React.FC = () => {
                 {/* Tests */}
                 {selectedRequest?.tests && (
                   <div>
-                    <h4 className="font-semibold text-neutral-900 dark:text-white mb-3">Tests</h4>
+                    <h4 className="font-semibold text-neutral-900 dark:text-white mb-3">Tests (Auto-executados)</h4>
                     <pre className="w-full h-32 p-4 bg-neutral-50 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded-lg overflow-auto text-sm font-mono text-neutral-900 dark:text-white">
                       {selectedRequest.tests}
                     </pre>
@@ -617,7 +1109,7 @@ const PostmanInterface: React.FC = () => {
                     <div className="flex items-center gap-4 p-4 bg-neutral-50 dark:bg-neutral-800 rounded-lg">
                       <div className="flex items-center gap-2">
                         <span className="text-sm font-medium text-neutral-600 dark:text-neutral-400">Status:</span>
-                        <span className={`px-2 py-1 rounded text-sm font-medium ${
+                        <span className={`px-3 py-1 rounded text-sm font-medium ${
                           response.status >= 200 && response.status < 300
                             ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300'
                             : response.status >= 400
@@ -662,11 +1154,25 @@ const PostmanInterface: React.FC = () => {
                         {formatJson(response.body)}
                       </pre>
                     </div>
+
+                    {/* Response Headers */}
+                    <div>
+                      <h4 className="font-semibold text-neutral-900 dark:text-white mb-3">Response Headers</h4>
+                      <div className="bg-neutral-50 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded-lg p-4">
+                        {Object.entries(response.headers).map(([key, value]) => (
+                          <div key={key} className="flex justify-between py-1 border-b border-neutral-200 dark:border-neutral-700 last:border-b-0">
+                            <span className="font-medium text-neutral-700 dark:text-neutral-300">{key}:</span>
+                            <span className="text-neutral-600 dark:text-neutral-400 font-mono text-sm">{value}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
                   </div>
                 ) : (
                   <div className="text-center py-12 text-neutral-500 dark:text-neutral-400">
                     <Send className="w-12 h-12 mx-auto mb-4 opacity-50" />
-                    <p>Send a request to see the response here</p>
+                    <p className="text-lg mb-2">Envie um request para ver a resposta</p>
+                    <p className="text-sm">As requisições são enviadas para APIs reais e funcionais</p>
                   </div>
                 )}
               </motion.div>
@@ -674,6 +1180,136 @@ const PostmanInterface: React.FC = () => {
           </AnimatePresence>
         </div>
       </div>
+
+      {/* Upload Modal */}
+      <AnimatePresence>
+        {showUploadModal && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm"
+            onClick={() => setShowUploadModal(false)}
+          >
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.9, y: 20 }}
+              transition={{ duration: 0.3 }}
+              className="bg-white dark:bg-neutral-800 rounded-3xl p-8 max-w-md w-full shadow-2xl border border-neutral-200 dark:border-neutral-700"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="text-center mb-6">
+                <div className="w-16 h-16 bg-gradient-to-r from-orange-500 to-orange-600 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                  <CloudUpload className="w-8 h-8 text-white" />
+                </div>
+                <h3 className="text-2xl font-poppins font-bold text-neutral-900 dark:text-white mb-2">
+                  Importar Coleção
+                </h3>
+                <p className="text-neutral-600 dark:text-neutral-300 font-inter">
+                  Faça upload do arquivo JSON da sua coleção do Postman
+                </p>
+              </div>
+
+              {uploadStatus === 'idle' && (
+                <div className="space-y-4">
+                  <div className="border-2 border-dashed border-neutral-300 dark:border-neutral-600 rounded-2xl p-8 text-center hover:border-orange-400 transition-colors duration-300">
+                    <input
+                      type="file"
+                      accept=".json"
+                      onChange={handleFileUpload}
+                      className="hidden"
+                      id="collection-upload"
+                    />
+                    <label
+                      htmlFor="collection-upload"
+                      className="cursor-pointer flex flex-col items-center gap-3"
+                    >
+                      <FileText className="w-12 h-12 text-neutral-400" />
+                      <div>
+                        <p className="font-semibold text-neutral-900 dark:text-white">
+                          Clique para selecionar arquivo
+                        </p>
+                        <p className="text-sm text-neutral-500 dark:text-neutral-400">
+                          Ou arraste e solte aqui
+                        </p>
+                      </div>
+                      <p className="text-xs text-neutral-400">
+                        Apenas arquivos .json do Postman
+                      </p>
+                    </label>
+                  </div>
+
+                  <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-xl p-4">
+                    <h4 className="font-semibold text-blue-900 dark:text-blue-300 mb-2 flex items-center gap-2">
+                      <AlertCircle className="w-4 h-4" />
+                      Como exportar do Postman:
+                    </h4>
+                    <ol className="text-sm text-blue-800 dark:text-blue-300 space-y-1 list-decimal list-inside">
+                      <li>Abra o Postman</li>
+                      <li>Clique nos "..." da coleção</li>
+                      <li>Selecione "Export"</li>
+                      <li>Escolha "Collection v2.1"</li>
+                      <li>Salve o arquivo .json</li>
+                    </ol>
+                  </div>
+                </div>
+              )}
+
+              {uploadStatus === 'uploading' && (
+                <div className="text-center py-8">
+                  <div className="w-12 h-12 border-4 border-orange-500 border-t-transparent rounded-full animate-spin mx-auto mb-4" />
+                  <p className="text-neutral-600 dark:text-neutral-300 font-inter">
+                    {uploadMessage}
+                  </p>
+                </div>
+              )}
+
+              {uploadStatus === 'success' && (
+                <div className="text-center py-8">
+                  <div className="w-16 h-16 bg-green-100 dark:bg-green-900/30 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <CheckCircle className="w-8 h-8 text-green-600 dark:text-green-400" />
+                  </div>
+                  <p className="text-green-600 dark:text-green-400 font-inter font-semibold">
+                    {uploadMessage}
+                  </p>
+                </div>
+              )}
+
+              {uploadStatus === 'error' && (
+                <div className="text-center py-8">
+                  <div className="w-16 h-16 bg-red-100 dark:bg-red-900/30 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <AlertCircle className="w-8 h-8 text-red-600 dark:text-red-400" />
+                  </div>
+                  <p className="text-red-600 dark:text-red-400 font-inter font-semibold mb-4">
+                    {uploadMessage}
+                  </p>
+                  <button
+                    onClick={() => {
+                      setUploadStatus('idle');
+                      setUploadMessage('');
+                    }}
+                    className="bg-orange-500 text-white px-6 py-2 rounded-lg hover:bg-orange-600 transition-colors"
+                  >
+                    Tentar Novamente
+                  </button>
+                </div>
+              )}
+
+              {uploadStatus === 'idle' && (
+                <div className="flex gap-3 mt-6">
+                  <button
+                    onClick={() => setShowUploadModal(false)}
+                    className="flex-1 bg-neutral-200 dark:bg-neutral-700 text-neutral-700 dark:text-neutral-300 py-3 rounded-xl font-semibold hover:bg-neutral-300 dark:hover:bg-neutral-600 transition-colors"
+                  >
+                    Cancelar
+                  </button>
+                </div>
+              )}
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 };
