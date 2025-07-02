@@ -10,6 +10,9 @@ interface CertificateModalProps {
 }
 
 const CertificateModal: React.FC<CertificateModalProps> = ({ certificate, isOpen, onClose }) => {
+  // Early return BEFORE any hooks are called
+  if (!certificate) return null;
+
   const [zoom, setZoom] = useState(1);
   const [rotation, setRotation] = useState(0);
 
@@ -50,8 +53,6 @@ const CertificateModal: React.FC<CertificateModalProps> = ({ certificate, isOpen
       setRotation(0);
     }
   }, [isOpen]);
-
-  if (!certificate) return null;
 
   const handleZoomIn = () => setZoom(prev => Math.min(prev + 0.25, 3));
   const handleZoomOut = () => setZoom(prev => Math.max(prev - 0.25, 0.5));

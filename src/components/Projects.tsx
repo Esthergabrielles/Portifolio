@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ExternalLink, Github, Eye, Award, TrendingUp, Shield, Zap, FileText, Code, TestTube, Bug } from 'lucide-react';
+import { ExternalLink, Github, Eye, Award, TrendingUp, Shield, Zap, FileText, Code, TestTube, Bug, Send } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { projects } from '../data/portfolio';
 import { useLanguage } from '../hooks/useLanguage';
@@ -7,14 +7,16 @@ import { t } from '../data/translations';
 import AnimatedSection from './AnimatedSection';
 import { Project } from '../types';
 import ProjectDetailsPage from './ProjectDetailsPage';
+import PostmanInterface from './PostmanInterface';
 
 const Projects: React.FC = () => {
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
   const [filter, setFilter] = useState<string>('All');
   const [showProjectDetails, setShowProjectDetails] = useState(false);
+  const [showPostmanInterface, setShowPostmanInterface] = useState(false);
   const { language } = useLanguage();
 
-  const testTypes = ['All', 'Functional Testing', 'Security Testing', 'API Testing', 'Performance Testing'];
+  const testTypes = ['All', 'Functional Testing', 'Security Testing', 'API Testing', 'Performance Testing', 'Postman Collections'];
 
   const filteredProjects = filter === 'All' 
     ? projects 
@@ -26,6 +28,7 @@ const Projects: React.FC = () => {
       case 'Security Testing': return Shield;
       case 'API Testing': return ExternalLink;
       case 'Performance Testing': return Zap;
+      case 'Postman Collections': return Send;
       default: return Eye;
     }
   };
@@ -36,6 +39,7 @@ const Projects: React.FC = () => {
       case 'Security Testing': return 'from-red-500 to-red-600';
       case 'API Testing': return 'from-green-500 to-green-600';
       case 'Performance Testing': return 'from-yellow-500 to-yellow-600';
+      case 'Postman Collections': return 'from-orange-500 to-orange-600';
       default: return 'from-primary-500 to-primary-600';
     }
   };
@@ -45,9 +49,17 @@ const Projects: React.FC = () => {
     setShowProjectDetails(true);
   };
 
+  const handlePostmanClick = () => {
+    setShowPostmanInterface(true);
+  };
+
   const closeProjectDetails = () => {
     setShowProjectDetails(false);
     setSelectedProject(null);
+  };
+
+  const closePostmanInterface = () => {
+    setShowPostmanInterface(false);
   };
 
   if (showProjectDetails && selectedProject) {
@@ -56,6 +68,28 @@ const Projects: React.FC = () => {
         project={selectedProject} 
         onClose={closeProjectDetails}
       />
+    );
+  }
+
+  if (showPostmanInterface) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-neutral-50 via-white to-neutral-100 p-6">
+        <div className="max-w-7xl mx-auto">
+          <div className="mb-6">
+            <motion.button
+              onClick={closePostmanInterface}
+              className="flex items-center gap-2 text-neutral-600 hover:text-neutral-900 transition-colors bg-white/80 backdrop-blur-sm border border-neutral-200 px-4 py-2 rounded-xl shadow-lg hover:shadow-xl"
+              whileHover={{ scale: 1.02, x: -5 }}
+              whileTap={{ scale: 0.98 }}
+            >
+              ← Voltar aos Projetos
+            </motion.button>
+          </div>
+          <div className="h-[calc(100vh-120px)]">
+            <PostmanInterface />
+          </div>
+        </div>
+      </div>
     );
   }
 
@@ -93,13 +127,20 @@ const Projects: React.FC = () => {
             <div className="flex flex-wrap justify-center gap-3">
               {testTypes.map((type, index) => {
                 const Icon = getTypeIcon(type);
+                const typeColor = getTypeColor(type);
                 return (
                   <motion.button
                     key={type}
-                    onClick={() => setFilter(type)}
+                    onClick={() => {
+                      if (type === 'Postman Collections') {
+                        handlePostmanClick();
+                      } else {
+                        setFilter(type);
+                      }
+                    }}
                     className={`px-6 py-3 rounded-xl font-inter font-semibold transition-all duration-300 flex items-center gap-2 ${
                       filter === type
-                        ? 'bg-gradient-to-r from-primary-500 to-primary-600 text-white shadow-xl scale-105'
+                        ? `bg-gradient-to-r ${typeColor} text-white shadow-xl scale-105`
                         : 'bg-white/80 dark:bg-neutral-800/50 backdrop-blur-sm border border-neutral-200 dark:border-neutral-700 text-neutral-700 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-neutral-700 hover:scale-105'
                     }`}
                     initial={{ opacity: 0, y: 20 }}
@@ -110,6 +151,22 @@ const Projects: React.FC = () => {
                   >
                     <Icon className="w-4 h-4" />
                     {type}
+                    {type === 'Postman Collections' && (
+                      <motion.span 
+                        className="bg-orange-200 text-orange-800 px-2 py-1 rounded-full text-xs font-bold"
+                        animate={{ 
+                          scale: [1, 1.1, 1],
+                          boxShadow: [
+                            "0 0 0 0 rgba(251, 146, 60, 0.4)",
+                            "0 0 0 10px rgba(251, 146, 60, 0)",
+                            "0 0 0 0 rgba(251, 146, 60, 0)"
+                          ]
+                        }}
+                        transition={{ duration: 2, repeat: Infinity }}
+                      >
+                        LIVE
+                      </motion.span>
+                    )}
                   </motion.button>
                 );
               })}
@@ -222,6 +279,69 @@ const Projects: React.FC = () => {
                 );
               })}
             </AnimatePresence>
+          </motion.div>
+        </div>
+
+        {/* Postman Collections Showcase */}
+        <div className="col-span-12 mt-16">
+          <motion.div
+            className="bg-gradient-to-r from-orange-500 to-orange-600 rounded-3xl p-12 text-white relative overflow-hidden cursor-pointer"
+            whileHover={{ scale: 1.02 }}
+            transition={{ duration: 0.3 }}
+            onClick={handlePostmanClick}
+          >
+            <div className="absolute inset-0 bg-[linear-gradient(45deg,transparent_48%,rgba(255,255,255,0.1)_49%,rgba(255,255,255,0.1)_51%,transparent_52%)] bg-[length:20px_20px]" />
+            
+            <div className="relative z-10 text-center">
+              <motion.div
+                className="flex justify-center mb-6"
+                animate={{ 
+                  rotate: [0, 5, -5, 0],
+                  scale: [1, 1.1, 1]
+                }}
+                transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
+              >
+                <Send className="w-16 h-16 text-white" />
+              </motion.div>
+              
+              <h3 className="text-3xl md:text-4xl font-poppins font-bold mb-6">
+                Interface Postman Interativa 🚀
+              </h3>
+              <p className="text-xl mb-8 max-w-3xl mx-auto font-inter opacity-90 leading-relaxed">
+                Explore uma réplica funcional do Postman com coleções reais importadas. 
+                Teste APIs, execute requests e veja respostas em tempo real!
+              </p>
+              
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-center mb-8">
+                <div className="bg-white/20 backdrop-blur-sm rounded-2xl p-6">
+                  <h4 className="text-2xl font-bold mb-2">Coleções Reais</h4>
+                  <p className="opacity-90">Importadas do meu Postman pessoal</p>
+                </div>
+                <div className="bg-white/20 backdrop-blur-sm rounded-2xl p-6">
+                  <h4 className="text-2xl font-bold mb-2">100% Funcional</h4>
+                  <p className="opacity-90">Execute requests reais</p>
+                </div>
+                <div className="bg-white/20 backdrop-blur-sm rounded-2xl p-6">
+                  <h4 className="text-2xl font-bold mb-2">Interface Idêntica</h4>
+                  <p className="opacity-90">Experiência autêntica do Postman</p>
+                </div>
+              </div>
+
+              <motion.div
+                className="inline-flex items-center gap-3 bg-white/20 backdrop-blur-sm px-8 py-4 rounded-2xl font-inter font-bold text-lg"
+                whileHover={{ scale: 1.05, y: -3 }}
+                whileTap={{ scale: 0.98 }}
+              >
+                <Send className="w-6 h-6" />
+                Clique para Explorar
+                <motion.span
+                  animate={{ x: [0, 5, 0] }}
+                  transition={{ duration: 1.5, repeat: Infinity }}
+                >
+                  →
+                </motion.span>
+              </motion.div>
+            </div>
           </motion.div>
         </div>
       </div>
