@@ -35,6 +35,8 @@ const AdminRoute: React.FC = () => {
 
   const handleLogout = () => {
     setIsAuthenticated(false);
+    localStorage.removeItem('admin_authenticated');
+    localStorage.removeItem('admin_login_time');
   };
 
   const handleBackToPortfolio = () => {
