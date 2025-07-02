@@ -113,7 +113,7 @@ const PostmanInterface: React.FC = () => {
     setSelectedRequest(request);
     setSelectedMethod(request.method);
     setUrl(request.url);
-    setHeaders([...request.headers, { key: '', value: '', enabled: true }]);
+    setHeaders([...(request.headers || []), { key: '', value: '', enabled: true }]);
     setBody(request.body);
     setBodyType(request.bodyType);
     setResponse(null);

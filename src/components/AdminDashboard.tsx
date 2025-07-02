@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { LogOut, Upload, Download, Trash2, Edit, Eye, Plus, Save, X, Play, Folder, FileText, Settings, Database, Globe, Zap } from 'lucide-react';
+import { LogOut, Upload, Download, Trash2, Edit, Eye, Plus, Save, X, Play, Folder, FileText, Settings, Database, Globe, Zap, Image, User, Award, BookOpen, Camera } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { projects, certificates, technicalSkills, qaDocumentations, softSkills } from '../data/portfolio';
+import { Project, Certificate, Skill } from '../types';
 
 interface PostmanCollection {
   id: string;
@@ -36,148 +38,255 @@ interface AdminDashboardProps {
 }
 
 const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogout }) => {
-  const [activeTab, setActiveTab] = useState<'overview' | 'collections' | 'settings'>('overview');
-  const [collections, setCollections] = useState<PostmanCollection[]>([]);
-  const [selectedCollection, setSelectedCollection] = useState<PostmanCollection | null>(null);
-  const [showImportModal, setShowImportModal] = useState(false);
+  const [activeTab, setActiveTab] = useState<'overview' | 'projects' | 'certificates' | 'skills' | 'postman' | 'profile'>('overview');
+  
+  // Estados para dados
+  const [portfolioProjects, setPortfolioProjects] = useState<Project[]>(projects);
+  const [portfolioCertificates, setPortfolioCertificates] = useState<Certificate[]>(certificates);
+  const [portfolioTechnicalSkills, setPortfolioTechnicalSkills] = useState<Skill[]>(technicalSkills);
+  const [portfolioQADocs, setPortfolioQADocs] = useState<Skill[]>(qaDocumentations);
+  const [portfolioSoftSkills, setPortfolioSoftSkills] = useState<Skill[]>(softSkills);
+  const [postmanCollections, setPostmanCollections] = useState<PostmanCollection[]>([]);
+  
+  // Estados para modais
   const [showEditModal, setShowEditModal] = useState(false);
+  const [showAddModal, setShowAddModal] = useState(false);
+  const [showImportModal, setShowImportModal] = useState(false);
+  const [editingItem, setEditingItem] = useState<any>(null);
+  const [editingType, setEditingType] = useState<'project' | 'certificate' | 'skill' | 'postman'>('project');
   const [importData, setImportData] = useState('');
-  const [editingCollection, setEditingCollection] = useState<PostmanCollection | null>(null);
 
-  // Carregar coleções do localStorage
+  // Estados para perfil
+  const [profileData, setProfileData] = useState({
+    name: 'Esther Gabrielle',
+    title: 'QA Junior',
+    description: 'Iniciando minha carreira em QA com paixão por encontrar bugs e garantir qualidade.',
+    profileImage: 'https://images.pexels.com/photos/774909/pexels-photo-774909.jpeg?auto=compress&cs=tinysrgb&w=500&h=500&fit=crop',
+    email: 'esthergabriellesouza@gmail.com',
+    phone: '(19) 98926-1419',
+    location: 'Santa Bárbara d\'Oeste, SP - Brasil',
+    linkedin: 'https://linkedin.com/in/esthergabrielle',
+    github: 'https://github.com/Esthergabrielles'
+  });
+
+  // Carregar dados do localStorage
   useEffect(() => {
+    const savedProjects = localStorage.getItem('portfolio_projects');
+    const savedCertificates = localStorage.getItem('portfolio_certificates');
+    const savedTechnicalSkills = localStorage.getItem('portfolio_technical_skills');
+    const savedQADocs = localStorage.getItem('portfolio_qa_docs');
+    const savedSoftSkills = localStorage.getItem('portfolio_soft_skills');
     const savedCollections = localStorage.getItem('postman_collections');
-    if (savedCollections) {
-      setCollections(JSON.parse(savedCollections));
-    } else {
-      // Coleções de exemplo
-      const exampleCollections: PostmanCollection[] = [
-        {
-          id: '1',
-          name: 'JSONPlaceholder API',
-          description: 'Coleção de testes para a API JSONPlaceholder',
-          createdAt: '2024-01-15',
-          updatedAt: '2024-01-20',
-          variables: [
-            { key: 'baseUrl', value: 'https://jsonplaceholder.typicode.com', type: 'default' },
-            { key: 'apiKey', value: 'your-api-key-here', type: 'secret' }
-          ],
-          requests: [
-            {
-              id: 'req1',
-              name: 'Get All Posts',
-              method: 'GET',
-              url: '{{baseUrl}}/posts',
-              headers: [
-                { key: 'Content-Type', value: 'application/json', enabled: true },
-                { key: 'Authorization', value: 'Bearer {{apiKey}}', enabled: false }
-              ],
-              body: '',
-              bodyType: 'none',
-              description: 'Busca todos os posts disponíveis',
-              tests: `
-pm.test("Status code is 200", function () {
-    pm.response.to.have.status(200);
-});
+    const savedProfile = localStorage.getItem('portfolio_profile');
 
-pm.test("Response is an array", function () {
-    pm.expect(pm.response.json()).to.be.an('array');
-});
-              `.trim()
-            },
-            {
-              id: 'req2',
-              name: 'Create New Post',
-              method: 'POST',
-              url: '{{baseUrl}}/posts',
-              headers: [
-                { key: 'Content-Type', value: 'application/json', enabled: true }
-              ],
-              body: JSON.stringify({
-                title: 'Test Post',
-                body: 'This is a test post created via API',
-                userId: 1
-              }, null, 2),
-              bodyType: 'json',
-              description: 'Cria um novo post',
-              tests: `
-pm.test("Status code is 201", function () {
-    pm.response.to.have.status(201);
-});
-
-pm.test("Response has id", function () {
-    pm.expect(pm.response.json()).to.have.property('id');
-});
-              `.trim()
-            },
-            {
-              id: 'req3',
-              name: 'Get Post by ID',
-              method: 'GET',
-              url: '{{baseUrl}}/posts/1',
-              headers: [
-                { key: 'Content-Type', value: 'application/json', enabled: true }
-              ],
-              body: '',
-              bodyType: 'none',
-              description: 'Busca um post específico por ID'
-            }
-          ]
-        },
-        {
-          id: '2',
-          name: 'User Management API',
-          description: 'Testes para gerenciamento de usuários',
-          createdAt: '2024-01-10',
-          updatedAt: '2024-01-18',
-          variables: [
-            { key: 'baseUrl', value: 'https://jsonplaceholder.typicode.com', type: 'default' }
-          ],
-          requests: [
-            {
-              id: 'req4',
-              name: 'Get All Users',
-              method: 'GET',
-              url: '{{baseUrl}}/users',
-              headers: [
-                { key: 'Content-Type', value: 'application/json', enabled: true }
-              ],
-              body: '',
-              bodyType: 'none',
-              description: 'Lista todos os usuários'
-            },
-            {
-              id: 'req5',
-              name: 'Get User by ID',
-              method: 'GET',
-              url: '{{baseUrl}}/users/1',
-              headers: [
-                { key: 'Content-Type', value: 'application/json', enabled: true }
-              ],
-              body: '',
-              bodyType: 'none',
-              description: 'Busca usuário por ID'
-            }
-          ]
-        }
-      ];
-      setCollections(exampleCollections);
-      localStorage.setItem('postman_collections', JSON.stringify(exampleCollections));
-    }
+    if (savedProjects) setPortfolioProjects(JSON.parse(savedProjects));
+    if (savedCertificates) setPortfolioCertificates(JSON.parse(savedCertificates));
+    if (savedTechnicalSkills) setPortfolioTechnicalSkills(JSON.parse(savedTechnicalSkills));
+    if (savedQADocs) setPortfolioQADocs(JSON.parse(savedQADocs));
+    if (savedSoftSkills) setPortfolioSoftSkills(JSON.parse(savedSoftSkills));
+    if (savedCollections) setPostmanCollections(JSON.parse(savedCollections));
+    if (savedProfile) setProfileData(JSON.parse(savedProfile));
   }, []);
 
-  // Salvar coleções no localStorage
-  const saveCollections = (newCollections: PostmanCollection[]) => {
-    setCollections(newCollections);
-    localStorage.setItem('postman_collections', JSON.stringify(newCollections));
+  // Salvar dados no localStorage
+  const saveData = (type: string, data: any) => {
+    localStorage.setItem(type, JSON.stringify(data));
   };
 
-  // NOVA FUNÇÃO: Importar coleção do Postman
+  // Upload de imagem
+  const handleImageUpload = (file: File): Promise<string> => {
+    return new Promise((resolve) => {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        resolve(e.target?.result as string);
+      };
+      reader.readAsDataURL(file);
+    });
+  };
+
+  // Funções CRUD para Projetos
+  const handleAddProject = () => {
+    const newProject: Project = {
+      id: Date.now().toString(),
+      name: '',
+      company: '',
+      type: 'Functional Testing',
+      technologies: [],
+      description: '',
+      image: 'https://images.pexels.com/photos/230544/pexels-photo-230544.jpeg?auto=compress&cs=tinysrgb&w=800',
+      details: ''
+    };
+    setEditingItem(newProject);
+    setEditingType('project');
+    setShowAddModal(true);
+  };
+
+  const handleEditProject = (project: Project) => {
+    setEditingItem({ ...project });
+    setEditingType('project');
+    setShowEditModal(true);
+  };
+
+  const handleDeleteProject = (id: string) => {
+    if (confirm('Tem certeza que deseja deletar este projeto?')) {
+      const updatedProjects = portfolioProjects.filter(p => p.id !== id);
+      setPortfolioProjects(updatedProjects);
+      saveData('portfolio_projects', updatedProjects);
+    }
+  };
+
+  const handleSaveProject = () => {
+    if (showAddModal) {
+      const updatedProjects = [...portfolioProjects, editingItem];
+      setPortfolioProjects(updatedProjects);
+      saveData('portfolio_projects', updatedProjects);
+    } else {
+      const updatedProjects = portfolioProjects.map(p => 
+        p.id === editingItem.id ? editingItem : p
+      );
+      setPortfolioProjects(updatedProjects);
+      saveData('portfolio_projects', updatedProjects);
+    }
+    setShowEditModal(false);
+    setShowAddModal(false);
+    setEditingItem(null);
+  };
+
+  // Funções CRUD para Certificados
+  const handleAddCertificate = () => {
+    const newCertificate: Certificate = {
+      id: Date.now().toString(),
+      name: '',
+      issuer: '',
+      date: new Date().getFullYear().toString(),
+      image: 'https://via.placeholder.com/400x300',
+      category: 'QA',
+      description: '',
+      skills: []
+    };
+    setEditingItem(newCertificate);
+    setEditingType('certificate');
+    setShowAddModal(true);
+  };
+
+  const handleEditCertificate = (certificate: Certificate) => {
+    setEditingItem({ ...certificate });
+    setEditingType('certificate');
+    setShowEditModal(true);
+  };
+
+  const handleDeleteCertificate = (id: string) => {
+    if (confirm('Tem certeza que deseja deletar este certificado?')) {
+      const updatedCertificates = portfolioCertificates.filter(c => c.id !== id);
+      setPortfolioCertificates(updatedCertificates);
+      saveData('portfolio_certificates', updatedCertificates);
+    }
+  };
+
+  const handleSaveCertificate = () => {
+    if (showAddModal) {
+      const updatedCertificates = [...portfolioCertificates, editingItem];
+      setPortfolioCertificates(updatedCertificates);
+      saveData('portfolio_certificates', updatedCertificates);
+    } else {
+      const updatedCertificates = portfolioCertificates.map(c => 
+        c.id === editingItem.id ? editingItem : c
+      );
+      setPortfolioCertificates(updatedCertificates);
+      saveData('portfolio_certificates', updatedCertificates);
+    }
+    setShowEditModal(false);
+    setShowAddModal(false);
+    setEditingItem(null);
+  };
+
+  // Funções CRUD para Skills
+  const handleAddSkill = (skillType: 'technical' | 'qa' | 'soft') => {
+    const newSkill: Skill = {
+      name: '',
+      level: 50,
+      icon: 'Bot'
+    };
+    setEditingItem({ ...newSkill, skillType });
+    setEditingType('skill');
+    setShowAddModal(true);
+  };
+
+  const handleEditSkill = (skill: Skill, skillType: 'technical' | 'qa' | 'soft') => {
+    setEditingItem({ ...skill, skillType });
+    setEditingType('skill');
+    setShowEditModal(true);
+  };
+
+  const handleDeleteSkill = (name: string, skillType: 'technical' | 'qa' | 'soft') => {
+    if (confirm('Tem certeza que deseja deletar esta habilidade?')) {
+      if (skillType === 'technical') {
+        const updated = portfolioTechnicalSkills.filter(s => s.name !== name);
+        setPortfolioTechnicalSkills(updated);
+        saveData('portfolio_technical_skills', updated);
+      } else if (skillType === 'qa') {
+        const updated = portfolioQADocs.filter(s => s.name !== name);
+        setPortfolioQADocs(updated);
+        saveData('portfolio_qa_docs', updated);
+      } else {
+        const updated = portfolioSoftSkills.filter(s => s.name !== name);
+        setPortfolioSoftSkills(updated);
+        saveData('portfolio_soft_skills', updated);
+      }
+    }
+  };
+
+  const handleSaveSkill = () => {
+    const { skillType, ...skillData } = editingItem;
+    
+    if (skillType === 'technical') {
+      if (showAddModal) {
+        const updated = [...portfolioTechnicalSkills, skillData];
+        setPortfolioTechnicalSkills(updated);
+        saveData('portfolio_technical_skills', updated);
+      } else {
+        const updated = portfolioTechnicalSkills.map(s => 
+          s.name === skillData.name ? skillData : s
+        );
+        setPortfolioTechnicalSkills(updated);
+        saveData('portfolio_technical_skills', updated);
+      }
+    } else if (skillType === 'qa') {
+      if (showAddModal) {
+        const updated = [...portfolioQADocs, skillData];
+        setPortfolioQADocs(updated);
+        saveData('portfolio_qa_docs', updated);
+      } else {
+        const updated = portfolioQADocs.map(s => 
+          s.name === skillData.name ? skillData : s
+        );
+        setPortfolioQADocs(updated);
+        saveData('portfolio_qa_docs', updated);
+      }
+    } else {
+      if (showAddModal) {
+        const updated = [...portfolioSoftSkills, skillData];
+        setPortfolioSoftSkills(updated);
+        saveData('portfolio_soft_skills', updated);
+      } else {
+        const updated = portfolioSoftSkills.map(s => 
+          s.name === skillData.name ? skillData : s
+        );
+        setPortfolioSoftSkills(updated);
+        saveData('portfolio_soft_skills', updated);
+      }
+    }
+    
+    setShowEditModal(false);
+    setShowAddModal(false);
+    setEditingItem(null);
+  };
+
+  // Importar coleção do Postman
   const handleImportCollection = () => {
     try {
       const parsedData = JSON.parse(importData);
       
-      // Converter formato Postman para nosso formato
       const newCollection: PostmanCollection = {
         id: Date.now().toString(),
         name: parsedData.info?.name || 'Coleção Importada',
@@ -192,11 +301,9 @@ pm.test("Response has id", function () {
         requests: []
       };
 
-      // Processar requests recursivamente
-      const processItems = (items: any[], parentName = '') => {
+      const processItems = (items: any[]) => {
         items.forEach(item => {
           if (item.request) {
-            // É um request
             const request: PostmanRequest = {
               id: Date.now().toString() + Math.random(),
               name: item.name,
@@ -215,8 +322,7 @@ pm.test("Response has id", function () {
             };
             newCollection.requests.push(request);
           } else if (item.item) {
-            // É uma pasta, processar recursivamente
-            processItems(item.item, item.name);
+            processItems(item.item);
           }
         });
       };
@@ -225,8 +331,9 @@ pm.test("Response has id", function () {
         processItems(parsedData.item);
       }
 
-      const updatedCollections = [...collections, newCollection];
-      saveCollections(updatedCollections);
+      const updatedCollections = [...postmanCollections, newCollection];
+      setPostmanCollections(updatedCollections);
+      saveData('postman_collections', updatedCollections);
       
       setImportData('');
       setShowImportModal(false);
@@ -238,91 +345,12 @@ pm.test("Response has id", function () {
     }
   };
 
-  // Deletar coleção
   const handleDeleteCollection = (id: string) => {
     if (confirm('Tem certeza que deseja deletar esta coleção?')) {
-      const updatedCollections = collections.filter(c => c.id !== id);
-      saveCollections(updatedCollections);
+      const updatedCollections = postmanCollections.filter(c => c.id !== id);
+      setPostmanCollections(updatedCollections);
+      saveData('postman_collections', updatedCollections);
     }
-  };
-
-  // Editar coleção
-  const handleEditCollection = (collection: PostmanCollection) => {
-    setEditingCollection({ ...collection });
-    setShowEditModal(true);
-  };
-
-  // Salvar edição
-  const handleSaveEdit = () => {
-    if (editingCollection) {
-      const updatedCollections = collections.map(c => 
-        c.id === editingCollection.id ? { ...editingCollection, updatedAt: new Date().toISOString().split('T')[0] } : c
-      );
-      saveCollections(updatedCollections);
-      setShowEditModal(false);
-      setEditingCollection(null);
-    }
-  };
-
-  // Exportar coleção
-  const handleExportCollection = (collection: PostmanCollection) => {
-    const exportData = {
-      info: {
-        name: collection.name,
-        description: collection.description,
-        schema: "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
-      },
-      variable: collection.variables.map(v => ({
-        key: v.key,
-        value: v.value,
-        type: v.type
-      })),
-      item: collection.requests.map(req => ({
-        name: req.name,
-        request: {
-          method: req.method,
-          header: req.headers.map(h => ({
-            key: h.key,
-            value: h.value,
-            disabled: !h.enabled
-          })),
-          body: req.bodyType !== 'none' ? {
-            mode: req.bodyType,
-            raw: req.body
-          } : undefined,
-          url: {
-            raw: req.url,
-            host: req.url.split('/').slice(0, 3),
-            path: req.url.split('/').slice(3)
-          },
-          description: req.description
-        },
-        event: [
-          ...(req.tests ? [{
-            listen: "test",
-            script: {
-              exec: req.tests.split('\n'),
-              type: "text/javascript"
-            }
-          }] : []),
-          ...(req.preRequestScript ? [{
-            listen: "prerequest",
-            script: {
-              exec: req.preRequestScript.split('\n'),
-              type: "text/javascript"
-            }
-          }] : [])
-        ]
-      }))
-    };
-
-    const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `${collection.name.replace(/\s+/g, '_')}.postman_collection.json`;
-    a.click();
-    URL.revokeObjectURL(url);
   };
 
   const handleLogout = () => {
@@ -331,17 +359,35 @@ pm.test("Response has id", function () {
     onLogout();
   };
 
+  const handleProfileImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const imageUrl = await handleImageUpload(file);
+      const updatedProfile = { ...profileData, profileImage: imageUrl };
+      setProfileData(updatedProfile);
+      saveData('portfolio_profile', updatedProfile);
+    }
+  };
+
+  const handleSaveProfile = () => {
+    saveData('portfolio_profile', profileData);
+    alert('Perfil atualizado com sucesso!');
+  };
+
   const tabs = [
     { id: 'overview', label: 'Visão Geral', icon: Database },
-    { id: 'collections', label: 'Coleções Postman', icon: Folder },
-    { id: 'settings', label: 'Configurações', icon: Settings }
+    { id: 'profile', label: 'Perfil', icon: User },
+    { id: 'projects', label: 'Projetos', icon: Folder },
+    { id: 'certificates', label: 'Certificados', icon: Award },
+    { id: 'skills', label: 'Habilidades', icon: Zap },
+    { id: 'postman', label: 'Postman', icon: Globe }
   ];
 
   const stats = [
-    { label: 'Total de Coleções', value: collections.length, icon: Folder, color: 'from-blue-500 to-blue-600' },
-    { label: 'Total de Requests', value: collections.reduce((acc, c) => acc + c.requests.length, 0), icon: Globe, color: 'from-green-500 to-green-600' },
-    { label: 'Variáveis Configuradas', value: collections.reduce((acc, c) => acc + c.variables.length, 0), icon: Settings, color: 'from-purple-500 to-purple-600' },
-    { label: 'Última Atualização', value: collections.length > 0 ? Math.max(...collections.map(c => new Date(c.updatedAt).getTime())) > 0 ? 'Hoje' : 'Nunca' : 'Nunca', icon: Zap, color: 'from-orange-500 to-orange-600' }
+    { label: 'Total de Projetos', value: portfolioProjects.length, icon: Folder, color: 'from-blue-500 to-blue-600' },
+    { label: 'Total de Certificados', value: portfolioCertificates.length, icon: Award, color: 'from-green-500 to-green-600' },
+    { label: 'Habilidades Técnicas', value: portfolioTechnicalSkills.length, icon: Zap, color: 'from-purple-500 to-purple-600' },
+    { label: 'Coleções Postman', value: postmanCollections.length, icon: Globe, color: 'from-orange-500 to-orange-600' }
   ];
 
   return (
@@ -357,7 +403,7 @@ pm.test("Response has id", function () {
                 </div>
                 <div>
                   <h1 className="text-2xl font-poppins font-bold">Painel Administrativo</h1>
-                  <p className="text-slate-400">Gerenciamento de Coleções Postman</p>
+                  <p className="text-slate-400">Gerenciamento Completo do Portfólio</p>
                 </div>
               </div>
               
@@ -379,12 +425,12 @@ pm.test("Response has id", function () {
       <div className="border-b border-slate-700 bg-slate-800/30">
         <div className="container-12">
           <div className="col-span-12 py-4">
-            <div className="flex gap-2">
+            <div className="flex gap-2 overflow-x-auto">
               {tabs.map((tab) => (
                 <motion.button
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id as any)}
-                  className={`px-6 py-3 rounded-xl font-inter font-semibold transition-all duration-300 flex items-center gap-2 ${
+                  className={`px-6 py-3 rounded-xl font-inter font-semibold transition-all duration-300 flex items-center gap-2 whitespace-nowrap ${
                     activeTab === tab.id
                       ? 'bg-gradient-to-r from-indigo-500 to-purple-600 text-white shadow-lg'
                       : 'bg-slate-700/50 text-slate-300 hover:bg-slate-600/50'
@@ -416,7 +462,7 @@ pm.test("Response has id", function () {
                 className="space-y-8"
               >
                 <div>
-                  <h2 className="text-3xl font-poppins font-bold mb-6">Visão Geral do Sistema</h2>
+                  <h2 className="text-3xl font-poppins font-bold mb-6">Visão Geral do Portfólio</h2>
                   
                   {/* Stats Grid */}
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
@@ -438,32 +484,168 @@ pm.test("Response has id", function () {
                     ))}
                   </div>
 
-                  {/* Recent Collections */}
+                  {/* Quick Actions */}
                   <div className="bg-slate-800/50 backdrop-blur-sm border border-slate-700 rounded-2xl p-6">
-                    <h3 className="text-xl font-poppins font-bold mb-4">Coleções Recentes</h3>
-                    <div className="space-y-3">
-                      {collections.slice(0, 5).map((collection) => (
-                        <div key={collection.id} className="flex items-center justify-between p-4 bg-slate-700/50 rounded-xl">
-                          <div className="flex items-center gap-3">
-                            <Folder className="w-5 h-5 text-indigo-400" />
-                            <div>
-                              <h4 className="font-semibold">{collection.name}</h4>
-                              <p className="text-sm text-slate-400">{collection.requests.length} requests</p>
-                            </div>
-                          </div>
-                          <span className="text-sm text-slate-400">{collection.updatedAt}</span>
-                        </div>
-                      ))}
+                    <h3 className="text-xl font-poppins font-bold mb-4">Ações Rápidas</h3>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                      <motion.button
+                        onClick={handleAddProject}
+                        className="bg-blue-500/20 hover:bg-blue-500/30 border border-blue-500/30 text-blue-300 p-4 rounded-xl transition-all duration-300 flex items-center gap-3"
+                        whileHover={{ scale: 1.02 }}
+                        whileTap={{ scale: 0.98 }}
+                      >
+                        <Plus className="w-5 h-5" />
+                        Adicionar Projeto
+                      </motion.button>
+                      <motion.button
+                        onClick={handleAddCertificate}
+                        className="bg-green-500/20 hover:bg-green-500/30 border border-green-500/30 text-green-300 p-4 rounded-xl transition-all duration-300 flex items-center gap-3"
+                        whileHover={{ scale: 1.02 }}
+                        whileTap={{ scale: 0.98 }}
+                      >
+                        <Plus className="w-5 h-5" />
+                        Adicionar Certificado
+                      </motion.button>
+                      <motion.button
+                        onClick={() => setShowImportModal(true)}
+                        className="bg-orange-500/20 hover:bg-orange-500/30 border border-orange-500/30 text-orange-300 p-4 rounded-xl transition-all duration-300 flex items-center gap-3"
+                        whileHover={{ scale: 1.02 }}
+                        whileTap={{ scale: 0.98 }}
+                      >
+                        <Upload className="w-5 h-5" />
+                        Importar Postman
+                      </motion.button>
                     </div>
                   </div>
                 </div>
               </motion.div>
             )}
 
-            {/* Collections Tab */}
-            {activeTab === 'collections' && (
+            {/* Profile Tab */}
+            {activeTab === 'profile' && (
               <motion.div
-                key="collections"
+                key="profile"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -20 }}
+                transition={{ duration: 0.3 }}
+                className="space-y-8"
+              >
+                <div className="flex items-center justify-between">
+                  <h2 className="text-3xl font-poppins font-bold">Gerenciar Perfil</h2>
+                  <motion.button
+                    onClick={handleSaveProfile}
+                    className="bg-gradient-to-r from-green-500 to-green-600 text-white px-6 py-3 rounded-xl font-inter font-semibold flex items-center gap-2 shadow-lg hover:shadow-xl transition-all duration-300"
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                  >
+                    <Save className="w-5 h-5" />
+                    Salvar Perfil
+                  </motion.button>
+                </div>
+
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                  {/* Profile Image */}
+                  <div className="bg-slate-800/50 backdrop-blur-sm border border-slate-700 rounded-2xl p-6">
+                    <h3 className="text-xl font-poppins font-bold mb-4">Foto de Perfil</h3>
+                    <div className="text-center">
+                      <div className="relative inline-block mb-4">
+                        <img
+                          src={profileData.profileImage}
+                          alt="Profile"
+                          className="w-32 h-32 rounded-full object-cover border-4 border-indigo-500"
+                        />
+                        <label className="absolute bottom-0 right-0 bg-indigo-500 text-white p-2 rounded-full cursor-pointer hover:bg-indigo-600 transition-colors">
+                          <Camera className="w-4 h-4" />
+                          <input
+                            type="file"
+                            accept="image/*"
+                            onChange={handleProfileImageUpload}
+                            className="hidden"
+                          />
+                        </label>
+                      </div>
+                      <p className="text-slate-400 text-sm">Clique no ícone para alterar a foto</p>
+                    </div>
+                  </div>
+
+                  {/* Profile Info */}
+                  <div className="lg:col-span-2 bg-slate-800/50 backdrop-blur-sm border border-slate-700 rounded-2xl p-6">
+                    <h3 className="text-xl font-poppins font-bold mb-4">Informações Pessoais</h3>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-sm font-medium mb-2">Nome</label>
+                        <input
+                          type="text"
+                          value={profileData.name}
+                          onChange={(e) => setProfileData({...profileData, name: e.target.value})}
+                          className="w-full p-3 bg-slate-700 border border-slate-600 rounded-xl text-white"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium mb-2">Título</label>
+                        <input
+                          type="text"
+                          value={profileData.title}
+                          onChange={(e) => setProfileData({...profileData, title: e.target.value})}
+                          className="w-full p-3 bg-slate-700 border border-slate-600 rounded-xl text-white"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium mb-2">Email</label>
+                        <input
+                          type="email"
+                          value={profileData.email}
+                          onChange={(e) => setProfileData({...profileData, email: e.target.value})}
+                          className="w-full p-3 bg-slate-700 border border-slate-600 rounded-xl text-white"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium mb-2">Telefone</label>
+                        <input
+                          type="text"
+                          value={profileData.phone}
+                          onChange={(e) => setProfileData({...profileData, phone: e.target.value})}
+                          className="w-full p-3 bg-slate-700 border border-slate-600 rounded-xl text-white"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium mb-2">Localização</label>
+                        <input
+                          type="text"
+                          value={profileData.location}
+                          onChange={(e) => setProfileData({...profileData, location: e.target.value})}
+                          className="w-full p-3 bg-slate-700 border border-slate-600 rounded-xl text-white"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium mb-2">LinkedIn</label>
+                        <input
+                          type="url"
+                          value={profileData.linkedin}
+                          onChange={(e) => setProfileData({...profileData, linkedin: e.target.value})}
+                          className="w-full p-3 bg-slate-700 border border-slate-600 rounded-xl text-white"
+                        />
+                      </div>
+                      <div className="md:col-span-2">
+                        <label className="block text-sm font-medium mb-2">Descrição</label>
+                        <textarea
+                          value={profileData.description}
+                          onChange={(e) => setProfileData({...profileData, description: e.target.value})}
+                          rows={3}
+                          className="w-full p-3 bg-slate-700 border border-slate-600 rounded-xl text-white resize-none"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </motion.div>
+            )}
+
+            {/* Projects Tab */}
+            {activeTab === 'projects' && (
+              <motion.div
+                key="projects"
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -20 }}
@@ -471,10 +653,321 @@ pm.test("Response has id", function () {
                 className="space-y-6"
               >
                 <div className="flex items-center justify-between">
-                  <h2 className="text-3xl font-poppins font-bold">Gerenciar Coleções Postman</h2>
+                  <h2 className="text-3xl font-poppins font-bold">Gerenciar Projetos</h2>
+                  <motion.button
+                    onClick={handleAddProject}
+                    className="bg-gradient-to-r from-green-500 to-green-600 text-white px-6 py-3 rounded-xl font-inter font-semibold flex items-center gap-2 shadow-lg hover:shadow-xl transition-all duration-300"
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                  >
+                    <Plus className="w-5 h-5" />
+                    Adicionar Projeto
+                  </motion.button>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {portfolioProjects.map((project, index) => (
+                    <motion.div
+                      key={project.id}
+                      className="bg-slate-800/50 backdrop-blur-sm border border-slate-700 rounded-2xl p-6 hover:border-indigo-500/50 transition-all duration-300"
+                      initial={{ opacity: 0, scale: 0.9 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      transition={{ duration: 0.5, delay: index * 0.1 }}
+                      whileHover={{ scale: 1.02, y: -5 }}
+                    >
+                      <div className="relative mb-4">
+                        <img
+                          src={project.image}
+                          alt={project.name}
+                          className="w-full h-32 object-cover rounded-xl"
+                        />
+                        <label className="absolute top-2 right-2 bg-indigo-500 text-white p-2 rounded-full cursor-pointer hover:bg-indigo-600 transition-colors">
+                          <Camera className="w-4 h-4" />
+                          <input
+                            type="file"
+                            accept="image/*"
+                            onChange={async (e) => {
+                              const file = e.target.files?.[0];
+                              if (file) {
+                                const imageUrl = await handleImageUpload(file);
+                                const updatedProjects = portfolioProjects.map(p => 
+                                  p.id === project.id ? { ...p, image: imageUrl } : p
+                                );
+                                setPortfolioProjects(updatedProjects);
+                                saveData('portfolio_projects', updatedProjects);
+                              }
+                            }}
+                            className="hidden"
+                          />
+                        </label>
+                      </div>
+                      
+                      <h3 className="text-xl font-poppins font-bold mb-2">{project.name}</h3>
+                      <p className="text-slate-400 mb-4 text-sm line-clamp-2">{project.description}</p>
+                      
+                      <div className="flex gap-2">
+                        <motion.button
+                          onClick={() => handleEditProject(project)}
+                          className="flex-1 bg-blue-500/20 hover:bg-blue-500/30 border border-blue-500/30 text-blue-300 py-2 px-3 rounded-lg transition-all duration-300 flex items-center justify-center gap-2"
+                          whileHover={{ scale: 1.02 }}
+                          whileTap={{ scale: 0.98 }}
+                        >
+                          <Edit className="w-4 h-4" />
+                          Editar
+                        </motion.button>
+                        <motion.button
+                          onClick={() => handleDeleteProject(project.id)}
+                          className="bg-red-500/20 hover:bg-red-500/30 border border-red-500/30 text-red-300 py-2 px-3 rounded-lg transition-all duration-300"
+                          whileHover={{ scale: 1.02 }}
+                          whileTap={{ scale: 0.98 }}
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </motion.button>
+                      </div>
+                    </motion.div>
+                  ))}
+                </div>
+              </motion.div>
+            )}
+
+            {/* Certificates Tab */}
+            {activeTab === 'certificates' && (
+              <motion.div
+                key="certificates"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -20 }}
+                transition={{ duration: 0.3 }}
+                className="space-y-6"
+              >
+                <div className="flex items-center justify-between">
+                  <h2 className="text-3xl font-poppins font-bold">Gerenciar Certificados</h2>
+                  <motion.button
+                    onClick={handleAddCertificate}
+                    className="bg-gradient-to-r from-green-500 to-green-600 text-white px-6 py-3 rounded-xl font-inter font-semibold flex items-center gap-2 shadow-lg hover:shadow-xl transition-all duration-300"
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                  >
+                    <Plus className="w-5 h-5" />
+                    Adicionar Certificado
+                  </motion.button>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {portfolioCertificates.map((certificate, index) => (
+                    <motion.div
+                      key={certificate.id}
+                      className="bg-slate-800/50 backdrop-blur-sm border border-slate-700 rounded-2xl p-6 hover:border-indigo-500/50 transition-all duration-300"
+                      initial={{ opacity: 0, scale: 0.9 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      transition={{ duration: 0.5, delay: index * 0.1 }}
+                      whileHover={{ scale: 1.02, y: -5 }}
+                    >
+                      <div className="relative mb-4">
+                        <img
+                          src={certificate.image}
+                          alt={certificate.name}
+                          className="w-full h-32 object-cover rounded-xl"
+                        />
+                        <label className="absolute top-2 right-2 bg-indigo-500 text-white p-2 rounded-full cursor-pointer hover:bg-indigo-600 transition-colors">
+                          <Camera className="w-4 h-4" />
+                          <input
+                            type="file"
+                            accept="image/*"
+                            onChange={async (e) => {
+                              const file = e.target.files?.[0];
+                              if (file) {
+                                const imageUrl = await handleImageUpload(file);
+                                const updatedCertificates = portfolioCertificates.map(c => 
+                                  c.id === certificate.id ? { ...c, image: imageUrl } : c
+                                );
+                                setPortfolioCertificates(updatedCertificates);
+                                saveData('portfolio_certificates', updatedCertificates);
+                              }
+                            }}
+                            className="hidden"
+                          />
+                        </label>
+                      </div>
+                      
+                      <h3 className="text-xl font-poppins font-bold mb-2 line-clamp-2">{certificate.name}</h3>
+                      <p className="text-slate-400 mb-2">{certificate.issuer}</p>
+                      <p className="text-slate-500 mb-4 text-sm">{certificate.date}</p>
+                      
+                      <div className="flex gap-2">
+                        <motion.button
+                          onClick={() => handleEditCertificate(certificate)}
+                          className="flex-1 bg-blue-500/20 hover:bg-blue-500/30 border border-blue-500/30 text-blue-300 py-2 px-3 rounded-lg transition-all duration-300 flex items-center justify-center gap-2"
+                          whileHover={{ scale: 1.02 }}
+                          whileTap={{ scale: 0.98 }}
+                        >
+                          <Edit className="w-4 h-4" />
+                          Editar
+                        </motion.button>
+                        <motion.button
+                          onClick={() => handleDeleteCertificate(certificate.id)}
+                          className="bg-red-500/20 hover:bg-red-500/30 border border-red-500/30 text-red-300 py-2 px-3 rounded-lg transition-all duration-300"
+                          whileHover={{ scale: 1.02 }}
+                          whileTap={{ scale: 0.98 }}
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </motion.button>
+                      </div>
+                    </motion.div>
+                  ))}
+                </div>
+              </motion.div>
+            )}
+
+            {/* Skills Tab */}
+            {activeTab === 'skills' && (
+              <motion.div
+                key="skills"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -20 }}
+                transition={{ duration: 0.3 }}
+                className="space-y-8"
+              >
+                <h2 className="text-3xl font-poppins font-bold">Gerenciar Habilidades</h2>
+
+                {/* Technical Skills */}
+                <div>
+                  <div className="flex items-center justify-between mb-4">
+                    <h3 className="text-xl font-poppins font-bold">Habilidades Técnicas</h3>
+                    <motion.button
+                      onClick={() => handleAddSkill('technical')}
+                      className="bg-gradient-to-r from-blue-500 to-blue-600 text-white px-4 py-2 rounded-xl font-inter font-semibold flex items-center gap-2"
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
+                    >
+                      <Plus className="w-4 h-4" />
+                      Adicionar
+                    </motion.button>
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {portfolioTechnicalSkills.map((skill, index) => (
+                      <div key={skill.name} className="bg-slate-800/50 border border-slate-700 rounded-xl p-4 flex items-center justify-between">
+                        <div>
+                          <h4 className="font-semibold">{skill.name}</h4>
+                          <p className="text-slate-400 text-sm">{skill.level}%</p>
+                        </div>
+                        <div className="flex gap-2">
+                          <button
+                            onClick={() => handleEditSkill(skill, 'technical')}
+                            className="p-2 bg-blue-500/20 text-blue-300 rounded-lg hover:bg-blue-500/30 transition-colors"
+                          >
+                            <Edit className="w-4 h-4" />
+                          </button>
+                          <button
+                            onClick={() => handleDeleteSkill(skill.name, 'technical')}
+                            className="p-2 bg-red-500/20 text-red-300 rounded-lg hover:bg-red-500/30 transition-colors"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* QA Documentation Skills */}
+                <div>
+                  <div className="flex items-center justify-between mb-4">
+                    <h3 className="text-xl font-poppins font-bold">Documentações QA</h3>
+                    <motion.button
+                      onClick={() => handleAddSkill('qa')}
+                      className="bg-gradient-to-r from-green-500 to-green-600 text-white px-4 py-2 rounded-xl font-inter font-semibold flex items-center gap-2"
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
+                    >
+                      <Plus className="w-4 h-4" />
+                      Adicionar
+                    </motion.button>
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {portfolioQADocs.map((skill, index) => (
+                      <div key={skill.name} className="bg-slate-800/50 border border-slate-700 rounded-xl p-4 flex items-center justify-between">
+                        <div>
+                          <h4 className="font-semibold">{skill.name}</h4>
+                          <p className="text-slate-400 text-sm">{skill.level}%</p>
+                        </div>
+                        <div className="flex gap-2">
+                          <button
+                            onClick={() => handleEditSkill(skill, 'qa')}
+                            className="p-2 bg-blue-500/20 text-blue-300 rounded-lg hover:bg-blue-500/30 transition-colors"
+                          >
+                            <Edit className="w-4 h-4" />
+                          </button>
+                          <button
+                            onClick={() => handleDeleteSkill(skill.name, 'qa')}
+                            className="p-2 bg-red-500/20 text-red-300 rounded-lg hover:bg-red-500/30 transition-colors"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Soft Skills */}
+                <div>
+                  <div className="flex items-center justify-between mb-4">
+                    <h3 className="text-xl font-poppins font-bold">Soft Skills</h3>
+                    <motion.button
+                      onClick={() => handleAddSkill('soft')}
+                      className="bg-gradient-to-r from-purple-500 to-purple-600 text-white px-4 py-2 rounded-xl font-inter font-semibold flex items-center gap-2"
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
+                    >
+                      <Plus className="w-4 h-4" />
+                      Adicionar
+                    </motion.button>
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {portfolioSoftSkills.map((skill, index) => (
+                      <div key={skill.name} className="bg-slate-800/50 border border-slate-700 rounded-xl p-4 flex items-center justify-between">
+                        <div>
+                          <h4 className="font-semibold">{skill.name}</h4>
+                          <p className="text-slate-400 text-sm">{skill.level}%</p>
+                        </div>
+                        <div className="flex gap-2">
+                          <button
+                            onClick={() => handleEditSkill(skill, 'soft')}
+                            className="p-2 bg-blue-500/20 text-blue-300 rounded-lg hover:bg-blue-500/30 transition-colors"
+                          >
+                            <Edit className="w-4 h-4" />
+                          </button>
+                          <button
+                            onClick={() => handleDeleteSkill(skill.name, 'soft')}
+                            className="p-2 bg-red-500/20 text-red-300 rounded-lg hover:bg-red-500/30 transition-colors"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </motion.div>
+            )}
+
+            {/* Postman Tab */}
+            {activeTab === 'postman' && (
+              <motion.div
+                key="postman"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -20 }}
+                transition={{ duration: 0.3 }}
+                className="space-y-6"
+              >
+                <div className="flex items-center justify-between">
+                  <h2 className="text-3xl font-poppins font-bold">Coleções Postman</h2>
                   <motion.button
                     onClick={() => setShowImportModal(true)}
-                    className="bg-gradient-to-r from-green-500 to-green-600 text-white px-6 py-3 rounded-xl font-inter font-semibold flex items-center gap-2 shadow-lg hover:shadow-xl transition-all duration-300"
+                    className="bg-gradient-to-r from-orange-500 to-orange-600 text-white px-6 py-3 rounded-xl font-inter font-semibold flex items-center gap-2 shadow-lg hover:shadow-xl transition-all duration-300"
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
                   >
@@ -483,180 +976,74 @@ pm.test("Response has id", function () {
                   </motion.button>
                 </div>
 
-                {/* Collections Grid */}
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {collections.map((collection, index) => (
-                    <motion.div
-                      key={collection.id}
-                      className="bg-slate-800/50 backdrop-blur-sm border border-slate-700 rounded-2xl p-6 hover:border-indigo-500/50 transition-all duration-300"
-                      initial={{ opacity: 0, scale: 0.9 }}
-                      animate={{ opacity: 1, scale: 1 }}
-                      transition={{ duration: 0.5, delay: index * 0.1 }}
-                      whileHover={{ scale: 1.02, y: -5 }}
-                    >
-                      <div className="flex items-start justify-between mb-4">
-                        <div className="bg-gradient-to-r from-indigo-500 to-purple-600 w-12 h-12 rounded-xl flex items-center justify-center shadow-lg">
-                          <Folder className="w-6 h-6 text-white" />
-                        </div>
-                        <div className="flex gap-2">
-                          <motion.button
-                            onClick={() => handleEditCollection(collection)}
-                            className="p-2 bg-blue-500/20 hover:bg-blue-500/30 border border-blue-500/30 text-blue-300 rounded-lg transition-all duration-300"
-                            whileHover={{ scale: 1.1 }}
-                            whileTap={{ scale: 0.9 }}
-                            title="Editar"
-                          >
-                            <Edit className="w-4 h-4" />
-                          </motion.button>
-                          <motion.button
-                            onClick={() => handleExportCollection(collection)}
-                            className="p-2 bg-green-500/20 hover:bg-green-500/30 border border-green-500/30 text-green-300 rounded-lg transition-all duration-300"
-                            whileHover={{ scale: 1.1 }}
-                            whileTap={{ scale: 0.9 }}
-                            title="Exportar"
-                          >
-                            <Download className="w-4 h-4" />
-                          </motion.button>
-                          <motion.button
-                            onClick={() => handleDeleteCollection(collection.id)}
-                            className="p-2 bg-red-500/20 hover:bg-red-500/30 border border-red-500/30 text-red-300 rounded-lg transition-all duration-300"
-                            whileHover={{ scale: 1.1 }}
-                            whileTap={{ scale: 0.9 }}
-                            title="Deletar"
-                          >
-                            <Trash2 className="w-4 h-4" />
-                          </motion.button>
-                        </div>
-                      </div>
-                      
-                      <h3 className="text-xl font-poppins font-bold mb-2">{collection.name}</h3>
-                      <p className="text-slate-400 mb-4 text-sm line-clamp-2">{collection.description}</p>
-                      
-                      <div className="space-y-2 mb-4">
-                        <div className="flex items-center justify-between text-sm">
-                          <span className="text-slate-400">Requests:</span>
-                          <span className="font-semibold">{collection.requests.length}</span>
-                        </div>
-                        <div className="flex items-center justify-between text-sm">
-                          <span className="text-slate-400">Variáveis:</span>
-                          <span className="font-semibold">{collection.variables.length}</span>
-                        </div>
-                        <div className="flex items-center justify-between text-sm">
-                          <span className="text-slate-400">Atualizado:</span>
-                          <span className="font-semibold">{collection.updatedAt}</span>
-                        </div>
-                      </div>
-                      
-                      <motion.button
-                        onClick={() => setSelectedCollection(collection)}
-                        className="w-full bg-gradient-to-r from-indigo-500 to-purple-600 text-white py-2 px-4 rounded-xl font-inter font-semibold flex items-center justify-center gap-2 hover:from-indigo-600 hover:to-purple-700 transition-all duration-300"
-                        whileHover={{ scale: 1.02 }}
-                        whileTap={{ scale: 0.98 }}
-                      >
-                        <Eye className="w-4 h-4" />
-                        Ver Detalhes
-                      </motion.button>
-                    </motion.div>
-                  ))}
-                </div>
-
-                {collections.length === 0 && (
+                {postmanCollections.length === 0 ? (
                   <div className="text-center py-12">
                     <Folder className="w-16 h-16 text-slate-600 mx-auto mb-4" />
                     <h3 className="text-xl font-bold mb-2">Nenhuma coleção encontrada</h3>
                     <p className="text-slate-400 mb-6">Importe sua primeira coleção do Postman para começar</p>
                     <motion.button
                       onClick={() => setShowImportModal(true)}
-                      className="bg-gradient-to-r from-green-500 to-green-600 text-white px-6 py-3 rounded-xl font-inter font-semibold"
+                      className="bg-gradient-to-r from-orange-500 to-orange-600 text-white px-6 py-3 rounded-xl font-inter font-semibold"
                       whileHover={{ scale: 1.05 }}
                       whileTap={{ scale: 0.95 }}
                     >
                       Importar Primeira Coleção
                     </motion.button>
                   </div>
+                ) : (
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {postmanCollections.map((collection, index) => (
+                      <motion.div
+                        key={collection.id}
+                        className="bg-slate-800/50 backdrop-blur-sm border border-slate-700 rounded-2xl p-6 hover:border-orange-500/50 transition-all duration-300"
+                        initial={{ opacity: 0, scale: 0.9 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        transition={{ duration: 0.5, delay: index * 0.1 }}
+                        whileHover={{ scale: 1.02, y: -5 }}
+                      >
+                        <div className="bg-gradient-to-r from-orange-500 to-orange-600 w-12 h-12 rounded-xl flex items-center justify-center mb-4 shadow-lg">
+                          <Folder className="w-6 h-6 text-white" />
+                        </div>
+                        
+                        <h3 className="text-xl font-poppins font-bold mb-2">{collection.name}</h3>
+                        <p className="text-slate-400 mb-4 text-sm line-clamp-2">{collection.description}</p>
+                        
+                        <div className="space-y-2 mb-4">
+                          <div className="flex items-center justify-between text-sm">
+                            <span className="text-slate-400">Requests:</span>
+                            <span className="font-semibold">{collection.requests.length}</span>
+                          </div>
+                          <div className="flex items-center justify-between text-sm">
+                            <span className="text-slate-400">Variáveis:</span>
+                            <span className="font-semibold">{collection.variables.length}</span>
+                          </div>
+                          <div className="flex items-center justify-between text-sm">
+                            <span className="text-slate-400">Atualizado:</span>
+                            <span className="font-semibold">{collection.updatedAt}</span>
+                          </div>
+                        </div>
+                        
+                        <motion.button
+                          onClick={() => handleDeleteCollection(collection.id)}
+                          className="w-full bg-red-500/20 hover:bg-red-500/30 border border-red-500/30 text-red-300 py-2 px-4 rounded-xl font-inter font-semibold flex items-center justify-center gap-2 transition-all duration-300"
+                          whileHover={{ scale: 1.02 }}
+                          whileTap={{ scale: 0.98 }}
+                        >
+                          <Trash2 className="w-4 h-4" />
+                          Deletar
+                        </motion.button>
+                      </motion.div>
+                    ))}
+                  </div>
                 )}
-              </motion.div>
-            )}
-
-            {/* Settings Tab */}
-            {activeTab === 'settings' && (
-              <motion.div
-                key="settings"
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -20 }}
-                transition={{ duration: 0.3 }}
-                className="space-y-6"
-              >
-                <h2 className="text-3xl font-poppins font-bold">Configurações do Sistema</h2>
-                
-                <div className="bg-slate-800/50 backdrop-blur-sm border border-slate-700 rounded-2xl p-6">
-                  <h3 className="text-xl font-poppins font-bold mb-4">Gerenciamento de Dados</h3>
-                  <div className="space-y-4">
-                    <motion.button
-                      onClick={() => {
-                        const allData = {
-                          collections,
-                          exportDate: new Date().toISOString(),
-                          version: '1.0'
-                        };
-                        const blob = new Blob([JSON.stringify(allData, null, 2)], { type: 'application/json' });
-                        const url = URL.createObjectURL(blob);
-                        const a = document.createElement('a');
-                        a.href = url;
-                        a.download = 'postman_collections_backup.json';
-                        a.click();
-                        URL.revokeObjectURL(url);
-                      }}
-                      className="w-full bg-blue-500/20 hover:bg-blue-500/30 border border-blue-500/30 text-blue-300 py-3 px-4 rounded-xl font-inter font-semibold flex items-center justify-center gap-2 transition-all duration-300"
-                      whileHover={{ scale: 1.02 }}
-                      whileTap={{ scale: 0.98 }}
-                    >
-                      <Download className="w-5 h-5" />
-                      Exportar Backup Completo
-                    </motion.button>
-                    
-                    <motion.button
-                      onClick={() => {
-                        if (confirm('Tem certeza que deseja limpar todas as coleções? Esta ação não pode ser desfeita.')) {
-                          localStorage.removeItem('postman_collections');
-                          setCollections([]);
-                        }
-                      }}
-                      className="w-full bg-red-500/20 hover:bg-red-500/30 border border-red-500/30 text-red-300 py-3 px-4 rounded-xl font-inter font-semibold flex items-center justify-center gap-2 transition-all duration-300"
-                      whileHover={{ scale: 1.02 }}
-                      whileTap={{ scale: 0.98 }}
-                    >
-                      <Trash2 className="w-5 h-5" />
-                      Limpar Todas as Coleções
-                    </motion.button>
-                  </div>
-                </div>
-
-                <div className="bg-slate-800/50 backdrop-blur-sm border border-slate-700 rounded-2xl p-6">
-                  <h3 className="text-xl font-poppins font-bold mb-4">Informações do Sistema</h3>
-                  <div className="space-y-3">
-                    <div className="flex justify-between">
-                      <span className="text-slate-400">Versão:</span>
-                      <span>1.0.0</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-slate-400">Última Sessão:</span>
-                      <span>{new Date().toLocaleString()}</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-slate-400">Armazenamento:</span>
-                      <span>LocalStorage</span>
-                    </div>
-                  </div>
-                </div>
               </motion.div>
             )}
           </AnimatePresence>
         </div>
       </div>
 
-      {/* Import Modal - NOVA FUNCIONALIDADE */}
+      {/* Modals */}
+      {/* Import Modal */}
       <AnimatePresence>
         {showImportModal && (
           <motion.div
@@ -692,7 +1079,7 @@ pm.test("Response has id", function () {
                     value={importData}
                     onChange={(e) => setImportData(e.target.value)}
                     placeholder="Cole aqui o JSON da coleção..."
-                    className="w-full h-64 p-4 bg-slate-700 border border-slate-600 rounded-xl text-white font-mono text-sm resize-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                    className="w-full h-64 p-4 bg-slate-700 border border-slate-600 rounded-xl text-white font-mono text-sm resize-none"
                   />
                 </div>
                 
@@ -711,7 +1098,7 @@ pm.test("Response has id", function () {
                   <motion.button
                     onClick={handleImportCollection}
                     disabled={!importData.trim()}
-                    className="flex-1 bg-gradient-to-r from-green-500 to-green-600 text-white py-3 px-4 rounded-xl font-inter font-semibold disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300"
+                    className="flex-1 bg-gradient-to-r from-orange-500 to-orange-600 text-white py-3 px-4 rounded-xl font-inter font-semibold disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300"
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
                   >
@@ -732,15 +1119,19 @@ pm.test("Response has id", function () {
         )}
       </AnimatePresence>
 
-      {/* Edit Modal */}
+      {/* Edit/Add Modal */}
       <AnimatePresence>
-        {showEditModal && editingCollection && (
+        {(showEditModal || showAddModal) && editingItem && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm"
-            onClick={() => setShowEditModal(false)}
+            onClick={() => {
+              setShowEditModal(false);
+              setShowAddModal(false);
+              setEditingItem(null);
+            }}
           >
             <motion.div
               initial={{ opacity: 0, scale: 0.9, y: 20 }}
@@ -750,9 +1141,19 @@ pm.test("Response has id", function () {
               onClick={(e) => e.stopPropagation()}
             >
               <div className="flex items-center justify-between mb-6">
-                <h3 className="text-2xl font-poppins font-bold">Editar Coleção</h3>
+                <h3 className="text-2xl font-poppins font-bold">
+                  {showAddModal ? 'Adicionar' : 'Editar'} {
+                    editingType === 'project' ? 'Projeto' :
+                    editingType === 'certificate' ? 'Certificado' :
+                    'Habilidade'
+                  }
+                </h3>
                 <button
-                  onClick={() => setShowEditModal(false)}
+                  onClick={() => {
+                    setShowEditModal(false);
+                    setShowAddModal(false);
+                    setEditingItem(null);
+                  }}
                   className="p-2 hover:bg-slate-700 rounded-lg transition-colors"
                 >
                   <X className="w-5 h-5" />
@@ -760,118 +1161,208 @@ pm.test("Response has id", function () {
               </div>
               
               <div className="space-y-4">
-                <div>
-                  <label className="block text-sm font-medium mb-2">Nome da Coleção:</label>
-                  <input
-                    type="text"
-                    value={editingCollection.name}
-                    onChange={(e) => setEditingCollection({...editingCollection, name: e.target.value})}
-                    className="w-full p-3 bg-slate-700 border border-slate-600 rounded-xl text-white focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-                  />
-                </div>
+                {editingType === 'project' && (
+                  <>
+                    <div>
+                      <label className="block text-sm font-medium mb-2">Nome do Projeto:</label>
+                      <input
+                        type="text"
+                        value={editingItem.name || ''}
+                        onChange={(e) => setEditingItem({...editingItem, name: e.target.value})}
+                        className="w-full p-3 bg-slate-700 border border-slate-600 rounded-xl text-white"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium mb-2">Empresa:</label>
+                      <input
+                        type="text"
+                        value={editingItem.company || ''}
+                        onChange={(e) => setEditingItem({...editingItem, company: e.target.value})}
+                        className="w-full p-3 bg-slate-700 border border-slate-600 rounded-xl text-white"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium mb-2">Tipo:</label>
+                      <select
+                        value={editingItem.type || ''}
+                        onChange={(e) => setEditingItem({...editingItem, type: e.target.value})}
+                        className="w-full p-3 bg-slate-700 border border-slate-600 rounded-xl text-white"
+                      >
+                        <option value="Functional Testing">Functional Testing</option>
+                        <option value="Security Testing">Security Testing</option>
+                        <option value="API Testing">API Testing</option>
+                        <option value="Performance Testing">Performance Testing</option>
+                        <option value="Mobile Testing">Mobile Testing</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium mb-2">Tecnologias (separadas por vírgula):</label>
+                      <input
+                        type="text"
+                        value={editingItem.technologies?.join(', ') || ''}
+                        onChange={(e) => setEditingItem({...editingItem, technologies: e.target.value.split(', ').filter(t => t.trim())})}
+                        className="w-full p-3 bg-slate-700 border border-slate-600 rounded-xl text-white"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium mb-2">Descrição:</label>
+                      <textarea
+                        value={editingItem.description || ''}
+                        onChange={(e) => setEditingItem({...editingItem, description: e.target.value})}
+                        className="w-full h-24 p-3 bg-slate-700 border border-slate-600 rounded-xl text-white resize-none"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium mb-2">Detalhes:</label>
+                      <textarea
+                        value={editingItem.details || ''}
+                        onChange={(e) => setEditingItem({...editingItem, details: e.target.value})}
+                        className="w-full h-24 p-3 bg-slate-700 border border-slate-600 rounded-xl text-white resize-none"
+                      />
+                    </div>
+                  </>
+                )}
+
+                {editingType === 'certificate' && (
+                  <>
+                    <div>
+                      <label className="block text-sm font-medium mb-2">Nome do Certificado:</label>
+                      <input
+                        type="text"
+                        value={editingItem.name || ''}
+                        onChange={(e) => setEditingItem({...editingItem, name: e.target.value})}
+                        className="w-full p-3 bg-slate-700 border border-slate-600 rounded-xl text-white"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium mb-2">Instituição:</label>
+                      <input
+                        type="text"
+                        value={editingItem.issuer || ''}
+                        onChange={(e) => setEditingItem({...editingItem, issuer: e.target.value})}
+                        className="w-full p-3 bg-slate-700 border border-slate-600 rounded-xl text-white"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium mb-2">Data:</label>
+                      <input
+                        type="text"
+                        value={editingItem.date || ''}
+                        onChange={(e) => setEditingItem({...editingItem, date: e.target.value})}
+                        className="w-full p-3 bg-slate-700 border border-slate-600 rounded-xl text-white"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium mb-2">Categoria:</label>
+                      <select
+                        value={editingItem.category || ''}
+                        onChange={(e) => setEditingItem({...editingItem, category: e.target.value})}
+                        className="w-full p-3 bg-slate-700 border border-slate-600 rounded-xl text-white"
+                      >
+                        <option value="QA">QA</option>
+                        <option value="Programming">Programming</option>
+                        <option value="Web Development">Web Development</option>
+                        <option value="Business">Business</option>
+                        <option value="Foundation">Foundation</option>
+                        <option value="Database">Database</option>
+                        <option value="Infrastructure">Infrastructure</option>
+                        <option value="Sustainability">Sustainability</option>
+                        <option value="Higher Education">Higher Education</option>
+                        <option value="AI">AI</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium mb-2">Descrição:</label>
+                      <textarea
+                        value={editingItem.description || ''}
+                        onChange={(e) => setEditingItem({...editingItem, description: e.target.value})}
+                        className="w-full h-24 p-3 bg-slate-700 border border-slate-600 rounded-xl text-white resize-none"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium mb-2">Habilidades (separadas por vírgula):</label>
+                      <input
+                        type="text"
+                        value={editingItem.skills?.join(', ') || ''}
+                        onChange={(e) => setEditingItem({...editingItem, skills: e.target.value.split(', ').filter(s => s.trim())})}
+                        className="w-full p-3 bg-slate-700 border border-slate-600 rounded-xl text-white"
+                      />
+                    </div>
+                  </>
+                )}
+
+                {editingType === 'skill' && (
+                  <>
+                    <div>
+                      <label className="block text-sm font-medium mb-2">Nome da Habilidade:</label>
+                      <input
+                        type="text"
+                        value={editingItem.name || ''}
+                        onChange={(e) => setEditingItem({...editingItem, name: e.target.value})}
+                        className="w-full p-3 bg-slate-700 border border-slate-600 rounded-xl text-white"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium mb-2">Nível (0-100):</label>
+                      <input
+                        type="number"
+                        min="0"
+                        max="100"
+                        value={editingItem.level || 0}
+                        onChange={(e) => setEditingItem({...editingItem, level: parseInt(e.target.value)})}
+                        className="w-full p-3 bg-slate-700 border border-slate-600 rounded-xl text-white"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium mb-2">Ícone:</label>
+                      <select
+                        value={editingItem.icon || ''}
+                        onChange={(e) => setEditingItem({...editingItem, icon: e.target.value})}
+                        className="w-full p-3 bg-slate-700 border border-slate-600 rounded-xl text-white"
+                      >
+                        <option value="Bot">Bot</option>
+                        <option value="Search">Search</option>
+                        <option value="Globe">Globe</option>
+                        <option value="Zap">Zap</option>
+                        <option value="Shield">Shield</option>
+                        <option value="Smartphone">Smartphone</option>
+                        <option value="Lightbulb">Lightbulb</option>
+                        <option value="Users">Users</option>
+                        <option value="MessageCircle">MessageCircle</option>
+                        <option value="Brain">Brain</option>
+                        <option value="Eye">Eye</option>
+                        <option value="Clock">Clock</option>
+                        <option value="FileText">FileText</option>
+                      </select>
+                    </div>
+                  </>
+                )}
                 
-                <div>
-                  <label className="block text-sm font-medium mb-2">Descrição:</label>
-                  <textarea
-                    value={editingCollection.description}
-                    onChange={(e) => setEditingCollection({...editingCollection, description: e.target.value})}
-                    className="w-full h-24 p-3 bg-slate-700 border border-slate-600 rounded-xl text-white resize-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-                  />
-                </div>
-                
-                <div className="flex gap-3">
+                <div className="flex gap-3 pt-4">
                   <motion.button
-                    onClick={handleSaveEdit}
-                    className="flex-1 bg-gradient-to-r from-blue-500 to-blue-600 text-white py-3 px-4 rounded-xl font-inter font-semibold transition-all duration-300"
+                    onClick={
+                      editingType === 'project' ? handleSaveProject :
+                      editingType === 'certificate' ? handleSaveCertificate :
+                      handleSaveSkill
+                    }
+                    className="flex-1 bg-gradient-to-r from-green-500 to-green-600 text-white py-3 px-4 rounded-xl font-inter font-semibold transition-all duration-300"
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
                   >
-                    Salvar Alterações
+                    {showAddModal ? 'Adicionar' : 'Salvar Alterações'}
                   </motion.button>
                   <motion.button
-                    onClick={() => setShowEditModal(false)}
+                    onClick={() => {
+                      setShowEditModal(false);
+                      setShowAddModal(false);
+                      setEditingItem(null);
+                    }}
                     className="px-6 py-3 bg-slate-700 hover:bg-slate-600 text-white rounded-xl font-inter font-semibold transition-all duration-300"
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
                   >
                     Cancelar
                   </motion.button>
-                </div>
-              </div>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-
-      {/* Collection Details Modal */}
-      <AnimatePresence>
-        {selectedCollection && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm"
-            onClick={() => setSelectedCollection(null)}
-          >
-            <motion.div
-              initial={{ opacity: 0, scale: 0.9, y: 20 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.9, y: 20 }}
-              className="bg-slate-800 border border-slate-700 rounded-2xl p-6 max-w-4xl w-full max-h-[80vh] overflow-y-auto"
-              onClick={(e) => e.stopPropagation()}
-            >
-              <div className="flex items-center justify-between mb-6">
-                <h3 className="text-2xl font-poppins font-bold">{selectedCollection.name}</h3>
-                <button
-                  onClick={() => setSelectedCollection(null)}
-                  className="p-2 hover:bg-slate-700 rounded-lg transition-colors"
-                >
-                  <X className="w-5 h-5" />
-                </button>
-              </div>
-              
-              <div className="space-y-6">
-                <div>
-                  <h4 className="text-lg font-semibold mb-2">Descrição:</h4>
-                  <p className="text-slate-300">{selectedCollection.description}</p>
-                </div>
-                
-                <div>
-                  <h4 className="text-lg font-semibold mb-3">Variáveis ({selectedCollection.variables.length}):</h4>
-                  <div className="space-y-2">
-                    {selectedCollection.variables.map((variable, index) => (
-                      <div key={index} className="bg-slate-700/50 p-3 rounded-lg flex justify-between items-center">
-                        <span className="font-mono text-sm">{variable.key}</span>
-                        <span className="text-slate-400 text-sm">{variable.type}</span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-                
-                <div>
-                  <h4 className="text-lg font-semibold mb-3">Requests ({selectedCollection.requests.length}):</h4>
-                  <div className="space-y-3">
-                    {selectedCollection.requests.map((request, index) => (
-                      <div key={index} className="bg-slate-700/50 p-4 rounded-lg">
-                        <div className="flex items-center gap-3 mb-2">
-                          <span className={`px-2 py-1 text-xs font-medium rounded ${
-                            request.method === 'GET' ? 'bg-green-500/20 text-green-300' :
-                            request.method === 'POST' ? 'bg-orange-500/20 text-orange-300' :
-                            request.method === 'PUT' ? 'bg-blue-500/20 text-blue-300' :
-                            request.method === 'DELETE' ? 'bg-red-500/20 text-red-300' :
-                            'bg-purple-500/20 text-purple-300'
-                          }`}>
-                            {request.method}
-                          </span>
-                          <span className="font-semibold">{request.name}</span>
-                        </div>
-                        <p className="text-sm text-slate-400 font-mono">{request.url}</p>
-                        {request.description && (
-                          <p className="text-sm text-slate-300 mt-2">{request.description}</p>
-                        )}
-                      </div>
-                    ))}
-                  </div>
                 </div>
               </div>
             </motion.div>

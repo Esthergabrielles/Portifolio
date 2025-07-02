@@ -1,12 +1,13 @@
 import React, { useState } from 'react';
-import { Lock, Eye, EyeOff, Shield, User, AlertCircle, CheckCircle } from 'lucide-react';
+import { Lock, Eye, EyeOff, Shield, User, AlertCircle, CheckCircle, ArrowLeft } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 interface AdminLoginProps {
   onLogin: (isAuthenticated: boolean) => void;
+  onBack?: () => void;
 }
 
-const AdminLogin: React.FC<AdminLoginProps> = ({ onLogin }) => {
+const AdminLogin: React.FC<AdminLoginProps> = ({ onLogin, onBack }) => {
   const [credentials, setCredentials] = useState({ username: '', password: '' });
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -65,6 +66,19 @@ const AdminLogin: React.FC<AdminLoginProps> = ({ onLogin }) => {
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(99,102,241,0.1),transparent_50%)]" />
         <div className="absolute inset-0 bg-[linear-gradient(45deg,transparent_48%,rgba(99,102,241,0.03)_49%,rgba(99,102,241,0.03)_51%,transparent_52%)] bg-[length:20px_20px]" />
       </div>
+
+      {/* Back Button */}
+      {onBack && (
+        <motion.button
+          onClick={onBack}
+          className="absolute top-8 left-8 p-3 rounded-xl bg-white/10 backdrop-blur-sm border border-white/20 text-white hover:bg-white/20 transition-all duration-300 flex items-center gap-2"
+          whileHover={{ scale: 1.05, x: -5 }}
+          whileTap={{ scale: 0.95 }}
+        >
+          <ArrowLeft className="w-5 h-5" />
+          <span className="hidden sm:inline">Voltar ao Portfólio</span>
+        </motion.button>
+      )}
 
       {/* Floating Security Elements */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">

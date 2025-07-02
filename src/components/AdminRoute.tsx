@@ -37,6 +37,10 @@ const AdminRoute: React.FC = () => {
     setIsAuthenticated(false);
   };
 
+  const handleBackToPortfolio = () => {
+    window.location.href = '/';
+  };
+
   if (isLoading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-900 to-black flex items-center justify-center">
@@ -48,7 +52,7 @@ const AdminRoute: React.FC = () => {
   return isAuthenticated ? (
     <AdminDashboard onLogout={handleLogout} />
   ) : (
-    <AdminLogin onLogin={handleLogin} />
+    <AdminLogin onLogin={handleLogin} onBack={handleBackToPortfolio} />
   );
 };
 
