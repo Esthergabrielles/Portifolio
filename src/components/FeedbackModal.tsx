@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Star, Send, X, Heart, ThumbsUp, MessageCircle, Award } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { SupabaseService } from '../services/supabaseService';
 
 interface FeedbackModalProps {
   isOpen: boolean;
@@ -13,6 +14,7 @@ const FeedbackModal: React.FC<FeedbackModalProps> = ({ isOpen, onClose }) => {
   const [category, setCategory] = useState('');
   const [submitted, setSubmitted] = useState(false);
   const [hoveredStar, setHoveredStar] = useState(0);
+  const [submitting, setSubmitting] = useState(false);
 
   const categories = [
     { id: 'design', label: 'Design & UX', icon: '🎨' },
@@ -21,22 +23,38 @@ const FeedbackModal: React.FC<FeedbackModalProps> = ({ isOpen, onClose }) => {
     { id: 'overall', label: 'Impressão Geral', icon: '✨' }
   ];
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    // Simular envio de feedback
-    console.log('Feedback enviado:', { rating, feedback, category });
+    if (rating === 0) return;
     
-    setSubmitted(true);
+    setSubmitting(true);
     
-    // Fechar modal após 3 segundos
-    setTimeout(() => {
-      onClose();
-      setSubmitted(false);
-      setRating(0);
-      setFeedback('');
-      setCategory('');
-    }, 3000);
+    try {
+      await SupabaseService.createFeedback({
+        rating,
+        feedback_text: feedback || null,
+        category: category || null,
+        ip_address: null, // Pode ser obtido via API externa se necessário
+        user_agent: navigator.userAgent
+      });
+      
+      setSubmitted(true);
+      
+      // Fechar modal após 3 segundos
+      setTimeout(() => {
+        onClose();
+        setSubmitted(false);
+        setRating(0);
+        setFeedback('');
+        setCategory('');
+      }, 3000);
+    } catch (error) {
+      console.error('Erro ao enviar feedback:', error);
+      alert('Erro ao enviar feedback. Tente novamente.');
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   const getRatingText = (stars: number) => {
@@ -157,13 +175,22 @@ const FeedbackModal: React.FC<FeedbackModalProps> = ({ isOpen, onClose }) => {
                   {/* Submit Button */}
                   <motion.button
                     type="submit"
-                    disabled={rating === 0}
+                    disabled={rating === 0 || submitting}
                     className="w-full bg-gradient-to-r from-indigo-500 to-purple-600 text-white py-3 px-6 rounded-xl font-semibold disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 shadow-lg hover:shadow-xl transition-all duration-300"
-                    whileHover={{ scale: rating > 0 ? 1.02 : 1 }}
-                    whileTap={{ scale: rating > 0 ? 0.98 : 1 }}
+                    whileHover={{ scale: rating > 0 && !submitting ? 1.02 : 1 }}
+                    whileTap={{ scale: rating > 0 && !submitting ? 0.98 : 1 }}
                   >
-                    <Send className="w-5 h-5" />
-                    Enviar Feedback
+                    {submitting ? (
+                      <>
+                        <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                        Enviando...
+                      </>
+                    ) : (
+                      <>
+                        <Send className="w-5 h-5" />
+                        Enviar Feedback
+                      </>
+                    )}
                   </motion.button>
                 </form>
 

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Lock, Eye, EyeOff, Shield, User, AlertCircle, CheckCircle, ArrowLeft } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useAuth } from '../hooks/useAuth';
 
 interface AdminLoginProps {
   onLogin: (isAuthenticated: boolean) => void;
@@ -8,17 +9,12 @@ interface AdminLoginProps {
 }
 
 const AdminLogin: React.FC<AdminLoginProps> = ({ onLogin, onBack }) => {
-  const [credentials, setCredentials] = useState({ username: '', password: '' });
+  const [credentials, setCredentials] = useState({ email: '', password: '' });
   const [showPassword, setShowPassword] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
   const [attempts, setAttempts] = useState(0);
-
-  // Suas credenciais especificadas
-  const ADMIN_CREDENTIALS = {
-    username: 'e.sther',
-    password: 'Es'
-  };
+  const { signIn } = useAuth();
+  const [isLoading, setIsLoading] = useState(false);
 
   const MAX_ATTEMPTS = 3;
 
@@ -33,28 +29,27 @@ const AdminLogin: React.FC<AdminLoginProps> = ({ onLogin, onBack }) => {
     setIsLoading(true);
     setError('');
 
-    // Simular delay de autenticação
-    await new Promise(resolve => setTimeout(resolve, 1500));
-
-    if (
-      credentials.username === ADMIN_CREDENTIALS.username &&
-      credentials.password === ADMIN_CREDENTIALS.password
-    ) {
-      // Login bem-sucedido
-      localStorage.setItem('admin_authenticated', 'true');
-      localStorage.setItem('admin_login_time', Date.now().toString());
-      onLogin(true);
-    } else {
-      // Login falhou
+    try {
+      const { data, error: authError } = await signIn(credentials.email, credentials.password);
+      
+      if (authError) {
+        setAttempts(prev => prev + 1);
+        setError('Credenciais inválidas. Acesso negado.');
+        setCredentials({ email: '', password: '' });
+      } else if (data.user) {
+        // Login bem-sucedido
+        onLogin(true);
+      }
+    } catch (error) {
       setAttempts(prev => prev + 1);
-      setError('Credenciais inválidas. Acesso negado.');
-      setCredentials({ username: '', password: '' });
+      setError('Erro ao fazer login. Tente novamente.');
+      setCredentials({ email: '', password: '' });
+    } finally {
+      setIsLoading(false);
     }
-
-    setIsLoading(false);
   };
 
-  const handleInputChange = (field: 'username' | 'password', value: string) => {
+  const handleInputChange = (field: 'email' | 'password', value: string) => {
     setCredentials(prev => ({ ...prev, [field]: value }));
     if (error) setError('');
   };
@@ -133,7 +128,7 @@ const AdminLogin: React.FC<AdminLoginProps> = ({ onLogin, onBack }) => {
             Área Administrativa
           </h1>
           <p className="text-slate-400 font-inter">
-            Acesso exclusivo para Esther Gabrielle
+            Acesso via Supabase Auth
           </p>
         </div>
 
@@ -145,19 +140,19 @@ const AdminLogin: React.FC<AdminLoginProps> = ({ onLogin, onBack }) => {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.2 }}
         >
-          {/* Username Field */}
+          {/* Email Field */}
           <div className="mb-6">
             <label className="block text-white font-inter font-semibold mb-3">
-              Usuário
+              Email
             </label>
             <div className="relative">
               <User className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-slate-400" />
               <input
-                type="text"
-                value={credentials.username}
-                onChange={(e) => handleInputChange('username', e.target.value)}
+                type="email"
+                value={credentials.email}
+                onChange={(e) => handleInputChange('email', e.target.value)}
                 className="w-full pl-12 pr-4 py-4 bg-white/10 border border-white/20 rounded-xl text-white placeholder-slate-400 focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-300 font-inter"
-                placeholder="Digite seu usuário"
+                placeholder="Digite seu email"
                 required
                 disabled={isLoading || attempts >= MAX_ATTEMPTS}
               />
@@ -244,7 +239,7 @@ const AdminLogin: React.FC<AdminLoginProps> = ({ onLogin, onBack }) => {
           {/* Security Info */}
           <div className="mt-6 text-center">
             <p className="text-slate-400 font-inter text-sm">
-              🔒 Acesso protegido por autenticação segura
+              🔒 Autenticação via Supabase
             </p>
           </div>
         </motion.form>
