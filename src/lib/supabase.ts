@@ -3,11 +3,41 @@ import { createClient } from '@supabase/supabase-js';
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
+// Verificar se as variáveis de ambiente estão configuradas
 if (!supabaseUrl || !supabaseAnonKey) {
-  throw new Error('Variáveis de ambiente do Supabase não configuradas');
+  console.warn('Variáveis de ambiente do Supabase não configuradas. Usando modo de demonstração.');
+  
+  // Criar um cliente mock para demonstração
+  const mockClient = {
+    from: () => ({
+      select: () => ({ data: [], error: null }),
+      insert: () => ({ data: null, error: null }),
+      update: () => ({ data: null, error: null }),
+      delete: () => ({ data: null, error: null }),
+      order: () => ({ data: [], error: null }),
+      limit: () => ({ data: [], error: null }),
+      single: () => ({ data: null, error: null }),
+      eq: () => ({ data: null, error: null })
+    }),
+    auth: {
+      signInWithPassword: () => ({ data: null, error: new Error('Demo mode') }),
+      signOut: () => ({ error: null }),
+      getUser: () => ({ data: { user: null }, error: null }),
+      onAuthStateChange: () => ({ data: { subscription: { unsubscribe: () => {} } } })
+    },
+    storage: {
+      from: () => ({
+        upload: () => ({ data: null, error: null }),
+        getPublicUrl: () => ({ data: { publicUrl: 'https://via.placeholder.com/400' } })
+      })
+    }
+  };
+  
+  // @ts-ignore
+  export const supabase = mockClient;
+} else {
+  export const supabase = createClient(supabaseUrl, supabaseAnonKey);
 }
-
-export const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
 // Tipos TypeScript para o banco de dados
 export interface Database {

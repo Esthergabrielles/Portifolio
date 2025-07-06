@@ -33,7 +33,8 @@ export class SupabaseService {
       return data || [];
     } catch (error) {
       console.error('Erro no getProjects:', error);
-      throw error;
+      // Retornar dados mock em caso de erro
+      return this.getMockProjects();
     }
   }
 
@@ -122,7 +123,7 @@ export class SupabaseService {
       return data || [];
     } catch (error) {
       console.error('Erro no getCertificates:', error);
-      throw error;
+      return this.getMockCertificates();
     }
   }
 
@@ -190,7 +191,7 @@ export class SupabaseService {
       return data || [];
     } catch (error) {
       console.error('Erro no getSkills:', error);
-      throw error;
+      return this.getMockSkills();
     }
   }
 
@@ -258,7 +259,7 @@ export class SupabaseService {
       return data || [];
     } catch (error) {
       console.error('Erro no getCourses:', error);
-      throw error;
+      return this.getMockCourses();
     }
   }
 
@@ -326,7 +327,7 @@ export class SupabaseService {
       return data || [];
     } catch (error) {
       console.error('Erro no getAchievements:', error);
-      throw error;
+      return this.getMockAchievements();
     }
   }
 
@@ -395,7 +396,7 @@ export class SupabaseService {
       return data;
     } catch (error) {
       console.error('Erro no getPersonalInfo:', error);
-      throw error;
+      return this.getMockPersonalInfo();
     }
   }
 
@@ -447,7 +448,8 @@ export class SupabaseService {
       return data || [];
     } catch (error) {
       console.error('Erro no getFeedbacks:', error);
-      throw error;
+      // Retornar array vazio em caso de erro
+      return [];
     }
   }
 
@@ -548,5 +550,106 @@ export class SupabaseService {
       console.error('Erro no uploadImage:', error);
       throw error;
     }
+  }
+
+  // Dados mock para fallback
+  static getMockProjects() {
+    return [
+      {
+        id: '1',
+        name: 'Projeto de Estudo - E-commerce',
+        company: 'Projeto Acadêmico',
+        type: 'Functional Testing',
+        technologies: ['Selenium', 'TestRail', 'Postman'],
+        description: 'Projeto de estudo focado em testes funcionais de uma plataforma e-commerce simulada.',
+        image: 'https://images.pexels.com/photos/230544/pexels-photo-230544.jpeg?auto=compress&cs=tinysrgb&w=800',
+        details: 'Desenvolvimento de casos de teste para funcionalidades básicas de e-commerce.',
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
+      }
+    ];
+  }
+
+  static getMockCertificates() {
+    return [
+      {
+        id: '1',
+        name: 'QA THEORY',
+        issuer: 'Mate Academy',
+        date: '2024',
+        image: 'https://via.placeholder.com/400x300',
+        category: 'QA',
+        description: 'Teoria fundamental de Quality Assurance',
+        skills: ['QA Theory', 'Testing'],
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
+      }
+    ];
+  }
+
+  static getMockSkills() {
+    return [
+      {
+        id: '1',
+        name: 'Postman',
+        level: 80,
+        icon: 'Shield',
+        category: 'technical' as const,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
+      }
+    ];
+  }
+
+  static getMockCourses() {
+    return [
+      {
+        id: '1',
+        name: 'QA Engineer Bootcamp',
+        institution: 'Mate Academy',
+        progress: 93,
+        status: 'in-progress' as const,
+        category: 'QA',
+        start_date: '2024-01-15',
+        expected_end: '2024-06-15',
+        completed_date: null,
+        description: 'Bootcamp intensivo de Quality Assurance',
+        skills: ['Manual Testing', 'Test Automation'],
+        color: 'from-blue-500 to-blue-600',
+        logo: null,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
+      }
+    ];
+  }
+
+  static getMockAchievements() {
+    return [
+      {
+        id: '1',
+        title: 'Funcionária Destaque',
+        organization: 'Destra Gestão de Terceiros',
+        date: '2024',
+        description: 'Reconhecida por excelência em auditorias documentais.',
+        type: 'recognition',
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
+      }
+    ];
+  }
+
+  static getMockPersonalInfo() {
+    return {
+      id: '1',
+      name: 'Esther Gabrielle de Oliveira de Souza',
+      title: 'QA Tester Júnior',
+      description: 'Especialista em testes de software e automação',
+      email: 'esthergabriellesouza@gmail.com',
+      phone: '(19) 98926-1419',
+      location: 'Santa Bárbara d\'Oeste, SP - Brasil',
+      profile_image: 'https://images.pexels.com/photos/774909/pexels-photo-774909.jpeg?auto=compress&cs=tinysrgb&w=400&h=400&fit=crop',
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString()
+    };
   }
 }

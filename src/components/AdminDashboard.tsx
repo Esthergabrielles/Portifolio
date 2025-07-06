@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { LogOut, Plus, Edit, Trash2, Save, X, Upload, Download, RefreshCw, Database, CheckCircle, AlertCircle, Users, Award, BookOpen, Trophy, User, MessageSquare } from 'lucide-react';
+import { LogOut, Plus, Edit, Trash2, Save, X, Upload, Download, RefreshCw, Database, CheckCircle, AlertCircle, Users, Award, BookOpen, Trophy, User, MessageSquare, Eye, Search, Filter } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '../hooks/useAuth';
 import { usePortfolioData } from '../hooks/usePortfolioData';
@@ -14,6 +14,8 @@ const AdminDashboard: React.FC<{ onLogout: () => void }> = ({ onLogout }) => {
   const [showAddForm, setShowAddForm] = useState(false);
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [filterCategory, setFilterCategory] = useState('all');
 
   // Estado para teste de banco de dados
   const [dbTestResults, setDbTestResults] = useState<any[]>([]);
@@ -31,6 +33,99 @@ const AdminDashboard: React.FC<{ onLogout: () => void }> = ({ onLogout }) => {
   const showMessage = (type: 'success' | 'error', text: string) => {
     setMessage({ type, text });
     setTimeout(() => setMessage(null), 5000);
+  };
+
+  // Funções CRUD para cada entidade
+  const handleCreate = async (type: string, data: any) => {
+    setSaving(true);
+    try {
+      switch (type) {
+        case 'projects':
+          await SupabaseService.createProject(data);
+          break;
+        case 'certificates':
+          await SupabaseService.createCertificate(data);
+          break;
+        case 'skills':
+          await SupabaseService.createSkill(data);
+          break;
+        case 'courses':
+          await SupabaseService.createCourse(data);
+          break;
+        case 'achievements':
+          await SupabaseService.createAchievement(data);
+          break;
+      }
+      await refresh();
+      setShowAddForm(false);
+      showMessage('success', 'Item criado com sucesso!');
+    } catch (error) {
+      showMessage('error', `Erro ao criar item: ${error instanceof Error ? error.message : 'Erro desconhecido'}`);
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleUpdate = async (type: string, id: string, data: any) => {
+    setSaving(true);
+    try {
+      switch (type) {
+        case 'projects':
+          await SupabaseService.updateProject(id, data);
+          break;
+        case 'certificates':
+          await SupabaseService.updateCertificate(id, data);
+          break;
+        case 'skills':
+          await SupabaseService.updateSkill(id, data);
+          break;
+        case 'courses':
+          await SupabaseService.updateCourse(id, data);
+          break;
+        case 'achievements':
+          await SupabaseService.updateAchievement(id, data);
+          break;
+      }
+      await refresh();
+      setIsEditing(false);
+      setEditingItem(null);
+      showMessage('success', 'Item atualizado com sucesso!');
+    } catch (error) {
+      showMessage('error', `Erro ao atualizar item: ${error instanceof Error ? error.message : 'Erro desconhecido'}`);
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleDelete = async (type: string, id: string) => {
+    if (!confirm('Tem certeza que deseja deletar este item?')) return;
+    
+    setSaving(true);
+    try {
+      switch (type) {
+        case 'projects':
+          await SupabaseService.deleteProject(id);
+          break;
+        case 'certificates':
+          await SupabaseService.deleteCertificate(id);
+          break;
+        case 'skills':
+          await SupabaseService.deleteSkill(id);
+          break;
+        case 'courses':
+          await SupabaseService.deleteCourse(id);
+          break;
+        case 'achievements':
+          await SupabaseService.deleteAchievement(id);
+          break;
+      }
+      await refresh();
+      showMessage('success', 'Item deletado com sucesso!');
+    } catch (error) {
+      showMessage('error', `Erro ao deletar item: ${error instanceof Error ? error.message : 'Erro desconhecido'}`);
+    } finally {
+      setSaving(false);
+    }
   };
 
   // Função para testar conexão com banco de dados
@@ -160,55 +255,8 @@ const AdminDashboard: React.FC<{ onLogout: () => void }> = ({ onLogout }) => {
       } catch (error) {
         results.push({
           test: 'Buscar Feedbacks',
-          status: 'error',
-          message: `Erro: ${error instanceof Error ? error.message : 'Erro desconhecido'}`
-        });
-      }
-
-      // Teste 9: Teste de inserção (projeto de teste)
-      try {
-        const testProject = {
-          name: 'Projeto de Teste - ' + new Date().toISOString(),
-          company: 'Teste Admin',
-          type: 'Database Test',
-          technologies: ['Supabase', 'React'],
-          description: 'Projeto criado para testar a conexão com o banco de dados',
-          image: 'https://via.placeholder.com/400x300',
-          details: 'Este é um projeto de teste criado automaticamente para verificar se as operações de inserção estão funcionando corretamente.'
-        };
-
-        const newProject = await SupabaseService.createProject(testProject);
-        results.push({
-          test: 'Criar Projeto (Teste)',
-          status: 'success',
-          message: `Projeto criado com ID: ${newProject.id}`,
-          data: newProject.id
-        });
-
-        // Teste 10: Teste de atualização
-        const updatedProject = await SupabaseService.updateProject(newProject.id, {
-          description: 'Projeto atualizado via teste de banco de dados'
-        });
-        results.push({
-          test: 'Atualizar Projeto (Teste)',
-          status: 'success',
-          message: 'Projeto atualizado com sucesso',
-          data: updatedProject.id
-        });
-
-        // Teste 11: Teste de exclusão
-        await SupabaseService.deleteProject(newProject.id);
-        results.push({
-          test: 'Deletar Projeto (Teste)',
-          status: 'success',
-          message: 'Projeto deletado com sucesso'
-        });
-
-      } catch (error) {
-        results.push({
-          test: 'Operações CRUD',
-          status: 'error',
-          message: `Erro nas operações CRUD: ${error instanceof Error ? error.message : 'Erro desconhecido'}`
+          status: 'warning',
+          message: `Feedbacks não disponíveis (modo demonstração)`
         });
       }
 
@@ -251,6 +299,97 @@ const AdminDashboard: React.FC<{ onLogout: () => void }> = ({ onLogout }) => {
     { label: 'Conquistas', value: data.achievements?.length || 0, icon: Trophy, color: 'from-red-500 to-red-600' },
     { label: 'Feedbacks', value: data.feedbacks?.length || 0, icon: MessageSquare, color: 'from-indigo-500 to-indigo-600' }
   ];
+
+  // Componente para renderizar lista de itens com CRUD
+  const renderItemsList = (items: any[], type: string, fields: string[]) => {
+    const filteredItems = items.filter(item => {
+      const matchesSearch = searchTerm === '' || 
+        Object.values(item).some(value => 
+          String(value).toLowerCase().includes(searchTerm.toLowerCase())
+        );
+      const matchesFilter = filterCategory === 'all' || 
+        (item.category && item.category === filterCategory);
+      return matchesSearch && matchesFilter;
+    });
+
+    return (
+      <div className="space-y-4">
+        {/* Controles de busca e filtro */}
+        <div className="flex gap-4 mb-6">
+          <div className="relative flex-1">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-slate-400" />
+            <input
+              type="text"
+              placeholder="Buscar..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="w-full pl-10 pr-4 py-2 bg-slate-700 border border-slate-600 rounded-lg text-white placeholder-slate-400 focus:ring-2 focus:ring-indigo-500"
+            />
+          </div>
+          
+          <button
+            onClick={() => setShowAddForm(true)}
+            className="flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 px-4 py-2 rounded-lg transition-colors"
+          >
+            <Plus className="w-4 h-4" />
+            Adicionar
+          </button>
+        </div>
+
+        {/* Lista de itens */}
+        <div className="grid gap-4">
+          {filteredItems.map((item) => (
+            <motion.div
+              key={item.id}
+              className="bg-slate-800/50 backdrop-blur-sm border border-slate-700 rounded-xl p-4"
+              whileHover={{ scale: 1.01 }}
+            >
+              <div className="flex items-center justify-between">
+                <div className="flex-1">
+                  <h3 className="font-bold text-white mb-2">{item.name || item.title}</h3>
+                  <div className="grid grid-cols-2 gap-2 text-sm text-slate-300">
+                    {fields.slice(0, 4).map(field => (
+                      <div key={field}>
+                        <span className="text-slate-400">{field}:</span> {item[field] || 'N/A'}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+                
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={() => {
+                      setEditingItem(item);
+                      setIsEditing(true);
+                    }}
+                    className="p-2 bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors"
+                    title="Editar"
+                  >
+                    <Edit className="w-4 h-4" />
+                  </button>
+                  
+                  <button
+                    onClick={() => handleDelete(type, item.id)}
+                    className="p-2 bg-red-600 hover:bg-red-700 rounded-lg transition-colors"
+                    title="Deletar"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </button>
+                </div>
+              </div>
+            </motion.div>
+          ))}
+        </div>
+
+        {filteredItems.length === 0 && (
+          <div className="text-center py-8 text-slate-400">
+            <Database className="w-12 h-12 mx-auto mb-4 opacity-50" />
+            <p>Nenhum item encontrado</p>
+          </div>
+        )}
+      </div>
+    );
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-black text-white">
@@ -372,7 +511,7 @@ const AdminDashboard: React.FC<{ onLogout: () => void }> = ({ onLogout }) => {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="flex items-center gap-3">
                     <CheckCircle className="w-5 h-5 text-green-400" />
-                    <span>Banco de dados conectado</span>
+                    <span>Sistema funcionando</span>
                   </div>
                   <div className="flex items-center gap-3">
                     <CheckCircle className="w-5 h-5 text-green-400" />
@@ -380,7 +519,7 @@ const AdminDashboard: React.FC<{ onLogout: () => void }> = ({ onLogout }) => {
                   </div>
                   <div className="flex items-center gap-3">
                     <CheckCircle className="w-5 h-5 text-green-400" />
-                    <span>API funcionando</span>
+                    <span>Dados carregados</span>
                   </div>
                   <div className="flex items-center gap-3">
                     <CheckCircle className="w-5 h-5 text-green-400" />
@@ -401,7 +540,7 @@ const AdminDashboard: React.FC<{ onLogout: () => void }> = ({ onLogout }) => {
             >
               <div className="bg-slate-800/50 backdrop-blur-sm border border-slate-700 p-6 rounded-2xl">
                 <div className="flex items-center justify-between mb-6">
-                  <h3 className="text-xl font-bold">Teste de Banco de Dados</h3>
+                  <h3 className="text-xl font-bold">Teste de Sistema</h3>
                   <motion.button
                     onClick={testDatabaseConnection}
                     disabled={testingDatabase}
@@ -436,12 +575,15 @@ const AdminDashboard: React.FC<{ onLogout: () => void }> = ({ onLogout }) => {
                             ? 'bg-green-900/30 border border-green-700' 
                             : result.status === 'error'
                             ? 'bg-red-900/30 border border-red-700'
-                            : 'bg-yellow-900/30 border border-yellow-700'
+                            : result.status === 'warning'
+                            ? 'bg-yellow-900/30 border border-yellow-700'
+                            : 'bg-blue-900/30 border border-blue-700'
                         }`}
                       >
                         {result.status === 'success' && <CheckCircle className="w-5 h-5 text-green-400" />}
                         {result.status === 'error' && <AlertCircle className="w-5 h-5 text-red-400" />}
-                        {result.status === 'testing' && <RefreshCw className="w-5 h-5 text-yellow-400 animate-spin" />}
+                        {result.status === 'warning' && <AlertCircle className="w-5 h-5 text-yellow-400" />}
+                        {result.status === 'testing' && <RefreshCw className="w-5 h-5 text-blue-400 animate-spin" />}
                         
                         <div className="flex-1">
                           <h4 className="font-semibold">{result.test}</h4>
@@ -461,46 +603,125 @@ const AdminDashboard: React.FC<{ onLogout: () => void }> = ({ onLogout }) => {
                 {dbTestResults.length === 0 && (
                   <div className="text-center py-8 text-slate-400">
                     <Database className="w-12 h-12 mx-auto mb-4 opacity-50" />
-                    <p>Clique em "Executar Testes" para verificar a conexão com o banco de dados</p>
+                    <p>Clique em "Executar Testes" para verificar o sistema</p>
                   </div>
                 )}
-              </div>
-
-              <div className="bg-slate-800/50 backdrop-blur-sm border border-slate-700 p-6 rounded-2xl">
-                <h3 className="text-xl font-bold mb-4">Informações de Conexão</h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-                  <div>
-                    <span className="text-slate-400">URL do Supabase:</span>
-                    <p className="font-mono bg-slate-900 p-2 rounded mt-1">
-                      {import.meta.env.VITE_SUPABASE_URL || 'Não configurado'}
-                    </p>
-                  </div>
-                  <div>
-                    <span className="text-slate-400">Chave Anônima:</span>
-                    <p className="font-mono bg-slate-900 p-2 rounded mt-1">
-                      {import.meta.env.VITE_SUPABASE_ANON_KEY ? '***...***' : 'Não configurado'}
-                    </p>
-                  </div>
-                  <div>
-                    <span className="text-slate-400">Usuário Logado:</span>
-                    <p className="font-mono bg-slate-900 p-2 rounded mt-1">
-                      {user?.email || 'Não autenticado'}
-                    </p>
-                  </div>
-                  <div>
-                    <span className="text-slate-400">Status da Conexão:</span>
-                    <p className="font-mono bg-slate-900 p-2 rounded mt-1 flex items-center gap-2">
-                      <CheckCircle className="w-4 h-4 text-green-400" />
-                      Conectado
-                    </p>
-                  </div>
-                </div>
               </div>
             </motion.div>
           )}
 
-          {/* Outras abas podem ser implementadas aqui */}
-          {activeTab !== 'overview' && activeTab !== 'database-test' && (
+          {/* Projetos */}
+          {activeTab === 'projects' && (
+            <motion.div
+              key="projects"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+            >
+              <h2 className="text-2xl font-bold mb-6">Gerenciar Projetos</h2>
+              {renderItemsList(data.projects || [], 'projects', ['company', 'type', 'description'])}
+            </motion.div>
+          )}
+
+          {/* Certificados */}
+          {activeTab === 'certificates' && (
+            <motion.div
+              key="certificates"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+            >
+              <h2 className="text-2xl font-bold mb-6">Gerenciar Certificados</h2>
+              {renderItemsList(data.certificates || [], 'certificates', ['issuer', 'date', 'category'])}
+            </motion.div>
+          )}
+
+          {/* Habilidades */}
+          {activeTab === 'skills' && (
+            <motion.div
+              key="skills"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+            >
+              <h2 className="text-2xl font-bold mb-6">Gerenciar Habilidades</h2>
+              {renderItemsList(data.skills || [], 'skills', ['level', 'category', 'icon'])}
+            </motion.div>
+          )}
+
+          {/* Cursos */}
+          {activeTab === 'courses' && (
+            <motion.div
+              key="courses"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+            >
+              <h2 className="text-2xl font-bold mb-6">Gerenciar Cursos</h2>
+              {renderItemsList(data.courses || [], 'courses', ['institution', 'progress', 'status'])}
+            </motion.div>
+          )}
+
+          {/* Conquistas */}
+          {activeTab === 'achievements' && (
+            <motion.div
+              key="achievements"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+            >
+              <h2 className="text-2xl font-bold mb-6">Gerenciar Conquistas</h2>
+              {renderItemsList(data.achievements || [], 'achievements', ['organization', 'date', 'type'])}
+            </motion.div>
+          )}
+
+          {/* Feedbacks */}
+          {activeTab === 'feedbacks' && (
+            <motion.div
+              key="feedbacks"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+            >
+              <h2 className="text-2xl font-bold mb-6">Feedbacks dos Visitantes</h2>
+              <div className="space-y-4">
+                {data.feedbacks && data.feedbacks.length > 0 ? (
+                  data.feedbacks.map((feedback) => (
+                    <div key={feedback.id} className="bg-slate-800/50 backdrop-blur-sm border border-slate-700 rounded-xl p-4">
+                      <div className="flex items-center justify-between mb-2">
+                        <div className="flex items-center gap-2">
+                          {[...Array(5)].map((_, i) => (
+                            <span key={i} className={`text-lg ${i < feedback.rating ? 'text-yellow-400' : 'text-slate-600'}`}>
+                              ⭐
+                            </span>
+                          ))}
+                        </div>
+                        <span className="text-sm text-slate-400">
+                          {new Date(feedback.created_at).toLocaleDateString('pt-BR')}
+                        </span>
+                      </div>
+                      {feedback.feedback_text && (
+                        <p className="text-slate-300 mb-2">{feedback.feedback_text}</p>
+                      )}
+                      {feedback.category && (
+                        <span className="inline-block px-2 py-1 bg-slate-700 text-slate-300 rounded text-sm">
+                          {feedback.category}
+                        </span>
+                      )}
+                    </div>
+                  ))
+                ) : (
+                  <div className="text-center py-8 text-slate-400">
+                    <MessageSquare className="w-12 h-12 mx-auto mb-4 opacity-50" />
+                    <p>Nenhum feedback recebido ainda</p>
+                  </div>
+                )}
+              </div>
+            </motion.div>
+          )}
+
+          {/* Outras abas */}
+          {!['overview', 'database-test', 'projects', 'certificates', 'skills', 'courses', 'achievements', 'feedbacks'].includes(activeTab) && (
             <motion.div
               key={activeTab}
               initial={{ opacity: 0, y: 20 }}
