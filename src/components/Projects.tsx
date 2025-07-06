@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { ExternalLink, Github, Eye, Award, TrendingUp, Shield, Zap, FileText, Code, TestTube, Bug, Send } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { projects } from '../data/portfolio';
 import { useLanguage } from '../hooks/useLanguage';
+import { usePortfolioData } from '../hooks/usePortfolioData';
 import { t } from '../data/translations';
 import AnimatedSection from './AnimatedSection';
 import { Project } from '../types';
@@ -15,9 +15,13 @@ const Projects: React.FC = () => {
   const [showProjectDetails, setShowProjectDetails] = useState(false);
   const [showPostmanInterface, setShowPostmanInterface] = useState(false);
   const { language } = useLanguage();
+  const { data: portfolioData, loading } = usePortfolioData();
 
   const testTypes = ['All', 'Functional Testing', 'Security Testing', 'API Testing', 'Performance Testing', 'Postman Collections'];
 
+  // Usar dados do hook em vez de importação estática
+  const projects = portfolioData?.projects || [];
+  
   const filteredProjects = filter === 'All' 
     ? projects 
     : projects.filter(project => project.type === filter);
@@ -61,6 +65,26 @@ const Projects: React.FC = () => {
   const closePostmanInterface = () => {
     setShowPostmanInterface(false);
   };
+
+  if (loading) {
+    return (
+      <section id="projects" className="section-spacing bg-gradient-to-br from-neutral-100 via-white to-neutral-50 dark:from-black dark:via-neutral-900 dark:to-neutral-800 relative overflow-hidden">
+        <div className="container-12 relative z-10">
+          <div className="col-span-12 text-center">
+            <div className="animate-pulse">
+              <div className="h-12 bg-gray-300 rounded mb-4"></div>
+              <div className="h-6 bg-gray-200 rounded mb-8"></div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                {[1, 2, 3, 4].map((i) => (
+                  <div key={i} className="h-96 bg-gray-200 rounded-3xl"></div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    );
+  }
 
   if (showProjectDetails && selectedProject) {
     return (

@@ -36,9 +36,9 @@ export const usePortfolioData = () => {
         projects: portfolioModule.projects || [],
         certificates: portfolioModule.certificates || [],
         skills: [
-          ...(portfolioModule.technicalSkills || []),
-          ...(portfolioModule.qaDocumentations || []),
-          ...(portfolioModule.softSkills || [])
+          ...(portfolioModule.technicalSkills?.map(skill => ({ ...skill, category: 'technical' })) || []),
+          ...(portfolioModule.qaDocumentations?.map(skill => ({ ...skill, category: 'documentation' })) || []),
+          ...(portfolioModule.softSkills?.map(skill => ({ ...skill, category: 'soft' })) || [])
         ],
         courses: [
           {
@@ -87,7 +87,8 @@ export const usePortfolioData = () => {
           location: 'Santa Bárbara d\'Oeste, SP - Brasil',
           profileImage: 'https://images.pexels.com/photos/774909/pexels-photo-774909.jpeg?auto=compress&cs=tinysrgb&w=500&h=500&fit=crop'
         },
-        postmanCollections: []
+        postmanCollections: [],
+        feedbacks: []
       };
       
       setData(initialData);
@@ -126,12 +127,42 @@ export const usePortfolioData = () => {
     return false;
   };
 
+  const addItem = async (section: keyof PortfolioData, item: any) => {
+    if (data && Array.isArray(data[section])) {
+      const itemWithId = { ...item, id: item.id || Date.now().toString() };
+      const updatedSection = [...(data[section] as any[]), itemWithId];
+      return await updateData({ [section]: updatedSection });
+    }
+    return false;
+  };
+
+  const updateItem = async (section: keyof PortfolioData, itemId: string, updatedItem: any) => {
+    if (data && Array.isArray(data[section])) {
+      const updatedSection = (data[section] as any[]).map(item => 
+        item.id === itemId ? { ...item, ...updatedItem } : item
+      );
+      return await updateData({ [section]: updatedSection });
+    }
+    return false;
+  };
+
+  const deleteItem = async (section: keyof PortfolioData, itemId: string) => {
+    if (data && Array.isArray(data[section])) {
+      const updatedSection = (data[section] as any[]).filter(item => item.id !== itemId);
+      return await updateData({ [section]: updatedSection });
+    }
+    return false;
+  };
+
   return {
     data,
     loading,
     saving,
     saveData,
     updateData,
+    addItem,
+    updateItem,
+    deleteItem,
     loadData
   };
 };

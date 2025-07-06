@@ -7,6 +7,7 @@ export interface PortfolioData {
   achievements: any[];
   personalInfo: any;
   postmanCollections: any[];
+  feedbacks?: any[];
 }
 
 export class PortfolioService {

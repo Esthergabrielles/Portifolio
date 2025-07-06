@@ -2,108 +2,20 @@ import React, { useState, useEffect } from 'react';
 import { BookOpen, GraduationCap, Clock, Award, TrendingUp, Play, Pause, RotateCcw, Star, Target } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useIntersectionObserver } from '../hooks/useIntersectionObserver';
+import { usePortfolioData } from '../hooks/usePortfolioData';
 import AnimatedSection from './AnimatedSection';
 
-interface Course {
-  id: string;
-  name: string;
-  institution: string;
-  progress: number;
-  status: 'completed' | 'in-progress' | 'paused';
-  logo: string;
-  category: string;
-  startDate: string;
-  expectedEnd?: string;
-  completedDate?: string;
-  description: string;
-  skills: string[];
-  color: string;
-  bgColor: string;
-}
-
 const Courses: React.FC = () => {
-  const [selectedCourse, setSelectedCourse] = useState<Course | null>(null);
+  const [selectedCourse, setSelectedCourse] = useState<any>(null);
   const [animateProgress, setAnimateProgress] = useState(false);
   const { ref, isIntersecting } = useIntersectionObserver({
     threshold: 0.3,
     triggerOnce: true,
   });
+  const { data: portfolioData, loading } = usePortfolioData();
 
-  const courses: Course[] = [
-    {
-      id: '1',
-      name: 'Técnico em Recursos Humanos',
-      institution: 'SENAC',
-      progress: 60,
-      status: 'paused',
-      logo: 'https://tampamania.com.br/site/wp-content/uploads/2018/04/senac-faculdade-df.jpg',
-      category: 'Gestão',
-      startDate: '2022',
-      description: 'Formação técnica focada em gestão de pessoas, recrutamento e desenvolvimento organizacional.',
-      skills: ['Recrutamento', 'Gestão de Pessoas', 'Legislação Trabalhista', 'Desenvolvimento Organizacional'],
-      color: 'from-blue-500 to-blue-600',
-      bgColor: 'from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/20'
-    },
-    {
-      id: '2',
-      name: 'Técnico em Segurança do Trabalho',
-      institution: 'SENAC',
-      progress: 60,
-      status: 'paused',
-      logo: 'https://tampamania.com.br/site/wp-content/uploads/2018/04/senac-faculdade-df.jpg',
-      category: 'Segurança',
-      startDate: '2022',
-      description: 'Curso técnico voltado para prevenção de acidentes e promoção da segurança no ambiente de trabalho.',
-      skills: ['Prevenção de Acidentes', 'Normas Regulamentadoras', 'Ergonomia', 'Gestão de Riscos'],
-      color: 'from-red-500 to-red-600',
-      bgColor: 'from-red-50 to-red-100 dark:from-red-900/20 dark:to-red-800/20'
-    },
-    {
-      id: '3',
-      name: 'CST Gestão Comercial',
-      institution: 'Estácio',
-      progress: 100,
-      status: 'completed',
-      logo: 'https://images.seeklogo.com/logo-png/23/1/universidade-estacio-de-sa-logo-png_seeklogo-236721.png',
-      category: 'Superior',
-      startDate: '2021',
-      completedDate: '2023',
-      description: 'Curso superior de tecnologia com foco em estratégias comerciais, vendas e gestão de negócios.',
-      skills: ['Estratégias Comerciais', 'Gestão de Vendas', 'Marketing', 'Análise de Mercado'],
-      color: 'from-green-500 to-green-600',
-      bgColor: 'from-green-50 to-green-100 dark:from-green-900/20 dark:to-green-800/20'
-    },
-    {
-      id: '4',
-      name: 'Quality Assurance',
-      institution: 'Mate Academy',
-      progress: 95,
-      status: 'in-progress',
-      logo: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTMlpdzYE4XS_4cXdXDM7VhyFLQeSyYNYmuTg&s',
-      category: 'Tecnologia',
-      startDate: '2024',
-      expectedEnd: 'Dezembro 2024',
-      description: 'Formação completa em Quality Assurance com foco em testes automatizados e metodologias ágeis.',
-      skills: ['Testes Automatizados', 'Selenium', 'API Testing', 'Metodologias Ágeis', 'Bug Tracking'],
-      color: 'from-purple-500 to-purple-600',
-      bgColor: 'from-purple-50 to-purple-100 dark:from-purple-900/20 dark:to-purple-800/20'
-    },
-    {
-      id: '5',
-      name: 'FullStack Python',
-      institution: 'Mate Academy',
-      progress: 15,
-      status: 'in-progress',
-      logo: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTMlpdzYE4XS_4cXdXDM7VhyFLQeSyYNYmuTg&s',
-      category: 'Desenvolvimento',
-      startDate: '2024',
-      expectedEnd: 'Junho 2025',
-      description: 'Curso completo de desenvolvimento web com Python, Django, React e tecnologias modernas.',
-      skills: ['Python', 'Django', 'React', 'PostgreSQL', 'APIs REST', 'DevOps'],
-      color: 'from-yellow-500 to-yellow-600',
-      bgColor: 'from-yellow-50 to-yellow-100 dark:from-yellow-900/20 dark:to-yellow-800/20'
-    }
-  ];
+  // Usar dados do hook em vez de dados estáticos
+  const courses = portfolioData?.courses || [];
 
   useEffect(() => {
     if (isIntersecting) {
@@ -148,12 +60,12 @@ const Courses: React.FC = () => {
     { icon: Target, label: 'Instituições', value: [...new Set(courses.map(c => c.institution))].length, color: 'text-orange-500' }
   ];
 
-  const ProgressBar: React.FC<{ course: Course; delay: number }> = ({ course, delay }) => {
+  const ProgressBar: React.FC<{ course: any; delay: number }> = ({ course, delay }) => {
     const StatusIcon = getStatusIcon(course.status);
     
     return (
       <motion.div
-        className={`bg-gradient-to-br ${course.bgColor} border border-neutral-200 dark:border-neutral-700 rounded-3xl p-6 shadow-lg hover:shadow-2xl transition-all duration-500 group cursor-pointer`}
+        className={`bg-gradient-to-br ${course.bgColor || 'from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/20'} border border-neutral-200 dark:border-neutral-700 rounded-3xl p-6 shadow-lg hover:shadow-2xl transition-all duration-500 group cursor-pointer`}
         initial={{ opacity: 0, y: 30 }}
         whileInView={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6, delay: delay * 0.1 }}
@@ -167,12 +79,12 @@ const Courses: React.FC = () => {
             whileHover={{ scale: 1.1, rotate: 5 }}
           >
             <img
-              src={course.logo}
+              src={course.logo || 'https://via.placeholder.com/64'}
               alt={course.institution}
               className="w-16 h-16 rounded-2xl object-cover shadow-lg"
             />
             <motion.div
-              className={`absolute -bottom-2 -right-2 w-8 h-8 bg-gradient-to-r ${course.color} rounded-full flex items-center justify-center shadow-lg`}
+              className={`absolute -bottom-2 -right-2 w-8 h-8 bg-gradient-to-r ${course.color || 'from-blue-500 to-blue-600'} rounded-full flex items-center justify-center shadow-lg`}
               whileHover={{ scale: 1.2 }}
             >
               <StatusIcon className="w-4 h-4 text-white" />
@@ -199,7 +111,7 @@ const Courses: React.FC = () => {
           
           <div className="text-right">
             <motion.span 
-              className={`text-3xl font-bold bg-gradient-to-r ${course.color} bg-clip-text text-transparent font-poppins`}
+              className={`text-3xl font-bold bg-gradient-to-r ${course.color || 'from-blue-500 to-blue-600'} bg-clip-text text-transparent font-poppins`}
               initial={{ scale: 0 }}
               animate={{ scale: animateProgress ? 1 : 0 }}
               transition={{ duration: 0.5, delay: 0.3 }}
@@ -212,7 +124,7 @@ const Courses: React.FC = () => {
         <div className="relative mb-4">
           <div className="w-full bg-neutral-200 dark:bg-neutral-700 rounded-full h-4 overflow-hidden shadow-inner">
             <motion.div 
-              className={`bg-gradient-to-r ${course.color} h-4 rounded-full shadow-sm relative overflow-hidden`}
+              className={`bg-gradient-to-r ${course.color || 'from-blue-500 to-blue-600'} h-4 rounded-full shadow-sm relative overflow-hidden`}
               initial={{ width: 0 }}
               animate={{ width: animateProgress ? `${course.progress}%` : '0%' }}
               transition={{ duration: 1.5, ease: "easeOut", delay: 0.5 + delay * 0.1 }}
@@ -236,16 +148,16 @@ const Courses: React.FC = () => {
         </div>
         
         <div className="flex flex-wrap gap-2">
-          {course.skills.slice(0, 3).map((skill, index) => (
+          {course.skills?.slice(0, 3).map((skill: string, index: number) => (
             <motion.span
               key={index}
-              className={`px-3 py-1 bg-gradient-to-r ${course.color} text-white rounded-full text-sm font-medium opacity-80 group-hover:opacity-100 transition-opacity duration-300`}
+              className={`px-3 py-1 bg-gradient-to-r ${course.color || 'from-blue-500 to-blue-600'} text-white rounded-full text-sm font-medium opacity-80 group-hover:opacity-100 transition-opacity duration-300`}
               whileHover={{ scale: 1.05 }}
             >
               {skill}
             </motion.span>
           ))}
-          {course.skills.length > 3 && (
+          {course.skills && course.skills.length > 3 && (
             <span className="px-3 py-1 bg-neutral-200 dark:bg-neutral-700 text-neutral-600 dark:text-neutral-300 rounded-full text-sm">
               +{course.skills.length - 3}
             </span>
@@ -254,6 +166,26 @@ const Courses: React.FC = () => {
       </motion.div>
     );
   };
+
+  if (loading) {
+    return (
+      <section id="courses" className="section-spacing bg-gradient-to-br from-white via-neutral-50 to-neutral-100 dark:from-neutral-900 dark:via-black dark:to-neutral-800 relative overflow-hidden">
+        <div className="container-12 relative z-10">
+          <div className="col-span-12 text-center">
+            <div className="animate-pulse">
+              <div className="h-12 bg-gray-300 rounded mb-4"></div>
+              <div className="h-6 bg-gray-200 rounded mb-8"></div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                {[1, 2, 3, 4].map((i) => (
+                  <div key={i} className="h-48 bg-gray-200 rounded-3xl"></div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    );
+  }
 
   return (
     <section id="courses" ref={ref} className="section-spacing bg-gradient-to-br from-white via-neutral-50 to-neutral-100 dark:from-neutral-900 dark:via-black dark:to-neutral-800 relative overflow-hidden">
@@ -343,7 +275,7 @@ const Courses: React.FC = () => {
               >
                 <div className="flex items-center gap-4 mb-6">
                   <img
-                    src={selectedCourse.logo}
+                    src={selectedCourse.logo || 'https://via.placeholder.com/80'}
                     alt={selectedCourse.institution}
                     className="w-20 h-20 rounded-2xl object-cover shadow-lg"
                   />
@@ -379,13 +311,13 @@ const Courses: React.FC = () => {
                 <div className="mb-6">
                   <div className="flex justify-between items-center mb-2">
                     <span className="font-semibold text-neutral-900 dark:text-white">Progresso</span>
-                    <span className={`text-2xl font-bold bg-gradient-to-r ${selectedCourse.color} bg-clip-text text-transparent`}>
+                    <span className={`text-2xl font-bold bg-gradient-to-r ${selectedCourse.color || 'from-blue-500 to-blue-600'} bg-clip-text text-transparent`}>
                       {selectedCourse.progress}%
                     </span>
                   </div>
                   <div className="w-full bg-neutral-200 dark:bg-neutral-700 rounded-full h-4">
                     <div 
-                      className={`bg-gradient-to-r ${selectedCourse.color} h-4 rounded-full transition-all duration-1000`}
+                      className={`bg-gradient-to-r ${selectedCourse.color || 'from-blue-500 to-blue-600'} h-4 rounded-full transition-all duration-1000`}
                       style={{ width: `${selectedCourse.progress}%` }}
                     />
                   </div>
@@ -419,19 +351,21 @@ const Courses: React.FC = () => {
                 </div>
 
                 {/* Skills */}
-                <div>
-                  <h4 className="font-bold text-neutral-900 dark:text-white mb-3">Habilidades Desenvolvidas</h4>
-                  <div className="flex flex-wrap gap-2">
-                    {selectedCourse.skills.map((skill, index) => (
-                      <span
-                        key={index}
-                        className={`px-3 py-2 bg-gradient-to-r ${selectedCourse.color} text-white rounded-full text-sm font-medium`}
-                      >
-                        {skill}
-                      </span>
-                    ))}
+                {selectedCourse.skills && (
+                  <div>
+                    <h4 className="font-bold text-neutral-900 dark:text-white mb-3">Habilidades Desenvolvidas</h4>
+                    <div className="flex flex-wrap gap-2">
+                      {selectedCourse.skills.map((skill: string, index: number) => (
+                        <span
+                          key={index}
+                          className={`px-3 py-2 bg-gradient-to-r ${selectedCourse.color || 'from-blue-500 to-blue-600'} text-white rounded-full text-sm font-medium`}
+                        >
+                          {skill}
+                        </span>
+                      ))}
+                    </div>
                   </div>
-                </div>
+                )}
               </motion.div>
             </motion.div>
           )}
@@ -469,7 +403,7 @@ const Courses: React.FC = () => {
                   <div className="text-sm opacity-80">Horas de Estudo</div>
                 </div>
                 <div>
-                  <div className="text-3xl font-bold mb-2">3</div>
+                  <div className="text-3xl font-bold mb-2">{[...new Set(courses.map(c => c.institution))].length}</div>
                   <div className="text-sm opacity-80">Instituições</div>
                 </div>
                 <div>

@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { Bot, Search, Globe, Zap, Shield, Smartphone, Lightbulb, Users, MessageCircle, Brain, Eye, Clock, Award, TrendingUp, Star, Trophy, FileText } from 'lucide-react';
 import { motion } from 'framer-motion';
-import { technicalSkills, qaDocumentations, softSkills, toolLogos } from '../data/portfolio';
+import { toolLogos } from '../data/portfolio';
 import { useIntersectionObserver } from '../hooks/useIntersectionObserver';
 import { useLanguage } from '../hooks/useLanguage';
+import { usePortfolioData } from '../hooks/usePortfolioData';
 import { t } from '../data/translations';
 import AnimatedSection from './AnimatedSection';
 
@@ -17,8 +18,17 @@ const Skills: React.FC = () => {
     triggerOnce: true,
   });
   const { language } = useLanguage();
+  const { data: portfolioData, loading } = usePortfolioData();
 
   const [activeCategory, setActiveCategory] = useState<'technical' | 'documentation' | 'soft'>('technical');
+
+  // Usar dados do hook em vez de importação estática
+  const allSkills = portfolioData?.skills || [];
+  
+  // Filtrar skills por categoria
+  const technicalSkills = allSkills.filter(skill => skill.category === 'technical');
+  const qaDocumentations = allSkills.filter(skill => skill.category === 'documentation');
+  const softSkills = allSkills.filter(skill => skill.category === 'soft');
 
   const skillCategories = [
     { id: 'technical', label: t('technicalArsenal', language), emoji: '⚡', count: technicalSkills.length },
@@ -33,7 +43,7 @@ const Skills: React.FC = () => {
     { icon: Award, label: t('experience', language), value: '2+', description: t('administrativeProcesses', language) }
   ];
 
-  const SkillCard: React.FC<{ skill: typeof technicalSkills[0]; delay: number; isActive: boolean }> = ({ skill, delay, isActive }) => {
+  const SkillCard: React.FC<{ skill: any; delay: number; isActive: boolean }> = ({ skill, delay, isActive }) => {
     const Icon = iconMap[skill.icon];
     const [animated, setAnimated] = useState(false);
 
@@ -152,7 +162,7 @@ const Skills: React.FC = () => {
     );
   };
 
-  const SoftSkillBadge: React.FC<{ skill: typeof softSkills[0]; delay: number; isActive: boolean }> = ({ skill, delay, isActive }) => {
+  const SoftSkillBadge: React.FC<{ skill: any; delay: number; isActive: boolean }> = ({ skill, delay, isActive }) => {
     const Icon = iconMap[skill.icon];
     
     return (
@@ -202,6 +212,26 @@ const Skills: React.FC = () => {
       </motion.div>
     );
   };
+
+  if (loading) {
+    return (
+      <section id="skills" className="section-spacing bg-gradient-to-br from-white via-neutral-50 to-neutral-100 dark:from-neutral-900 dark:via-black dark:to-neutral-800 relative overflow-hidden">
+        <div className="container-12 relative z-10">
+          <div className="col-span-12 text-center">
+            <div className="animate-pulse">
+              <div className="h-12 bg-gray-300 rounded mb-4"></div>
+              <div className="h-6 bg-gray-200 rounded mb-8"></div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                {[1, 2, 3, 4, 5, 6].map((i) => (
+                  <div key={i} className="h-48 bg-gray-200 rounded-3xl"></div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    );
+  }
 
   return (
     <section id="skills" ref={ref} className="section-spacing bg-gradient-to-br from-white via-neutral-50 to-neutral-100 dark:from-neutral-900 dark:via-black dark:to-neutral-800 relative overflow-hidden">

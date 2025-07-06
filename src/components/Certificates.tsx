@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { Award, Calendar, ExternalLink, Download, CheckCircle, Star, Trophy, Medal, Search, Filter, Eye, X, ZoomIn, RotateCw, Maximize2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { certificates, brandLogos } from '../data/portfolio';
+import { brandLogos } from '../data/portfolio';
+import { usePortfolioData } from '../hooks/usePortfolioData';
 import AnimatedSection from './AnimatedSection';
 import CertificateModal from './CertificateModal';
 import { Certificate } from '../types';
@@ -15,6 +16,10 @@ const Certificates: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [showCertificateModal, setShowCertificateModal] = useState(false);
   const { language } = useLanguage();
+  const { data: portfolioData, loading } = usePortfolioData();
+
+  // Usar dados do hook em vez de importação estática
+  const certificates = portfolioData?.certificates || [];
 
   const categories = ['All', 'QA', 'Programming', 'Web Development', 'Business', 'Foundation', 'Database', 'Infrastructure', 'Sustainability', 'Higher Education', 'AI'];
 
@@ -78,6 +83,26 @@ const Certificates: React.FC = () => {
   const getIssuerLogo = (issuer: string) => {
     return brandLogos[issuer] || null;
   };
+
+  if (loading) {
+    return (
+      <section id="certificates" className="section-spacing bg-gradient-to-br from-neutral-50 via-white to-neutral-100 dark:from-neutral-800 dark:via-neutral-900 dark:to-black relative overflow-hidden">
+        <div className="container-12 relative z-10">
+          <div className="col-span-12 text-center">
+            <div className="animate-pulse">
+              <div className="h-12 bg-gray-300 rounded mb-4"></div>
+              <div className="h-6 bg-gray-200 rounded mb-8"></div>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                {[1, 2, 3, 4, 5, 6, 7, 8].map((i) => (
+                  <div key={i} className="h-64 bg-gray-200 rounded-2xl"></div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    );
+  }
 
   return (
     <section id="certificates" className="section-spacing bg-gradient-to-br from-neutral-50 via-white to-neutral-100 dark:from-neutral-800 dark:via-neutral-900 dark:to-black relative overflow-hidden">
