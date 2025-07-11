@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Star, Send, X, Heart, ThumbsUp, MessageCircle, Award } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Star, Send, X, Heart } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { SupabaseService } from '../services/supabaseService';
 
@@ -15,6 +15,7 @@ const FeedbackModal: React.FC<FeedbackModalProps> = ({ isOpen, onClose }) => {
   const [submitted, setSubmitted] = useState(false);
   const [hoveredStar, setHoveredStar] = useState(0);
   const [submitting, setSubmitting] = useState(false);
+  const [ip, setIp] = useState<string | null>(null);
 
   const categories = [
     { id: 'design', label: 'Design & UX', icon: '🎨' },
@@ -23,25 +24,29 @@ const FeedbackModal: React.FC<FeedbackModalProps> = ({ isOpen, onClose }) => {
     { id: 'overall', label: 'Impressão Geral', icon: '✨' }
   ];
 
+  useEffect(() => {
+    fetch('https://api.ipify.org?format=json')
+      .then(res => res.json())
+      .then(data => setIp(data.ip))
+      .catch(() => setIp(null));
+  }, []);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
     if (rating === 0) return;
-    
+
     setSubmitting(true);
-    
+
     try {
       await SupabaseService.createFeedback({
         rating,
         feedback_text: feedback || null,
         category: category || null,
-        ip_address: null, // Pode ser obtido via API externa se necessário
+        ip_address: ip,
         user_agent: navigator.userAgent
       });
-      
+
       setSubmitted(true);
-      
-      // Fechar modal após 3 segundos
       setTimeout(() => {
         onClose();
         setSubmitted(false);
@@ -105,7 +110,6 @@ const FeedbackModal: React.FC<FeedbackModalProps> = ({ isOpen, onClose }) => {
                 </div>
 
                 <form onSubmit={handleSubmit} className="space-y-6">
-                  {/* Rating */}
                   <div className="text-center">
                     <p className="text-sm font-medium text-slate-700 dark:text-slate-300 mb-3">
                       {getRatingText(hoveredStar || rating)}
@@ -134,7 +138,6 @@ const FeedbackModal: React.FC<FeedbackModalProps> = ({ isOpen, onClose }) => {
                     </div>
                   </div>
 
-                  {/* Category */}
                   <div>
                     <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-3">
                       Sobre o que você gostaria de comentar?
@@ -158,7 +161,6 @@ const FeedbackModal: React.FC<FeedbackModalProps> = ({ isOpen, onClose }) => {
                     </div>
                   </div>
 
-                  {/* Feedback Text */}
                   <div>
                     <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
                       Compartilhe seus pensamentos (opcional)
@@ -172,7 +174,6 @@ const FeedbackModal: React.FC<FeedbackModalProps> = ({ isOpen, onClose }) => {
                     />
                   </div>
 
-                  {/* Submit Button */}
                   <motion.button
                     type="submit"
                     disabled={rating === 0 || submitting}
@@ -205,7 +206,7 @@ const FeedbackModal: React.FC<FeedbackModalProps> = ({ isOpen, onClose }) => {
                 className="text-center py-8"
               >
                 <motion.div
-                  animate={{ 
+                  animate={{
                     scale: [1, 1.2, 1],
                     rotate: [0, 10, -10, 0]
                   }}
@@ -214,36 +215,21 @@ const FeedbackModal: React.FC<FeedbackModalProps> = ({ isOpen, onClose }) => {
                 >
                   <Heart className="w-10 h-10 text-white" />
                 </motion.div>
-                
+
                 <h3 className="text-2xl font-bold text-slate-900 dark:text-white mb-4">
                   Muito obrigada! 🙏
                 </h3>
-                
+
                 <p className="text-slate-600 dark:text-slate-300 mb-6">
                   Seu feedback é muito valioso para mim! Como uma futura QA, eu sei que o feedback é essencial para a melhoria contínua.
                 </p>
-                
+
                 <div className="flex justify-center gap-4 text-2xl">
-                  <motion.span
-                    animate={{ scale: [1, 1.3, 1] }}
-                    transition={{ duration: 0.5, delay: 0.2 }}
-                  >
-                    🎉
-                  </motion.span>
-                  <motion.span
-                    animate={{ scale: [1, 1.3, 1] }}
-                    transition={{ duration: 0.5, delay: 0.4 }}
-                  >
-                    ✨
-                  </motion.span>
-                  <motion.span
-                    animate={{ scale: [1, 1.3, 1] }}
-                    transition={{ duration: 0.5, delay: 0.6 }}
-                  >
-                    🚀
-                  </motion.span>
+                  <motion.span animate={{ scale: [1, 1.3, 1] }} transition={{ duration: 0.5, delay: 0.2 }}>🎉</motion.span>
+                  <motion.span animate={{ scale: [1, 1.3, 1] }} transition={{ duration: 0.5, delay: 0.4 }}>✨</motion.span>
+                  <motion.span animate={{ scale: [1, 1.3, 1] }} transition={{ duration: 0.5, delay: 0.6 }}>🚀</motion.span>
                 </div>
-                
+
                 <p className="text-sm text-slate-500 dark:text-slate-400 mt-4">
                   Fechando automaticamente...
                 </p>
