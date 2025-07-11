@@ -1,5 +1,6 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { usePortfolioData } from './hooks/usePortfolioData';
 import Header from './components/Header';
 import Hero from './components/Hero';
 import About from './components/About';
@@ -14,6 +15,8 @@ import BackToTop from './components/BackToTop';
 import AdminRoute from './components/AdminRoute';
 
 function App() {
+  const { data: portfolioData, loading } = usePortfolioData();
+
   return (
     <Router>
       <Routes>
@@ -24,7 +27,7 @@ function App() {
         <Route path="/" element={
           <div className="min-h-screen">
             <Header />
-            <Hero />
+            <Hero personalInfo={portfolioData?.personalInfo} loading={loading} />
             <About />
             <Projects />
             <Process />
@@ -49,9 +52,11 @@ function App() {
                     <div className="bg-gradient-to-br from-indigo-500 to-purple-600 text-white w-20 h-20 rounded-3xl flex items-center justify-center font-poppins font-bold text-3xl mx-auto mb-8 shadow-2xl">
                       EG
                     </div>
-                    <h3 className="text-3xl font-poppins font-bold mb-6">Esther Gabrielle</h3>
+                    <h3 className="text-3xl font-poppins font-bold mb-6">
+                      {portfolioData?.personalInfo?.name || 'Esther Gabrielle'}
+                    </h3>
                     <p className="text-slate-300 font-inter text-xl max-w-3xl mx-auto leading-relaxed mb-8">
-                      Transformando ideias em realidade através de testes de qualidade excepcional. Cada bug encontrado é um problema evitado, cada teste é um passo rumo à perfeição.
+                      {portfolioData?.personalInfo?.description || 'Transformando ideias em realidade através de testes de qualidade excepcional. Cada bug encontrado é um problema evitado, cada teste é um passo rumo à perfeição.'}
                     </p>
                     
                     {/* Social Links */}
@@ -59,7 +64,7 @@ function App() {
                       {[
                         { name: 'LinkedIn', href: 'https://linkedin.com/in/esthergabrielle', icon: '💼' },
                         { name: 'GitHub', href: 'https://github.com/Esthergabrielles', icon: '🔗' },
-                        { name: 'Email', href: 'mailto:esthergabriellesouza@gmail.com', icon: '📧' }
+                        { name: 'Email', href: `mailto:${portfolioData?.personalInfo?.email || 'esthergabriellesouza@gmail.com'}`, icon: '📧' }
                       ].map((social, index) => (
                         <a
                           key={index}
@@ -78,7 +83,7 @@ function App() {
                   <div className="border-t border-slate-700 pt-8">
                     <div className="flex flex-col md:flex-row justify-between items-center gap-4">
                       <p className="text-slate-400 font-inter">
-                        © 2024 Esther Gabrielle. Todos os direitos reservados.
+                        © 2024 {portfolioData?.personalInfo?.name || 'Esther Gabrielle'}. Todos os direitos reservados.
                       </p>
                       <p className="text-slate-400 font-inter">
                         Desenvolvido com <span className="text-red-400">❤️</span> e muita atenção aos detalhes
