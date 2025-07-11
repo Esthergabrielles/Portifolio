@@ -70,7 +70,7 @@ export const useSupabaseData = () => {
     loadAllData();
   }, []);
 
-  // Funções para atualizar dados específicos
+  // Função para atualizar dados específicos
   const refreshProjects = async () => {
     try {
       const projects = await SupabaseService.getProjects();

@@ -3,16 +3,14 @@ import { LogOut, Plus, Edit, Trash2, Save, X, Upload, Download, RefreshCw, Datab
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '../hooks/useAuth';
 import { usePortfolioData } from '../hooks/usePortfolioData';
-import { SupabaseService } from '../services/supabaseService';
 
 const AdminDashboard: React.FC<{ onLogout: () => void }> = ({ onLogout }) => {
   const { user, signOut } = useAuth();
-  const { data, loading, refresh } = usePortfolioData();
+  const { data, loading, refresh, createItem, updateItem, deleteItem, uploadImage, saving } = usePortfolioData();
   const [activeTab, setActiveTab] = useState<'overview' | 'projects' | 'certificates' | 'skills' | 'courses' | 'achievements' | 'personal' | 'feedbacks'>('overview');
   const [isEditing, setIsEditing] = useState(false);
   const [editingItem, setEditingItem] = useState<any>(null);
   const [showAddForm, setShowAddForm] = useState(false);
-  const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [filterCategory, setFilterCategory] = useState('all');
@@ -36,8 +34,12 @@ const AdminDashboard: React.FC<{ onLogout: () => void }> = ({ onLogout }) => {
   const handleImageUpload = async (file: File): Promise<string> => {
     setUploadingImage(true);
     try {
-      const imageUrl = await SupabaseService.uploadImage(file);
-      return imageUrl;
+      const result = await uploadImage(file);
+      if (result.success) {
+        return result.url!;
+      } else {
+        throw new Error(result.error || 'Erro no upload');
+      }
     } catch (error) {
       throw error;
     } finally {
@@ -45,99 +47,39 @@ const AdminDashboard: React.FC<{ onLogout: () => void }> = ({ onLogout }) => {
     }
   };
 
-  // Funções CRUD para cada entidade
-  const handleCreate = async (type: string, data: any) => {
-    setSaving(true);
-    try {
-      switch (type) {
-        case 'projects':
-          await SupabaseService.createProject(data);
-          break;
-        case 'certificates':
-          await SupabaseService.createCertificate(data);
-          break;
-        case 'skills':
-          await SupabaseService.createSkill(data);
-          break;
-        case 'courses':
-          await SupabaseService.createCourse(data);
-          break;
-        case 'achievements':
-          await SupabaseService.createAchievement(data);
-          break;
-      }
-      await refresh();
+  // Funções CRUD
+  const handleCreate = async (type: string, formData: any) => {
+    const result = await createItem(type as any, formData);
+    
+    if (result.success) {
       setShowAddForm(false);
       showMessage('success', 'Item criado com sucesso!');
-    } catch (error) {
-      showMessage('error', `Erro ao criar item: ${error instanceof Error ? error.message : 'Erro desconhecido'}`);
-    } finally {
-      setSaving(false);
+    } else {
+      showMessage('error', `Erro ao criar item: ${result.error}`);
     }
   };
 
-  const handleUpdate = async (type: string, id: string, data: any) => {
-    setSaving(true);
-    try {
-      switch (type) {
-        case 'projects':
-          await SupabaseService.updateProject(id, data);
-          break;
-        case 'certificates':
-          await SupabaseService.updateCertificate(id, data);
-          break;
-        case 'skills':
-          await SupabaseService.updateSkill(id, data);
-          break;
-        case 'courses':
-          await SupabaseService.updateCourse(id, data);
-          break;
-        case 'achievements':
-          await SupabaseService.updateAchievement(id, data);
-          break;
-        case 'personal':
-          await SupabaseService.updatePersonalInfo(data);
-          break;
-      }
-      await refresh();
+  const handleUpdate = async (type: string, id: string, formData: any) => {
+    const result = await updateItem(type as any, id, formData);
+    
+    if (result.success) {
       setIsEditing(false);
       setEditingItem(null);
       showMessage('success', 'Item atualizado com sucesso!');
-    } catch (error) {
-      showMessage('error', `Erro ao atualizar item: ${error instanceof Error ? error.message : 'Erro desconhecido'}`);
-    } finally {
-      setSaving(false);
+    } else {
+      showMessage('error', `Erro ao atualizar item: ${result.error}`);
     }
   };
 
   const handleDelete = async (type: string, id: string) => {
     if (!confirm('Tem certeza que deseja deletar este item?')) return;
     
-    setSaving(true);
-    try {
-      switch (type) {
-        case 'projects':
-          await SupabaseService.deleteProject(id);
-          break;
-        case 'certificates':
-          await SupabaseService.deleteCertificate(id);
-          break;
-        case 'skills':
-          await SupabaseService.deleteSkill(id);
-          break;
-        case 'courses':
-          await SupabaseService.deleteCourse(id);
-          break;
-        case 'achievements':
-          await SupabaseService.deleteAchievement(id);
-          break;
-      }
-      await refresh();
+    const result = await deleteItem(type as any, id);
+    
+    if (result.success) {
       showMessage('success', 'Item deletado com sucesso!');
-    } catch (error) {
-      showMessage('error', `Erro ao deletar item: ${error instanceof Error ? error.message : 'Erro desconhecido'}`);
-    } finally {
-      setSaving(false);
+    } else {
+      showMessage('error', `Erro ao deletar item: ${result.error}`);
     }
   };
 
@@ -165,6 +107,26 @@ const AdminDashboard: React.FC<{ onLogout: () => void }> = ({ onLogout }) => {
   const FormModal: React.FC<{ type: string; item?: any; onSave: (data: any) => void; onClose: () => void }> = ({ type, item, onSave, onClose }) => {
     const [formData, setFormData] = useState(item || {});
     const [imageFile, setImageFile] = useState<File | null>(null);
+    const [imagePreview, setImagePreview] = useState<string | null>(null);
+
+    useEffect(() => {
+      if (item) {
+        setFormData(item);
+        // Set preview for existing images
+        if (item.image) setImagePreview(item.image);
+        if (item.profile_image) setImagePreview(item.profile_image);
+      }
+    }, [item]);
+
+    const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+      const file = e.target.files?.[0];
+      if (file) {
+        setImageFile(file);
+        const reader = new FileReader();
+        reader.onload = () => setImagePreview(reader.result as string);
+        reader.readAsDataURL(file);
+      }
+    };
 
     const handleSubmit = async (e: React.FormEvent) => {
       e.preventDefault();
@@ -188,17 +150,26 @@ const AdminDashboard: React.FC<{ onLogout: () => void }> = ({ onLogout }) => {
 
       // Processar arrays para projetos
       if (type === 'projects' && typeof finalData.technologies === 'string') {
-        finalData.technologies = finalData.technologies.split(',').map((t: string) => t.trim());
+        finalData.technologies = finalData.technologies.split(',').map((t: string) => t.trim()).filter(Boolean);
       }
 
       // Processar arrays para certificados
       if (type === 'certificates' && typeof finalData.skills === 'string') {
-        finalData.skills = finalData.skills.split(',').map((s: string) => s.trim());
+        finalData.skills = finalData.skills.split(',').map((s: string) => s.trim()).filter(Boolean);
       }
 
       // Processar arrays para cursos
       if (type === 'courses' && typeof finalData.skills === 'string') {
-        finalData.skills = finalData.skills.split(',').map((s: string) => s.trim());
+        finalData.skills = finalData.skills.split(',').map((s: string) => s.trim()).filter(Boolean);
+      }
+
+      // Converter números
+      if (type === 'skills') {
+        finalData.level = parseInt(finalData.level) || 0;
+      }
+
+      if (type === 'courses') {
+        finalData.progress = parseInt(finalData.progress) || 0;
       }
 
       onSave(finalData);
@@ -261,11 +232,11 @@ const AdminDashboard: React.FC<{ onLogout: () => void }> = ({ onLogout }) => {
                 <input
                   type="file"
                   accept="image/*"
-                  onChange={(e) => setImageFile(e.target.files?.[0] || null)}
+                  onChange={handleImageChange}
                   className="w-full p-3 bg-slate-700 border border-slate-600 rounded-lg text-white"
                 />
-                {formData.profile_image && (
-                  <img src={formData.profile_image} alt="Preview" className="mt-2 w-20 h-20 object-cover rounded-lg" />
+                {imagePreview && (
+                  <img src={imagePreview} alt="Preview" className="mt-2 w-20 h-20 object-cover rounded-lg" />
                 )}
               </div>
             </>
@@ -328,11 +299,11 @@ const AdminDashboard: React.FC<{ onLogout: () => void }> = ({ onLogout }) => {
                 <input
                   type="file"
                   accept="image/*"
-                  onChange={(e) => setImageFile(e.target.files?.[0] || null)}
+                  onChange={handleImageChange}
                   className="w-full p-3 bg-slate-700 border border-slate-600 rounded-lg text-white"
                 />
-                {formData.image && (
-                  <img src={formData.image} alt="Preview" className="mt-2 w-32 h-20 object-cover rounded-lg" />
+                {imagePreview && (
+                  <img src={imagePreview} alt="Preview" className="mt-2 w-32 h-20 object-cover rounded-lg" />
                 )}
               </div>
             </>
@@ -377,6 +348,11 @@ const AdminDashboard: React.FC<{ onLogout: () => void }> = ({ onLogout }) => {
                 <option value="Business">Business</option>
                 <option value="Higher Education">Higher Education</option>
                 <option value="AI">AI</option>
+                <option value="Database">Database</option>
+                <option value="Infrastructure">Infrastructure</option>
+                <option value="Sustainability">Sustainability</option>
+                <option value="Foundation">Foundation</option>
+                <option value="Development">Development</option>
               </select>
               <textarea
                 placeholder="Descrição"
@@ -396,11 +372,11 @@ const AdminDashboard: React.FC<{ onLogout: () => void }> = ({ onLogout }) => {
                 <input
                   type="file"
                   accept="image/*"
-                  onChange={(e) => setImageFile(e.target.files?.[0] || null)}
+                  onChange={handleImageChange}
                   className="w-full p-3 bg-slate-700 border border-slate-600 rounded-lg text-white"
                 />
-                {formData.image && (
-                  <img src={formData.image} alt="Preview" className="mt-2 w-32 h-20 object-cover rounded-lg" />
+                {imagePreview && (
+                  <img src={imagePreview} alt="Preview" className="mt-2 w-32 h-20 object-cover rounded-lg" />
                 )}
               </div>
             </>
@@ -422,7 +398,7 @@ const AdminDashboard: React.FC<{ onLogout: () => void }> = ({ onLogout }) => {
                 min="0"
                 max="100"
                 value={formData.level || ''}
-                onChange={(e) => setFormData({ ...formData, level: parseInt(e.target.value) })}
+                onChange={(e) => setFormData({ ...formData, level: e.target.value })}
                 className="w-full p-3 bg-slate-700 border border-slate-600 rounded-lg text-white"
                 required
               />
@@ -437,14 +413,26 @@ const AdminDashboard: React.FC<{ onLogout: () => void }> = ({ onLogout }) => {
                 <option value="documentation">Documentação</option>
                 <option value="soft">Soft Skills</option>
               </select>
-              <input
-                type="text"
-                placeholder="Ícone"
+              <select
                 value={formData.icon || ''}
                 onChange={(e) => setFormData({ ...formData, icon: e.target.value })}
                 className="w-full p-3 bg-slate-700 border border-slate-600 rounded-lg text-white"
                 required
-              />
+              >
+                <option value="">Selecione um ícone</option>
+                <option value="Bot">Bot</option>
+                <option value="Search">Search</option>
+                <option value="Globe">Globe</option>
+                <option value="Zap">Zap</option>
+                <option value="Shield">Shield</option>
+                <option value="Eye">Eye</option>
+                <option value="FileText">FileText</option>
+                <option value="MessageCircle">MessageCircle</option>
+                <option value="Users">Users</option>
+                <option value="Brain">Brain</option>
+                <option value="Lightbulb">Lightbulb</option>
+                <option value="Clock">Clock</option>
+              </select>
             </>
           );
         case 'courses':
@@ -472,7 +460,7 @@ const AdminDashboard: React.FC<{ onLogout: () => void }> = ({ onLogout }) => {
                 min="0"
                 max="100"
                 value={formData.progress || ''}
-                onChange={(e) => setFormData({ ...formData, progress: parseInt(e.target.value) })}
+                onChange={(e) => setFormData({ ...formData, progress: e.target.value })}
                 className="w-full p-3 bg-slate-700 border border-slate-600 rounded-lg text-white"
                 required
               />
@@ -497,7 +485,7 @@ const AdminDashboard: React.FC<{ onLogout: () => void }> = ({ onLogout }) => {
               />
               <input
                 type="text"
-                placeholder="Data de Início"
+                placeholder="Data de Início (ex: 2024-01-15)"
                 value={formData.start_date || ''}
                 onChange={(e) => setFormData({ ...formData, start_date: e.target.value })}
                 className="w-full p-3 bg-slate-700 border border-slate-600 rounded-lg text-white"
@@ -505,9 +493,16 @@ const AdminDashboard: React.FC<{ onLogout: () => void }> = ({ onLogout }) => {
               />
               <input
                 type="text"
-                placeholder="Data Prevista de Conclusão"
+                placeholder="Data Prevista de Conclusão (ex: 2024-06-15)"
                 value={formData.expected_end || ''}
                 onChange={(e) => setFormData({ ...formData, expected_end: e.target.value })}
+                className="w-full p-3 bg-slate-700 border border-slate-600 rounded-lg text-white"
+              />
+              <input
+                type="text"
+                placeholder="Data de Conclusão (se concluído)"
+                value={formData.completed_date || ''}
+                onChange={(e) => setFormData({ ...formData, completed_date: e.target.value })}
                 className="w-full p-3 bg-slate-700 border border-slate-600 rounded-lg text-white"
               />
               <textarea
@@ -521,6 +516,20 @@ const AdminDashboard: React.FC<{ onLogout: () => void }> = ({ onLogout }) => {
                 placeholder="Habilidades (separadas por vírgula)"
                 value={Array.isArray(formData.skills) ? formData.skills.join(', ') : formData.skills || ''}
                 onChange={(e) => setFormData({ ...formData, skills: e.target.value })}
+                className="w-full p-3 bg-slate-700 border border-slate-600 rounded-lg text-white"
+              />
+              <input
+                type="text"
+                placeholder="Cor do gradiente (ex: from-blue-500 to-blue-600)"
+                value={formData.color || ''}
+                onChange={(e) => setFormData({ ...formData, color: e.target.value })}
+                className="w-full p-3 bg-slate-700 border border-slate-600 rounded-lg text-white"
+              />
+              <input
+                type="url"
+                placeholder="URL do logo da instituição"
+                value={formData.logo || ''}
+                onChange={(e) => setFormData({ ...formData, logo: e.target.value })}
                 className="w-full p-3 bg-slate-700 border border-slate-600 rounded-lg text-white"
               />
             </>
@@ -689,10 +698,21 @@ const AdminDashboard: React.FC<{ onLogout: () => void }> = ({ onLogout }) => {
                   <div className="grid grid-cols-2 gap-2 text-sm text-slate-300">
                     {fields.slice(0, 4).map(field => (
                       <div key={field}>
-                        <span className="text-slate-400">{field}:</span> {item[field] || 'N/A'}
+                        <span className="text-slate-400">{field}:</span> {
+                          Array.isArray(item[field]) 
+                            ? item[field].join(', ') 
+                            : item[field] || 'N/A'
+                        }
                       </div>
                     ))}
                   </div>
+                  {(item.image || item.profile_image) && (
+                    <img 
+                      src={item.image || item.profile_image} 
+                      alt="Preview" 
+                      className="mt-2 w-16 h-16 object-cover rounded-lg" 
+                    />
+                  )}
                 </div>
                 
                 <div className="flex items-center gap-2">
@@ -729,6 +749,17 @@ const AdminDashboard: React.FC<{ onLogout: () => void }> = ({ onLogout }) => {
       </div>
     );
   };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-black text-white flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-16 h-16 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-xl">Carregando dados...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-black text-white">
@@ -858,11 +889,11 @@ const AdminDashboard: React.FC<{ onLogout: () => void }> = ({ onLogout }) => {
                   </div>
                   <div className="flex items-center gap-3">
                     <CheckCircle className="w-5 h-5 text-green-400" />
-                    <span>Dados carregados</span>
+                    <span>Dados sincronizados</span>
                   </div>
                   <div className="flex items-center gap-3">
                     <CheckCircle className="w-5 h-5 text-green-400" />
-                    <span>Interface responsiva</span>
+                    <span>CRUD funcional</span>
                   </div>
                 </div>
               </div>
@@ -923,6 +954,12 @@ const AdminDashboard: React.FC<{ onLogout: () => void }> = ({ onLogout }) => {
                 <div className="text-center py-8 text-slate-400">
                   <User className="w-12 h-12 mx-auto mb-4 opacity-50" />
                   <p>Nenhuma informação pessoal encontrada</p>
+                  <button
+                    onClick={() => setShowAddForm(true)}
+                    className="mt-4 bg-indigo-600 hover:bg-indigo-700 px-4 py-2 rounded-lg transition-colors"
+                  >
+                    Adicionar Informações
+                  </button>
                 </div>
               )}
             </motion.div>
@@ -937,7 +974,7 @@ const AdminDashboard: React.FC<{ onLogout: () => void }> = ({ onLogout }) => {
               exit={{ opacity: 0, y: -20 }}
             >
               <h2 className="text-2xl font-bold mb-6">Gerenciar Projetos</h2>
-              {renderItemsList(data.projects || [], 'projects', ['company', 'type', 'description'])}
+              {renderItemsList(data.projects || [], 'projects', ['company', 'type', 'description', 'technologies'])}
             </motion.div>
           )}
 
@@ -950,7 +987,7 @@ const AdminDashboard: React.FC<{ onLogout: () => void }> = ({ onLogout }) => {
               exit={{ opacity: 0, y: -20 }}
             >
               <h2 className="text-2xl font-bold mb-6">Gerenciar Certificados</h2>
-              {renderItemsList(data.certificates || [], 'certificates', ['issuer', 'date', 'category'])}
+              {renderItemsList(data.certificates || [], 'certificates', ['issuer', 'date', 'category', 'skills'])}
             </motion.div>
           )}
 
@@ -976,7 +1013,7 @@ const AdminDashboard: React.FC<{ onLogout: () => void }> = ({ onLogout }) => {
               exit={{ opacity: 0, y: -20 }}
             >
               <h2 className="text-2xl font-bold mb-6">Gerenciar Cursos</h2>
-              {renderItemsList(data.courses || [], 'courses', ['institution', 'progress', 'status'])}
+              {renderItemsList(data.courses || [], 'courses', ['institution', 'progress', 'status', 'skills'])}
             </motion.div>
           )}
 
@@ -1046,11 +1083,11 @@ const AdminDashboard: React.FC<{ onLogout: () => void }> = ({ onLogout }) => {
           <FormModal
             type={activeTab}
             item={isEditing ? editingItem : null}
-            onSave={(data) => {
+            onSave={(formData) => {
               if (isEditing) {
-                handleUpdate(activeTab, editingItem.id, data);
+                handleUpdate(activeTab, editingItem.id, formData);
               } else {
-                handleCreate(activeTab, data);
+                handleCreate(activeTab, formData);
               }
             }}
             onClose={() => {

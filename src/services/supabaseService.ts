@@ -13,27 +13,48 @@ export class SupabaseService {
   }
 
   static async updatePersonalInfo(dataToUpdate: any) {
-    const { error } = await supabase
+    // Primeiro, verificar se já existe um registro
+    const { data: existing } = await supabase
       .from('personal_info')
-      .upsert(dataToUpdate);
+      .select('id')
+      .single();
 
-    if (error) throw error;
+    if (existing) {
+      // Atualizar registro existente
+      const { error } = await supabase
+        .from('personal_info')
+        .update(dataToUpdate)
+        .eq('id', existing.id);
+      
+      if (error) throw error;
+    } else {
+      // Criar novo registro
+      const { error } = await supabase
+        .from('personal_info')
+        .insert(dataToUpdate);
+      
+      if (error) throw error;
+    }
   }
 
   static async uploadImage(file: File, bucket: string = 'images'): Promise<string> {
     const fileExt = file.name.split('.').pop();
     const fileName = `${Date.now()}-${Math.random().toString(36).substring(2)}.${fileExt}`;
 
-    // Use regular client for storage operations
+    // Upload do arquivo
     const { error: uploadError } = await supabase.storage
       .from(bucket)
-      .upload(fileName, file, { upsert: true });
+      .upload(fileName, file, { 
+        upsert: true,
+        cacheControl: '3600'
+      });
 
     if (uploadError) {
       console.error('Error uploading file:', uploadError);
-      throw new Error(`Failed to upload image: ${uploadError.message}. Please ensure the 'images' storage bucket exists and has proper RLS policies configured.`);
+      throw new Error(`Failed to upload image: ${uploadError.message}`);
     }
 
+    // Obter URL pública
     const { data } = supabase.storage
       .from(bucket)
       .getPublicUrl(fileName);
