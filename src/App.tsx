@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import Header from './components/Header';
 import Hero from './components/Hero';
@@ -11,47 +11,9 @@ import Certificates from './components/Certificates';
 import Achievements from './components/Achievements';
 import Contact from './components/Contact';
 import BackToTop from './components/BackToTop';
-import InteractiveElements from './components/InteractiveElements';
 import AdminRoute from './components/AdminRoute';
-import FeedbackModal from './components/FeedbackModal';
 
 function App() {
-  const [showFeedbackModal, setShowFeedbackModal] = useState(false);
-
-  // Detectar quando o usuário está prestes a sair da página
-  useEffect(() => {
-    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
-      // Verificar se não estamos na rota admin
-      if (!window.location.pathname.includes('/admin')) {
-        setShowFeedbackModal(true);
-        e.preventDefault();
-        e.returnValue = '';
-      }
-    };
-
-    // Detectar tentativa de fechar aba/navegar para outro site
-    window.addEventListener('beforeunload', handleBeforeUnload);
-
-    // Detectar mudança de visibilidade da página (usuário mudou de aba)
-    const handleVisibilityChange = () => {
-      if (document.visibilityState === 'hidden' && !window.location.pathname.includes('/admin')) {
-        // Pequeno delay para não interferir com navegação interna
-        setTimeout(() => {
-          if (document.visibilityState === 'hidden') {
-            setShowFeedbackModal(true);
-          }
-        }, 1000);
-      }
-    };
-
-    document.addEventListener('visibilitychange', handleVisibilityChange);
-
-    return () => {
-      window.removeEventListener('beforeunload', handleBeforeUnload);
-      document.removeEventListener('visibilitychange', handleVisibilityChange);
-    };
-  }, []);
-
   return (
     <Router>
       <Routes>
@@ -72,7 +34,6 @@ function App() {
             <Achievements />
             <Contact />
             <BackToTop />
-            <InteractiveElements />
             
             {/* Premium Footer */}
             <footer className="bg-gradient-to-br from-slate-900 via-slate-800 to-black text-white section-spacing relative overflow-hidden">
@@ -127,12 +88,6 @@ function App() {
                 </div>
               </div>
             </footer>
-
-            {/* Modal de Feedback */}
-            <FeedbackModal 
-              isOpen={showFeedbackModal} 
-              onClose={() => setShowFeedbackModal(false)} 
-            />
           </div>
         } />
         

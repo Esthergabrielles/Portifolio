@@ -10,11 +10,8 @@ const Hero: React.FC = () => {
   };
 
   const handleDownloadCV = () => {
-    // Link para download do CV
-    const link = document.createElement('a');
-    link.href = '/cv-esther-gabrielle.pdf';
-    link.download = 'CV-Esther-Gabrielle-QA.pdf';
-    link.click();
+    // Simular download do CV
+    alert('Download do CV iniciado!\n\nEm produção, este seria um arquivo PDF real.');
   };
 
   return (
@@ -277,7 +274,7 @@ const Hero: React.FC = () => {
               </motion.div>
             </AnimatedSection>
 
-            {/* Scroll Indicator Premium - Posicionado corretamente */}
+            {/* Scroll Indicator Premium */}
             <AnimatedSection animation="slide-up" delay={6}>
               <motion.div
                 className="mt-20 flex flex-col items-center gap-3 text-slate-500 dark:text-slate-400"

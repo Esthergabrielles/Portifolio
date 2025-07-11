@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { LogOut, Plus, Edit, Trash2, Save, X, Upload, Download, RefreshCw, Database, CheckCircle, AlertCircle, Users, Award, BookOpen, Trophy, User, MessageSquare, Eye, Search, Filter } from 'lucide-react';
+import React, { useState, useEffect, useRef } from 'react';
+import { LogOut, Plus, Edit, Trash2, Save, X, Upload, Download, RefreshCw, Database, CheckCircle, AlertCircle, Users, Award, BookOpen, Trophy, User, MessageSquare, Eye, Search, Filter, Image } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '../hooks/useAuth';
 import { usePortfolioData } from '../hooks/usePortfolioData';
@@ -8,7 +8,7 @@ import { SupabaseService } from '../services/supabaseService';
 const AdminDashboard: React.FC<{ onLogout: () => void }> = ({ onLogout }) => {
   const { user, signOut } = useAuth();
   const { data, loading, refresh } = usePortfolioData();
-  const [activeTab, setActiveTab] = useState<'overview' | 'projects' | 'certificates' | 'skills' | 'courses' | 'achievements' | 'personal' | 'feedbacks' | 'database-test'>('overview');
+  const [activeTab, setActiveTab] = useState<'overview' | 'projects' | 'certificates' | 'skills' | 'courses' | 'achievements' | 'personal' | 'feedbacks'>('overview');
   const [isEditing, setIsEditing] = useState(false);
   const [editingItem, setEditingItem] = useState<any>(null);
   const [showAddForm, setShowAddForm] = useState(false);
@@ -16,10 +16,8 @@ const AdminDashboard: React.FC<{ onLogout: () => void }> = ({ onLogout }) => {
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [filterCategory, setFilterCategory] = useState('all');
-
-  // Estado para teste de banco de dados
-  const [dbTestResults, setDbTestResults] = useState<any[]>([]);
-  const [testingDatabase, setTestingDatabase] = useState(false);
+  const [uploadingImage, setUploadingImage] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleLogout = async () => {
     try {
@@ -33,6 +31,18 @@ const AdminDashboard: React.FC<{ onLogout: () => void }> = ({ onLogout }) => {
   const showMessage = (type: 'success' | 'error', text: string) => {
     setMessage({ type, text });
     setTimeout(() => setMessage(null), 5000);
+  };
+
+  const handleImageUpload = async (file: File): Promise<string> => {
+    setUploadingImage(true);
+    try {
+      const imageUrl = await SupabaseService.uploadImage(file);
+      return imageUrl;
+    } catch (error) {
+      throw error;
+    } finally {
+      setUploadingImage(false);
+    }
   };
 
   // Funções CRUD para cada entidade
@@ -85,6 +95,9 @@ const AdminDashboard: React.FC<{ onLogout: () => void }> = ({ onLogout }) => {
         case 'achievements':
           await SupabaseService.updateAchievement(id, data);
           break;
+        case 'personal':
+          await SupabaseService.updatePersonalInfo(data);
+          break;
       }
       await refresh();
       setIsEditing(false);
@@ -128,166 +141,14 @@ const AdminDashboard: React.FC<{ onLogout: () => void }> = ({ onLogout }) => {
     }
   };
 
-  // Função para testar conexão com banco de dados
-  const testDatabaseConnection = async () => {
-    setTestingDatabase(true);
-    const results: any[] = [];
-
-    try {
-      // Teste 1: Verificar conexão básica
-      results.push({
-        test: 'Conexão com Supabase',
-        status: 'testing',
-        message: 'Testando conexão...'
-      });
-
-      // Teste 2: Listar projetos
-      try {
-        const projects = await SupabaseService.getProjects();
-        results.push({
-          test: 'Buscar Projetos',
-          status: 'success',
-          message: `${projects.length} projetos encontrados`,
-          data: projects.length
-        });
-      } catch (error) {
-        results.push({
-          test: 'Buscar Projetos',
-          status: 'error',
-          message: `Erro: ${error instanceof Error ? error.message : 'Erro desconhecido'}`
-        });
-      }
-
-      // Teste 3: Listar certificados
-      try {
-        const certificates = await SupabaseService.getCertificates();
-        results.push({
-          test: 'Buscar Certificados',
-          status: 'success',
-          message: `${certificates.length} certificados encontrados`,
-          data: certificates.length
-        });
-      } catch (error) {
-        results.push({
-          test: 'Buscar Certificados',
-          status: 'error',
-          message: `Erro: ${error instanceof Error ? error.message : 'Erro desconhecido'}`
-        });
-      }
-
-      // Teste 4: Listar habilidades
-      try {
-        const skills = await SupabaseService.getSkills();
-        results.push({
-          test: 'Buscar Habilidades',
-          status: 'success',
-          message: `${skills.length} habilidades encontradas`,
-          data: skills.length
-        });
-      } catch (error) {
-        results.push({
-          test: 'Buscar Habilidades',
-          status: 'error',
-          message: `Erro: ${error instanceof Error ? error.message : 'Erro desconhecido'}`
-        });
-      }
-
-      // Teste 5: Listar cursos
-      try {
-        const courses = await SupabaseService.getCourses();
-        results.push({
-          test: 'Buscar Cursos',
-          status: 'success',
-          message: `${courses.length} cursos encontrados`,
-          data: courses.length
-        });
-      } catch (error) {
-        results.push({
-          test: 'Buscar Cursos',
-          status: 'error',
-          message: `Erro: ${error instanceof Error ? error.message : 'Erro desconhecido'}`
-        });
-      }
-
-      // Teste 6: Listar conquistas
-      try {
-        const achievements = await SupabaseService.getAchievements();
-        results.push({
-          test: 'Buscar Conquistas',
-          status: 'success',
-          message: `${achievements.length} conquistas encontradas`,
-          data: achievements.length
-        });
-      } catch (error) {
-        results.push({
-          test: 'Buscar Conquistas',
-          status: 'error',
-          message: `Erro: ${error instanceof Error ? error.message : 'Erro desconhecido'}`
-        });
-      }
-
-      // Teste 7: Buscar informações pessoais
-      try {
-        const personalInfo = await SupabaseService.getPersonalInfo();
-        results.push({
-          test: 'Buscar Informações Pessoais',
-          status: 'success',
-          message: personalInfo ? 'Informações pessoais encontradas' : 'Nenhuma informação pessoal encontrada',
-          data: personalInfo ? 1 : 0
-        });
-      } catch (error) {
-        results.push({
-          test: 'Buscar Informações Pessoais',
-          status: 'error',
-          message: `Erro: ${error instanceof Error ? error.message : 'Erro desconhecido'}`
-        });
-      }
-
-      // Teste 8: Listar feedbacks
-      try {
-        const feedbacks = await SupabaseService.getFeedbacks();
-        results.push({
-          test: 'Buscar Feedbacks',
-          status: 'success',
-          message: `${feedbacks.length} feedbacks encontrados`,
-          data: feedbacks.length
-        });
-      } catch (error) {
-        results.push({
-          test: 'Buscar Feedbacks',
-          status: 'warning',
-          message: `Feedbacks não disponíveis (modo demonstração)`
-        });
-      }
-
-      // Atualizar o primeiro teste como sucesso
-      results[0] = {
-        test: 'Conexão com Supabase',
-        status: 'success',
-        message: 'Conexão estabelecida com sucesso'
-      };
-
-    } catch (error) {
-      results[0] = {
-        test: 'Conexão com Supabase',
-        status: 'error',
-        message: `Falha na conexão: ${error instanceof Error ? error.message : 'Erro desconhecido'}`
-      };
-    }
-
-    setDbTestResults(results);
-    setTestingDatabase(false);
-  };
-
   const tabs = [
     { id: 'overview', label: 'Visão Geral', icon: Database },
-    { id: 'database-test', label: 'Teste de BD', icon: CheckCircle },
+    { id: 'personal', label: 'Pessoal', icon: User },
     { id: 'projects', label: 'Projetos', icon: BookOpen },
     { id: 'certificates', label: 'Certificados', icon: Award },
     { id: 'skills', label: 'Habilidades', icon: Trophy },
     { id: 'courses', label: 'Cursos', icon: BookOpen },
     { id: 'achievements', label: 'Conquistas', icon: Trophy },
-    { id: 'personal', label: 'Pessoal', icon: User },
     { id: 'feedbacks', label: 'Feedbacks', icon: MessageSquare }
   ];
 
@@ -299,6 +160,484 @@ const AdminDashboard: React.FC<{ onLogout: () => void }> = ({ onLogout }) => {
     { label: 'Conquistas', value: data.achievements?.length || 0, icon: Trophy, color: 'from-red-500 to-red-600' },
     { label: 'Feedbacks', value: data.feedbacks?.length || 0, icon: MessageSquare, color: 'from-indigo-500 to-indigo-600' }
   ];
+
+  // Componente para formulário de edição/criação
+  const FormModal: React.FC<{ type: string; item?: any; onSave: (data: any) => void; onClose: () => void }> = ({ type, item, onSave, onClose }) => {
+    const [formData, setFormData] = useState(item || {});
+    const [imageFile, setImageFile] = useState<File | null>(null);
+
+    const handleSubmit = async (e: React.FormEvent) => {
+      e.preventDefault();
+      
+      let finalData = { ...formData };
+      
+      // Upload de imagem se necessário
+      if (imageFile) {
+        try {
+          const imageUrl = await handleImageUpload(imageFile);
+          if (type === 'personal') {
+            finalData.profile_image = imageUrl;
+          } else {
+            finalData.image = imageUrl;
+          }
+        } catch (error) {
+          showMessage('error', 'Erro ao fazer upload da imagem');
+          return;
+        }
+      }
+
+      // Processar arrays para projetos
+      if (type === 'projects' && typeof finalData.technologies === 'string') {
+        finalData.technologies = finalData.technologies.split(',').map((t: string) => t.trim());
+      }
+
+      // Processar arrays para certificados
+      if (type === 'certificates' && typeof finalData.skills === 'string') {
+        finalData.skills = finalData.skills.split(',').map((s: string) => s.trim());
+      }
+
+      // Processar arrays para cursos
+      if (type === 'courses' && typeof finalData.skills === 'string') {
+        finalData.skills = finalData.skills.split(',').map((s: string) => s.trim());
+      }
+
+      onSave(finalData);
+    };
+
+    const getFormFields = () => {
+      switch (type) {
+        case 'personal':
+          return (
+            <>
+              <input
+                type="text"
+                placeholder="Nome"
+                value={formData.name || ''}
+                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                className="w-full p-3 bg-slate-700 border border-slate-600 rounded-lg text-white"
+                required
+              />
+              <input
+                type="text"
+                placeholder="Título"
+                value={formData.title || ''}
+                onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+                className="w-full p-3 bg-slate-700 border border-slate-600 rounded-lg text-white"
+                required
+              />
+              <textarea
+                placeholder="Descrição"
+                value={formData.description || ''}
+                onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                className="w-full p-3 bg-slate-700 border border-slate-600 rounded-lg text-white h-24"
+                required
+              />
+              <input
+                type="email"
+                placeholder="Email"
+                value={formData.email || ''}
+                onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                className="w-full p-3 bg-slate-700 border border-slate-600 rounded-lg text-white"
+                required
+              />
+              <input
+                type="text"
+                placeholder="Telefone"
+                value={formData.phone || ''}
+                onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                className="w-full p-3 bg-slate-700 border border-slate-600 rounded-lg text-white"
+                required
+              />
+              <input
+                type="text"
+                placeholder="Localização"
+                value={formData.location || ''}
+                onChange={(e) => setFormData({ ...formData, location: e.target.value })}
+                className="w-full p-3 bg-slate-700 border border-slate-600 rounded-lg text-white"
+                required
+              />
+              <div>
+                <label className="block text-white mb-2">Foto de Perfil</label>
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={(e) => setImageFile(e.target.files?.[0] || null)}
+                  className="w-full p-3 bg-slate-700 border border-slate-600 rounded-lg text-white"
+                />
+                {formData.profile_image && (
+                  <img src={formData.profile_image} alt="Preview" className="mt-2 w-20 h-20 object-cover rounded-lg" />
+                )}
+              </div>
+            </>
+          );
+        case 'projects':
+          return (
+            <>
+              <input
+                type="text"
+                placeholder="Nome do Projeto"
+                value={formData.name || ''}
+                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                className="w-full p-3 bg-slate-700 border border-slate-600 rounded-lg text-white"
+                required
+              />
+              <input
+                type="text"
+                placeholder="Empresa"
+                value={formData.company || ''}
+                onChange={(e) => setFormData({ ...formData, company: e.target.value })}
+                className="w-full p-3 bg-slate-700 border border-slate-600 rounded-lg text-white"
+                required
+              />
+              <select
+                value={formData.type || ''}
+                onChange={(e) => setFormData({ ...formData, type: e.target.value })}
+                className="w-full p-3 bg-slate-700 border border-slate-600 rounded-lg text-white"
+                required
+              >
+                <option value="">Selecione o tipo</option>
+                <option value="Functional Testing">Functional Testing</option>
+                <option value="API Testing">API Testing</option>
+                <option value="Mobile Testing">Mobile Testing</option>
+                <option value="Security Testing">Security Testing</option>
+                <option value="Performance Testing">Performance Testing</option>
+              </select>
+              <input
+                type="text"
+                placeholder="Tecnologias (separadas por vírgula)"
+                value={Array.isArray(formData.technologies) ? formData.technologies.join(', ') : formData.technologies || ''}
+                onChange={(e) => setFormData({ ...formData, technologies: e.target.value })}
+                className="w-full p-3 bg-slate-700 border border-slate-600 rounded-lg text-white"
+              />
+              <textarea
+                placeholder="Descrição"
+                value={formData.description || ''}
+                onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                className="w-full p-3 bg-slate-700 border border-slate-600 rounded-lg text-white h-24"
+                required
+              />
+              <textarea
+                placeholder="Detalhes"
+                value={formData.details || ''}
+                onChange={(e) => setFormData({ ...formData, details: e.target.value })}
+                className="w-full p-3 bg-slate-700 border border-slate-600 rounded-lg text-white h-32"
+                required
+              />
+              <div>
+                <label className="block text-white mb-2">Imagem do Projeto</label>
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={(e) => setImageFile(e.target.files?.[0] || null)}
+                  className="w-full p-3 bg-slate-700 border border-slate-600 rounded-lg text-white"
+                />
+                {formData.image && (
+                  <img src={formData.image} alt="Preview" className="mt-2 w-32 h-20 object-cover rounded-lg" />
+                )}
+              </div>
+            </>
+          );
+        case 'certificates':
+          return (
+            <>
+              <input
+                type="text"
+                placeholder="Nome do Certificado"
+                value={formData.name || ''}
+                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                className="w-full p-3 bg-slate-700 border border-slate-600 rounded-lg text-white"
+                required
+              />
+              <input
+                type="text"
+                placeholder="Instituição"
+                value={formData.issuer || ''}
+                onChange={(e) => setFormData({ ...formData, issuer: e.target.value })}
+                className="w-full p-3 bg-slate-700 border border-slate-600 rounded-lg text-white"
+                required
+              />
+              <input
+                type="text"
+                placeholder="Data"
+                value={formData.date || ''}
+                onChange={(e) => setFormData({ ...formData, date: e.target.value })}
+                className="w-full p-3 bg-slate-700 border border-slate-600 rounded-lg text-white"
+                required
+              />
+              <select
+                value={formData.category || ''}
+                onChange={(e) => setFormData({ ...formData, category: e.target.value })}
+                className="w-full p-3 bg-slate-700 border border-slate-600 rounded-lg text-white"
+                required
+              >
+                <option value="">Selecione a categoria</option>
+                <option value="QA">QA</option>
+                <option value="Programming">Programming</option>
+                <option value="Web Development">Web Development</option>
+                <option value="Business">Business</option>
+                <option value="Higher Education">Higher Education</option>
+                <option value="AI">AI</option>
+              </select>
+              <textarea
+                placeholder="Descrição"
+                value={formData.description || ''}
+                onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                className="w-full p-3 bg-slate-700 border border-slate-600 rounded-lg text-white h-24"
+              />
+              <input
+                type="text"
+                placeholder="Habilidades (separadas por vírgula)"
+                value={Array.isArray(formData.skills) ? formData.skills.join(', ') : formData.skills || ''}
+                onChange={(e) => setFormData({ ...formData, skills: e.target.value })}
+                className="w-full p-3 bg-slate-700 border border-slate-600 rounded-lg text-white"
+              />
+              <div>
+                <label className="block text-white mb-2">Imagem do Certificado</label>
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={(e) => setImageFile(e.target.files?.[0] || null)}
+                  className="w-full p-3 bg-slate-700 border border-slate-600 rounded-lg text-white"
+                />
+                {formData.image && (
+                  <img src={formData.image} alt="Preview" className="mt-2 w-32 h-20 object-cover rounded-lg" />
+                )}
+              </div>
+            </>
+          );
+        case 'skills':
+          return (
+            <>
+              <input
+                type="text"
+                placeholder="Nome da Habilidade"
+                value={formData.name || ''}
+                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                className="w-full p-3 bg-slate-700 border border-slate-600 rounded-lg text-white"
+                required
+              />
+              <input
+                type="number"
+                placeholder="Nível (0-100)"
+                min="0"
+                max="100"
+                value={formData.level || ''}
+                onChange={(e) => setFormData({ ...formData, level: parseInt(e.target.value) })}
+                className="w-full p-3 bg-slate-700 border border-slate-600 rounded-lg text-white"
+                required
+              />
+              <select
+                value={formData.category || ''}
+                onChange={(e) => setFormData({ ...formData, category: e.target.value })}
+                className="w-full p-3 bg-slate-700 border border-slate-600 rounded-lg text-white"
+                required
+              >
+                <option value="">Selecione a categoria</option>
+                <option value="technical">Técnica</option>
+                <option value="documentation">Documentação</option>
+                <option value="soft">Soft Skills</option>
+              </select>
+              <input
+                type="text"
+                placeholder="Ícone"
+                value={formData.icon || ''}
+                onChange={(e) => setFormData({ ...formData, icon: e.target.value })}
+                className="w-full p-3 bg-slate-700 border border-slate-600 rounded-lg text-white"
+                required
+              />
+            </>
+          );
+        case 'courses':
+          return (
+            <>
+              <input
+                type="text"
+                placeholder="Nome do Curso"
+                value={formData.name || ''}
+                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                className="w-full p-3 bg-slate-700 border border-slate-600 rounded-lg text-white"
+                required
+              />
+              <input
+                type="text"
+                placeholder="Instituição"
+                value={formData.institution || ''}
+                onChange={(e) => setFormData({ ...formData, institution: e.target.value })}
+                className="w-full p-3 bg-slate-700 border border-slate-600 rounded-lg text-white"
+                required
+              />
+              <input
+                type="number"
+                placeholder="Progresso (0-100)"
+                min="0"
+                max="100"
+                value={formData.progress || ''}
+                onChange={(e) => setFormData({ ...formData, progress: parseInt(e.target.value) })}
+                className="w-full p-3 bg-slate-700 border border-slate-600 rounded-lg text-white"
+                required
+              />
+              <select
+                value={formData.status || ''}
+                onChange={(e) => setFormData({ ...formData, status: e.target.value })}
+                className="w-full p-3 bg-slate-700 border border-slate-600 rounded-lg text-white"
+                required
+              >
+                <option value="">Selecione o status</option>
+                <option value="completed">Concluído</option>
+                <option value="in-progress">Em Andamento</option>
+                <option value="paused">Pausado</option>
+              </select>
+              <input
+                type="text"
+                placeholder="Categoria"
+                value={formData.category || ''}
+                onChange={(e) => setFormData({ ...formData, category: e.target.value })}
+                className="w-full p-3 bg-slate-700 border border-slate-600 rounded-lg text-white"
+                required
+              />
+              <input
+                type="text"
+                placeholder="Data de Início"
+                value={formData.start_date || ''}
+                onChange={(e) => setFormData({ ...formData, start_date: e.target.value })}
+                className="w-full p-3 bg-slate-700 border border-slate-600 rounded-lg text-white"
+                required
+              />
+              <input
+                type="text"
+                placeholder="Data Prevista de Conclusão"
+                value={formData.expected_end || ''}
+                onChange={(e) => setFormData({ ...formData, expected_end: e.target.value })}
+                className="w-full p-3 bg-slate-700 border border-slate-600 rounded-lg text-white"
+              />
+              <textarea
+                placeholder="Descrição"
+                value={formData.description || ''}
+                onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                className="w-full p-3 bg-slate-700 border border-slate-600 rounded-lg text-white h-24"
+              />
+              <input
+                type="text"
+                placeholder="Habilidades (separadas por vírgula)"
+                value={Array.isArray(formData.skills) ? formData.skills.join(', ') : formData.skills || ''}
+                onChange={(e) => setFormData({ ...formData, skills: e.target.value })}
+                className="w-full p-3 bg-slate-700 border border-slate-600 rounded-lg text-white"
+              />
+            </>
+          );
+        case 'achievements':
+          return (
+            <>
+              <input
+                type="text"
+                placeholder="Título"
+                value={formData.title || ''}
+                onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+                className="w-full p-3 bg-slate-700 border border-slate-600 rounded-lg text-white"
+                required
+              />
+              <input
+                type="text"
+                placeholder="Organização"
+                value={formData.organization || ''}
+                onChange={(e) => setFormData({ ...formData, organization: e.target.value })}
+                className="w-full p-3 bg-slate-700 border border-slate-600 rounded-lg text-white"
+                required
+              />
+              <input
+                type="text"
+                placeholder="Data"
+                value={formData.date || ''}
+                onChange={(e) => setFormData({ ...formData, date: e.target.value })}
+                className="w-full p-3 bg-slate-700 border border-slate-600 rounded-lg text-white"
+                required
+              />
+              <select
+                value={formData.type || ''}
+                onChange={(e) => setFormData({ ...formData, type: e.target.value })}
+                className="w-full p-3 bg-slate-700 border border-slate-600 rounded-lg text-white"
+                required
+              >
+                <option value="">Selecione o tipo</option>
+                <option value="recognition">Reconhecimento</option>
+                <option value="academic">Acadêmico</option>
+                <option value="professional">Profissional</option>
+              </select>
+              <textarea
+                placeholder="Descrição"
+                value={formData.description || ''}
+                onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                className="w-full p-3 bg-slate-700 border border-slate-600 rounded-lg text-white h-32"
+                required
+              />
+            </>
+          );
+        default:
+          return null;
+      }
+    };
+
+    return (
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4"
+        onClick={onClose}
+      >
+        <motion.div
+          initial={{ scale: 0.9, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          exit={{ scale: 0.9, opacity: 0 }}
+          className="bg-slate-800 rounded-2xl p-6 max-w-2xl w-full max-h-[90vh] overflow-y-auto"
+          onClick={(e) => e.stopPropagation()}
+        >
+          <div className="flex items-center justify-between mb-6">
+            <h3 className="text-xl font-bold text-white">
+              {item ? 'Editar' : 'Adicionar'} {type}
+            </h3>
+            <button
+              onClick={onClose}
+              className="p-2 hover:bg-slate-700 rounded-lg transition-colors"
+            >
+              <X className="w-5 h-5 text-white" />
+            </button>
+          </div>
+
+          <form onSubmit={handleSubmit} className="space-y-4">
+            {getFormFields()}
+            
+            <div className="flex gap-3 pt-4">
+              <button
+                type="submit"
+                disabled={saving || uploadingImage}
+                className="flex-1 bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 text-white py-3 px-4 rounded-lg font-semibold transition-colors flex items-center justify-center gap-2"
+              >
+                {saving || uploadingImage ? (
+                  <>
+                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                    {uploadingImage ? 'Enviando imagem...' : 'Salvando...'}
+                  </>
+                ) : (
+                  <>
+                    <Save className="w-4 h-4" />
+                    Salvar
+                  </>
+                )}
+              </button>
+              <button
+                type="button"
+                onClick={onClose}
+                className="px-6 py-3 bg-slate-600 hover:bg-slate-700 text-white rounded-lg transition-colors"
+              >
+                Cancelar
+              </button>
+            </div>
+          </form>
+        </motion.div>
+      </motion.div>
+    );
+  };
 
   // Componente para renderizar lista de itens com CRUD
   const renderItemsList = (items: any[], type: string, fields: string[]) => {
@@ -530,83 +869,62 @@ const AdminDashboard: React.FC<{ onLogout: () => void }> = ({ onLogout }) => {
             </motion.div>
           )}
 
-          {activeTab === 'database-test' && (
+          {/* Informações Pessoais */}
+          {activeTab === 'personal' && (
             <motion.div
-              key="database-test"
+              key="personal"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -20 }}
-              className="space-y-6"
             >
-              <div className="bg-slate-800/50 backdrop-blur-sm border border-slate-700 p-6 rounded-2xl">
-                <div className="flex items-center justify-between mb-6">
-                  <h3 className="text-xl font-bold">Teste de Sistema</h3>
-                  <motion.button
-                    onClick={testDatabaseConnection}
-                    disabled={testingDatabase}
-                    className="flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 px-4 py-2 rounded-xl transition-colors"
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
-                  >
-                    {testingDatabase ? (
-                      <>
-                        <RefreshCw className="w-4 h-4 animate-spin" />
-                        Testando...
-                      </>
-                    ) : (
-                      <>
-                        <Database className="w-4 h-4" />
-                        Executar Testes
-                      </>
-                    )}
-                  </motion.button>
-                </div>
-
-                {dbTestResults.length > 0 && (
-                  <div className="space-y-3">
-                    {dbTestResults.map((result, index) => (
-                      <motion.div
-                        key={index}
-                        initial={{ opacity: 0, x: -20 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        transition={{ delay: index * 0.1 }}
-                        className={`flex items-center gap-3 p-4 rounded-xl ${
-                          result.status === 'success' 
-                            ? 'bg-green-900/30 border border-green-700' 
-                            : result.status === 'error'
-                            ? 'bg-red-900/30 border border-red-700'
-                            : result.status === 'warning'
-                            ? 'bg-yellow-900/30 border border-yellow-700'
-                            : 'bg-blue-900/30 border border-blue-700'
-                        }`}
-                      >
-                        {result.status === 'success' && <CheckCircle className="w-5 h-5 text-green-400" />}
-                        {result.status === 'error' && <AlertCircle className="w-5 h-5 text-red-400" />}
-                        {result.status === 'warning' && <AlertCircle className="w-5 h-5 text-yellow-400" />}
-                        {result.status === 'testing' && <RefreshCw className="w-5 h-5 text-blue-400 animate-spin" />}
-                        
-                        <div className="flex-1">
-                          <h4 className="font-semibold">{result.test}</h4>
-                          <p className="text-sm opacity-80">{result.message}</p>
-                        </div>
-                        
-                        {result.data !== undefined && (
-                          <div className="text-right">
-                            <span className="text-lg font-bold">{result.data}</span>
-                          </div>
-                        )}
-                      </motion.div>
-                    ))}
-                  </div>
-                )}
-
-                {dbTestResults.length === 0 && (
-                  <div className="text-center py-8 text-slate-400">
-                    <Database className="w-12 h-12 mx-auto mb-4 opacity-50" />
-                    <p>Clique em "Executar Testes" para verificar o sistema</p>
-                  </div>
-                )}
+              <div className="flex items-center justify-between mb-6">
+                <h2 className="text-2xl font-bold">Informações Pessoais</h2>
+                <button
+                  onClick={() => {
+                    setEditingItem(data.personalInfo);
+                    setIsEditing(true);
+                  }}
+                  className="flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 px-4 py-2 rounded-lg transition-colors"
+                >
+                  <Edit className="w-4 h-4" />
+                  Editar
+                </button>
               </div>
+
+              {data.personalInfo ? (
+                <div className="bg-slate-800/50 backdrop-blur-sm border border-slate-700 rounded-xl p-6">
+                  <div className="flex items-start gap-6">
+                    <img
+                      src={data.personalInfo.profile_image}
+                      alt="Profile"
+                      className="w-32 h-32 object-cover rounded-xl"
+                    />
+                    <div className="flex-1 space-y-4">
+                      <div>
+                        <h3 className="text-xl font-bold text-white">{data.personalInfo.name}</h3>
+                        <p className="text-indigo-400">{data.personalInfo.title}</p>
+                      </div>
+                      <p className="text-slate-300">{data.personalInfo.description}</p>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                        <div>
+                          <span className="text-slate-400">Email:</span> {data.personalInfo.email}
+                        </div>
+                        <div>
+                          <span className="text-slate-400">Telefone:</span> {data.personalInfo.phone}
+                        </div>
+                        <div className="md:col-span-2">
+                          <span className="text-slate-400">Localização:</span> {data.personalInfo.location}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                <div className="text-center py-8 text-slate-400">
+                  <User className="w-12 h-12 mx-auto mb-4 opacity-50" />
+                  <p>Nenhuma informação pessoal encontrada</p>
+                </div>
+              )}
             </motion.div>
           )}
 
@@ -719,24 +1037,30 @@ const AdminDashboard: React.FC<{ onLogout: () => void }> = ({ onLogout }) => {
               </div>
             </motion.div>
           )}
-
-          {/* Outras abas */}
-          {!['overview', 'database-test', 'projects', 'certificates', 'skills', 'courses', 'achievements', 'feedbacks'].includes(activeTab) && (
-            <motion.div
-              key={activeTab}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -20 }}
-              className="bg-slate-800/50 backdrop-blur-sm border border-slate-700 p-6 rounded-2xl text-center"
-            >
-              <h3 className="text-xl font-bold mb-4">Seção em Desenvolvimento</h3>
-              <p className="text-slate-400">
-                A seção "{tabs.find(t => t.id === activeTab)?.label}" está sendo desenvolvida.
-              </p>
-            </motion.div>
-          )}
         </AnimatePresence>
       </div>
+
+      {/* Form Modal */}
+      <AnimatePresence>
+        {(showAddForm || isEditing) && (
+          <FormModal
+            type={activeTab}
+            item={isEditing ? editingItem : null}
+            onSave={(data) => {
+              if (isEditing) {
+                handleUpdate(activeTab, editingItem.id, data);
+              } else {
+                handleCreate(activeTab, data);
+              }
+            }}
+            onClose={() => {
+              setShowAddForm(false);
+              setIsEditing(false);
+              setEditingItem(null);
+            }}
+          />
+        )}
+      </AnimatePresence>
     </div>
   );
 };

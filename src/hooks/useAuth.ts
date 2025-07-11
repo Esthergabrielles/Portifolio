@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react';
-import { supabase } from '../lib/supabase';
-import { SupabaseService } from '../services/supabaseService';
+import { supabase } from '../lib/supabaseClient';
 import type { User } from '@supabase/supabase-js';
 
 export const useAuth = () => {
@@ -9,10 +8,13 @@ export const useAuth = () => {
 
   useEffect(() => {
     // Verificar usuário atual
-    SupabaseService.getCurrentUser().then(user => {
+    const getUser = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
       setUser(user);
       setLoading(false);
-    });
+    };
+
+    getUser();
 
     // Escutar mudanças de autenticação
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
@@ -27,8 +29,11 @@ export const useAuth = () => {
 
   const signIn = async (email: string, password: string) => {
     try {
-      const data = await SupabaseService.signIn(email, password);
-      return { data, error: null };
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email,
+        password
+      });
+      return { data, error };
     } catch (error) {
       return { data: null, error };
     }
@@ -36,8 +41,8 @@ export const useAuth = () => {
 
   const signOut = async () => {
     try {
-      await SupabaseService.signOut();
-      return { error: null };
+      const { error } = await supabase.auth.signOut();
+      return { error };
     } catch (error) {
       return { error };
     }

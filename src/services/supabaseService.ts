@@ -8,49 +8,33 @@ export class SupabaseService {
       .select('*')
       .single();
 
-    if (error) throw error;
+    if (error && error.code !== 'PGRST116') throw error;
     return data;
   }
 
   static async updatePersonalInfo(dataToUpdate: any) {
     const { error } = await supabase
       .from('personal_info')
-      .update(dataToUpdate)
-      .eq('id', dataToUpdate.id);
+      .upsert(dataToUpdate);
 
     if (error) throw error;
   }
 
-  static async uploadProfilePicture(file: File, userId: string) {
+  static async uploadImage(file: File, bucket: string = 'images'): Promise<string> {
     const fileExt = file.name.split('.').pop();
-    const fileName = `${userId}-${Date.now()}.${fileExt}`;
+    const fileName = `${Date.now()}-${Math.random().toString(36).substring(2)}.${fileExt}`;
 
-    const { error: uploadError } = await supabase
-      .storage
-      .from('profile_pictures')
+    const { error: uploadError } = await supabase.storage
+      .from(bucket)
       .upload(fileName, file, { upsert: true });
 
     if (uploadError) throw uploadError;
 
-    const { publicUrl } = supabase
-      .storage
-      .from('profile_pictures')
+    const { data } = supabase.storage
+      .from(bucket)
       .getPublicUrl(fileName);
 
-    if (!publicUrl) {
-      throw new Error('Não foi possível obter a URL pública da imagem.');
-    }
-
-    return publicUrl;
-  }
-
-  static async updateProfilePictureUrl(userId: string, url: string) {
-    const { error } = await supabase
-      .from('personal_info')
-      .update({ photo_url: url })
-      .eq('user_id', userId);
-
-    if (error) throw error;
+    return data.publicUrl;
   }
 
   // 📄 Projects
@@ -81,7 +65,7 @@ export class SupabaseService {
       .select('*')
       .order('created_at', { ascending: false });
     if (error) throw error;
-    return data;
+    return data || [];
   }
 
   // 📄 Certificates
@@ -112,7 +96,7 @@ export class SupabaseService {
       .select('*')
       .order('created_at', { ascending: false });
     if (error) throw error;
-    return data;
+    return data || [];
   }
 
   // 📄 Skills
@@ -143,7 +127,7 @@ export class SupabaseService {
       .select('*')
       .order('created_at', { ascending: false });
     if (error) throw error;
-    return data;
+    return data || [];
   }
 
   // 📄 Courses
@@ -174,7 +158,7 @@ export class SupabaseService {
       .select('*')
       .order('created_at', { ascending: false });
     if (error) throw error;
-    return data;
+    return data || [];
   }
 
   // 📄 Achievements
@@ -205,7 +189,7 @@ export class SupabaseService {
       .select('*')
       .order('created_at', { ascending: false });
     if (error) throw error;
-    return data;
+    return data || [];
   }
 
   // 📄 Feedbacks
@@ -215,10 +199,10 @@ export class SupabaseService {
       .select('*')
       .order('created_at', { ascending: false });
     if (error) throw error;
-    return data;
+    return data || [];
   }
 
-  static async createFeedback(data: { rating: number; message: string }) {
+  static async createFeedback(data: { rating: number; feedback_text?: string; category?: string; ip_address?: string; user_agent?: string }) {
     const { error } = await supabase.from('feedbacks').insert(data);
     if (error) throw error;
   }

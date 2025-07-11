@@ -1,10 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { Menu, X } from 'lucide-react';
+import { Menu, X, Sun, Moon } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useScrollPosition } from '../hooks/useScrollPosition';
 import { useDarkMode } from '../hooks/useDarkMode';
-import EggChickLogo from './EggChickLogo';
-import DarkModeToggle from './DarkModeToggle';
 
 const Header: React.FC = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -52,14 +50,16 @@ const Header: React.FC = () => {
     >
       <div className="container-12">
         <div className="col-span-12 flex items-center justify-between h-20">
-          {/* Logo com Ovo e Pintinho */}
+          {/* Logo */}
           <motion.div 
             className="flex-shrink-0"
             whileHover={{ scale: 1.05 }}
             transition={{ duration: 0.2 }}
             onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
           >
-            <EggChickLogo size="md" />
+            <div className="bg-gradient-to-br from-indigo-500 to-purple-600 text-white w-12 h-12 rounded-2xl flex items-center justify-center font-poppins font-bold text-xl shadow-2xl cursor-pointer">
+              EG
+            </div>
           </motion.div>
 
           {/* Desktop Navigation */}
@@ -88,7 +88,15 @@ const Header: React.FC = () => {
           {/* Right side */}
           <div className="flex items-center space-x-4">
             {/* Dark Mode Toggle */}
-            <DarkModeToggle isDark={isDark} toggle={toggleDarkMode} />
+            <motion.button
+              onClick={toggleDarkMode}
+              className="p-3 rounded-xl bg-neutral-100 dark:bg-slate-800 border border-neutral-200 dark:border-slate-700 text-neutral-700 dark:text-neutral-300 hover:text-indigo-600 dark:hover:text-indigo-400 transition-all duration-300"
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              aria-label="Toggle dark mode"
+            >
+              {isDark ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
+            </motion.button>
 
             <motion.button
               onClick={() => handleMenuClick('#contact')}

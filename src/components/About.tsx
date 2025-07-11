@@ -1,38 +1,34 @@
 import React from 'react';
 import { Award, Users, Target, Lightbulb, MessageCircle, Clock, Sparkles, Zap, Brain } from 'lucide-react';
 import { motion } from 'framer-motion';
-import { useLanguage } from '../hooks/useLanguage';
-import { t } from '../data/translations';
 import AnimatedSection from './AnimatedSection';
 
 const About: React.FC = () => {
-  const { language } = useLanguage();
-
   const experiences = [
     {
       icon: Award,
-      title: t('ongoingEducation', language),
-      description: t('ongoingEducationDesc', language)
+      title: 'Formação em Andamento',
+      description: 'Estudando Quality Assurance com foco em testes e processos'
     },
     {
       icon: Users,
-      title: t('studyProjects2', language),
-      description: t('studyProjectsDesc', language)
+      title: 'Projetos de Estudo',
+      description: 'Aplicando conhecimentos em projetos práticos e simulações'
     },
     {
       icon: Target,
-      title: t('learningFocus', language),
-      description: t('learningFocusDesc', language)
+      title: 'Foco em Aprendizado',
+      description: 'Dedicação total ao desenvolvimento de habilidades em QA'
     }
   ];
 
   const softSkills = [
-    t('attentionToDetails', language),
-    t('organization', language),
-    t('analyticalThinking', language),
+    'Atenção aos Detalhes',
+    'Organização',
+    'Pensamento Analítico',
     'Resolução de Problemas',
-    t('communication', language),
-    t('willToLearn', language)
+    'Comunicação',
+    'Vontade de Aprender'
   ];
 
   return (
@@ -52,18 +48,17 @@ const About: React.FC = () => {
               viewport={{ once: true }}
             >
               <h2 className="text-5xl md:text-6xl font-poppins font-bold text-neutral-900 dark:text-white mb-6">
-                {t('aboutMe', language)}
+                Sobre Mim
               </h2>
               <div className="w-24 h-1 bg-gradient-to-r from-primary-400 to-primary-600 mx-auto mb-8 rounded-full" />
               <p className="text-xl md:text-2xl text-neutral-600 dark:text-neutral-300 max-w-3xl mx-auto leading-relaxed font-inter">
-                {t('aboutSubtitle', language)}
+                Iniciando minha jornada em QA com muita dedicação e vontade de aprender
               </p>
             </motion.div>
           </AnimatedSection>
         </div>
 
         <div className="col-span-12 lg:col-span-6">
-          {/* Image */}
           <AnimatedSection animation="scale-in" delay={1}>
             <motion.div 
               className="relative element-spacing"
@@ -100,13 +95,13 @@ const About: React.FC = () => {
               viewport={{ once: true }}
             >
               <h3 className="text-3xl md:text-4xl font-poppins font-bold text-neutral-900 dark:text-white mb-6">
-                {t('myJourney', language)}
+                Minha Jornada
               </h3>
               <p className="text-lg text-neutral-600 dark:text-neutral-300 leading-relaxed mb-6 font-inter">
-                {t('aboutDescription1', language)}
+                Sou uma profissional em formação na área de Quality Assurance, apaixonada por tecnologia e processos organizacionais. Estou dedicando meu tempo ao aprendizado de metodologias de teste e ferramentas de QA.
               </p>
               <p className="text-lg text-neutral-600 dark:text-neutral-300 leading-relaxed font-inter">
-                {t('aboutDescription2', language)}
+                Meu objetivo é me tornar uma especialista em garantir a qualidade de software, contribuindo para o desenvolvimento de produtos excepcionais.
               </p>
             </motion.div>
           </AnimatedSection>
@@ -115,7 +110,7 @@ const About: React.FC = () => {
           <AnimatedSection animation="slide-up" delay={3}>
             <div className="space-y-6 element-spacing">
               <h4 className="text-2xl font-poppins font-bold text-neutral-900 dark:text-white">
-                {t('studyAreas', language)}
+                Áreas de Estudo
               </h4>
               {experiences.map((exp, index) => (
                 <motion.div
@@ -147,7 +142,7 @@ const About: React.FC = () => {
           <AnimatedSection animation="slide-up" delay={4}>
             <div>
               <h4 className="text-2xl font-poppins font-bold text-neutral-900 dark:text-white mb-6">
-                {t('competencies', language)}
+                Competências
               </h4>
               <div className="flex flex-wrap gap-3">
                 {softSkills.map((skill, index) => (
