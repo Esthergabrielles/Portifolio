@@ -24,11 +24,15 @@ export class SupabaseService {
     const fileExt = file.name.split('.').pop();
     const fileName = `${Date.now()}-${Math.random().toString(36).substring(2)}.${fileExt}`;
 
+    // Use regular client for storage operations
     const { error: uploadError } = await supabase.storage
       .from(bucket)
       .upload(fileName, file, { upsert: true });
 
-    if (uploadError) throw uploadError;
+    if (uploadError) {
+      console.error('Error uploading file:', uploadError);
+      throw new Error(`Failed to upload image: ${uploadError.message}. Please ensure the 'images' storage bucket exists and has proper RLS policies configured.`);
+    }
 
     const { data } = supabase.storage
       .from(bucket)
