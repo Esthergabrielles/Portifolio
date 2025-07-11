@@ -65,7 +65,11 @@ const AdminDashboard: React.FC<{ onLogout: () => void }> = ({ onLogout }) => {
     if (result.success) {
       setIsEditing(false);
       setEditingItem(null);
-      showMessage('success', 'Item atualizado com sucesso!');
+      if (type === 'personal') {
+        showMessage('success', 'Informações pessoais atualizadas! A foto de perfil foi sincronizada automaticamente.');
+      } else {
+        showMessage('success', 'Item atualizado com sucesso!');
+      }
     } else {
       showMessage('error', `Erro ao atualizar item: ${result.error}`);
     }

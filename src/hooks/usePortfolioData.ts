@@ -90,13 +90,17 @@ export const usePortfolioData = () => {
           break;
         case 'personalInfo':
           await SupabaseService.updatePersonalInfo(itemData);
+          // Forçar atualização imediata dos dados após salvar informações pessoais
+          await refresh();
           break;
         default:
           throw new Error(`Tipo não suportado: ${type}`);
       }
       
-      // Atualizar dados após atualização
-      await refresh();
+      // Atualizar dados após atualização (exceto personalInfo que já foi atualizado acima)
+      if (type !== 'personalInfo') {
+        await refresh();
+      }
       return { success: true };
     } catch (error) {
       console.error(`Erro ao atualizar ${type}:`, error);

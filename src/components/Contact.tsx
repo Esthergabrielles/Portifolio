@@ -4,8 +4,10 @@ import { motion } from 'framer-motion';
 import { useFormValidation } from '../hooks/useFormValidation';
 import { sendEmail, sendEmailViaMailto } from '../services/emailService';
 import AnimatedSection from './AnimatedSection';
+import { usePortfolioData } from '../hooks/usePortfolioData';
 
 const Contact: React.FC = () => {
+  const { data: portfolioData, loading } = usePortfolioData();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [copied, setCopied] = useState(false);
   const [copiedPhone, setCopiedPhone] = useState(false);
@@ -58,7 +60,8 @@ const Contact: React.FC = () => {
 
   const copyEmail = async () => {
     try {
-      await navigator.clipboard.writeText('esthergabriellesouza@gmail.com');
+      const email = portfolioData?.personalInfo?.email || 'esthergabriellesouza@gmail.com';
+      await navigator.clipboard.writeText(email);
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     } catch (err) {
@@ -68,7 +71,8 @@ const Contact: React.FC = () => {
 
   const copyPhone = async () => {
     try {
-      await navigator.clipboard.writeText('(19) 98926-1419');
+      const phone = portfolioData?.personalInfo?.phone || '(19) 98926-1419';
+      await navigator.clipboard.writeText(phone);
       setCopiedPhone(true);
       setTimeout(() => setCopiedPhone(false), 2000);
     } catch (err) {
@@ -78,16 +82,18 @@ const Contact: React.FC = () => {
 
   const openWhatsApp = () => {
     const message = encodeURIComponent(
-      'Olá Esther! Vi seu portfólio e gostaria de conversar sobre oportunidades.'
+      `Olá ${portfolioData?.personalInfo?.name || 'Esther'}! Vi seu portfólio e gostaria de conversar sobre oportunidades.`
     );
-    window.open(`https://wa.me/5519989261419?text=${message}`, '_blank');
+    const phone = portfolioData?.personalInfo?.phone?.replace(/\D/g, '') || '5519989261419';
+    window.open(`https://wa.me/${phone}?text=${message}`, '_blank');
   };
 
+  // Usar dados dinâmicos do Supabase
   const contactInfo = [
     {
       icon: Mail,
       label: 'Email Profissional',
-      value: 'esthergabriellesouza@gmail.com',
+      value: portfolioData?.personalInfo?.email || 'esthergabriellesouza@gmail.com',
       action: copyEmail,
       color: 'from-blue-500 to-blue-600',
       copied: copied
@@ -95,7 +101,7 @@ const Contact: React.FC = () => {
     {
       icon: Phone,
       label: 'Telefone/WhatsApp',
-      value: '(19) 98926-1419',
+      value: portfolioData?.personalInfo?.phone || '(19) 98926-1419',
       action: copyPhone,
       whatsappAction: openWhatsApp,
       color: 'from-green-500 to-green-600',
@@ -105,7 +111,7 @@ const Contact: React.FC = () => {
     {
       icon: MapPin,
       label: 'Localização',
-      value: 'Santa Bárbara d\'Oeste, SP - Brasil',
+      value: portfolioData?.personalInfo?.location || 'Santa Bárbara d\'Oeste, SP - Brasil',
       color: 'from-purple-500 to-purple-600'
     }
   ];
@@ -133,6 +139,29 @@ const Contact: React.FC = () => {
     
     return `${baseClass} border-green-500 ring-2 ring-green-500/20`;
   };
+
+  if (loading) {
+    return (
+      <section id="contact" className="section-spacing bg-gradient-to-br from-white via-neutral-50 to-neutral-100 relative overflow-hidden">
+        <div className="container-12 relative z-10">
+          <div className="col-span-12 text-center">
+            <div className="animate-pulse">
+              <div className="h-12 bg-gray-300 rounded mb-4"></div>
+              <div className="h-6 bg-gray-200 rounded mb-8"></div>
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <div className="space-y-6">
+                  {[1, 2, 3].map((i) => (
+                    <div key={i} className="h-24 bg-gray-200 rounded-2xl"></div>
+                  ))}
+                </div>
+                <div className="h-96 bg-gray-200 rounded-3xl"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    );
+  }
 
   return (
     <section id="contact" className="section-spacing bg-gradient-to-br from-white via-neutral-50 to-neutral-100 relative overflow-hidden">

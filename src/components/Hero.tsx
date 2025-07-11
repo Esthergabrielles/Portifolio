@@ -1,24 +1,13 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { ChevronDown, Download, Mail, MapPin, Phone } from 'lucide-react';
 import { motion } from 'framer-motion';
 import AnimatedSection from './AnimatedSection';
+import { usePortfolioData } from '../hooks/usePortfolioData';
 
-interface PersonalInfo {
-  name: string;
-  title: string;
-  description: string;
-  email: string;
-  phone: string;
-  location: string;
-  profileImage: string;
-}
+const Hero: React.FC = () => {
+  const { data: portfolioData } = usePortfolioData();
+  const { loading } = usePortfolioData();
 
-interface HeroProps {
-  personalInfo?: PersonalInfo | null;
-  loading: boolean;
-}
-
-const Hero: React.FC<HeroProps> = ({ personalInfo, loading }) => {
   if (loading) {
     return (
       <section id="home" className="min-h-screen flex items-center justify-center bg-gradient-to-br from-indigo-900 via-purple-900 to-pink-900 relative overflow-hidden">
@@ -31,6 +20,9 @@ const Hero: React.FC<HeroProps> = ({ personalInfo, loading }) => {
       </section>
     );
   }
+
+  // Usar dados do Supabase
+  const personalInfo = portfolioData?.personalInfo;
 
   const handleDownloadCV = () => {
     const link = document.createElement('a');
@@ -95,11 +87,12 @@ const Hero: React.FC<HeroProps> = ({ personalInfo, loading }) => {
               >
                 <div className="relative inline-block">
                   <motion.img
-                    src={personalInfo?.profileImage || 'https://images.pexels.com/photos/774909/pexels-photo-774909.jpeg?auto=compress&cs=tinysrgb&w=400&h=400&fit=crop'}
+                    src={personalInfo?.profile_image || 'https://images.pexels.com/photos/774909/pexels-photo-774909.jpeg?auto=compress&cs=tinysrgb&w=400&h=400&fit=crop'}
                     alt={personalInfo?.name || 'Esther Gabrielle'}
                     className="w-40 h-40 rounded-full object-cover shadow-2xl border-4 border-white/20 backdrop-blur-sm"
                     whileHover={{ scale: 1.05 }}
                     transition={{ duration: 0.3 }}
+                    key={personalInfo?.profile_image} // Force re-render when image changes
                   />
                   <motion.div
                     className="absolute -bottom-2 -right-2 w-12 h-12 bg-green-500 rounded-full flex items-center justify-center shadow-lg"
@@ -126,7 +119,7 @@ const Hero: React.FC<HeroProps> = ({ personalInfo, loading }) => {
                 </h1>
                 
                 <h2 className="text-2xl md:text-4xl font-poppins font-semibold text-white/90 mb-6">
-                  <span className="text-yellow-400">QA Junior</span> especializada em{' '}
+                  <span className="text-yellow-400">{personalInfo?.title || 'QA Junior'}</span> especializada em{' '}
                   <span className="text-pink-400">testes de qualidade</span>
                   <br />
                   e <span className="text-purple-400">processos organizacionais</span>

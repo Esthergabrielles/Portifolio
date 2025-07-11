@@ -21,19 +21,25 @@ export class SupabaseService {
 
     if (existing) {
       // Atualizar registro existente
-      const { error } = await supabase
+      const { data, error } = await supabase
         .from('personal_info')
         .update(dataToUpdate)
-        .eq('id', existing.id);
+        .eq('id', existing.id)
+        .select()
+        .single();
       
       if (error) throw error;
+      return data;
     } else {
       // Criar novo registro
-      const { error } = await supabase
+      const { data, error } = await supabase
         .from('personal_info')
-        .insert(dataToUpdate);
+        .insert(dataToUpdate)
+        .select()
+        .single();
       
       if (error) throw error;
+      return data;
     }
   }
 
