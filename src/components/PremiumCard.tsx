@@ -4,7 +4,7 @@ import { motion } from 'framer-motion';
 interface PremiumCardProps {
   children: React.ReactNode;
   className?: string;
-  variant?: 'default' | 'glass' | 'gradient' | 'elevated';
+  variant?: 'default' | 'glass' | 'gradient' | 'elevated' | 'premium';
   interactive?: boolean;
   padding?: 'none' | 'sm' | 'md' | 'lg' | 'xl';
   rounded?: 'sm' | 'md' | 'lg' | 'xl' | '2xl' | '3xl';
@@ -28,13 +28,14 @@ const PremiumCard: React.FC<PremiumCardProps> = ({
   animated = true,
   onClick,
 }) => {
-  const baseClasses = 'relative transition-all duration-300';
+  const baseClasses = 'relative transition-all duration-500 overflow-hidden';
 
   const variantClasses = {
-    default: 'bg-white dark:bg-neutral-900',
-    glass: 'glass',
-    gradient: 'bg-gradient-to-br from-white via-neutral-50 to-white dark:from-neutral-900 dark:via-neutral-800 dark:to-neutral-900',
-    elevated: 'bg-white dark:bg-neutral-900 border-t border-white/20 dark:border-neutral-700/20'
+    default: 'bg-white/90 dark:bg-slate-900/90 backdrop-blur-sm',
+    glass: 'glass backdrop-blur-premium',
+    gradient: 'bg-gradient-to-br from-white/95 via-slate-50/95 to-white/95 dark:from-slate-900/95 dark:via-slate-800/95 dark:to-slate-900/95 backdrop-blur-sm',
+    elevated: 'bg-white/95 dark:bg-slate-900/95 border-t border-white/30 dark:border-slate-700/30 backdrop-blur-sm',
+    premium: 'bg-gradient-to-br from-white via-slate-50/50 to-white dark:from-slate-900 dark:via-slate-800/50 dark:to-slate-900 backdrop-blur-premium'
   };
 
   const paddingClasses = {
@@ -63,8 +64,8 @@ const PremiumCard: React.FC<PremiumCardProps> = ({
     '2xl': 'shadow-2xl'
   };
 
-  const borderClasses = border ? 'border border-neutral-200 dark:border-neutral-800' : '';
-  const interactiveClasses = interactive ? 'cursor-pointer hover:shadow-xl hover:-translate-y-1' : '';
+  const borderClasses = border ? 'border border-slate-200/60 dark:border-slate-800/60' : '';
+  const interactiveClasses = interactive ? 'cursor-pointer hover:shadow-2xl hover:-translate-y-2 hover:scale-[1.02]' : '';
   const glowClasses = glow ? 'hover:shadow-glow' : '';
 
   const combinedClasses = `
@@ -87,8 +88,8 @@ const PremiumCard: React.FC<PremiumCardProps> = ({
       onClick={onClick}
       whileHover={animated && interactive ? {
         scale: 1.02,
-        y: -4,
-        transition: { duration: 0.3, ease: "easeOut" }
+        y: -8,
+        transition: { duration: 0.4, ease: "easeOut" }
       } : {}}
       whileTap={animated && interactive ? {
         scale: 0.98,
@@ -96,8 +97,13 @@ const PremiumCard: React.FC<PremiumCardProps> = ({
       } : {}}
       initial={animated ? { opacity: 0, y: 20 } : {}}
       animate={animated ? { opacity: 1, y: 0 } : {}}
-      transition={animated ? { duration: 0.6, ease: "easeOut" } : {}}
+      transition={animated ? { duration: 0.8, ease: "easeOut" } : {}}
     >
+      {/* Premium Top Border Highlight */}
+      {variant === 'premium' && (
+        <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-primary-500/50 to-transparent" />
+      )}
+
       {/* Background Pattern for Glass Variant */}
       {variant === 'glass' && (
         <div className="absolute inset-0 bg-pattern-dots opacity-5 rounded-3xl" />
@@ -105,25 +111,25 @@ const PremiumCard: React.FC<PremiumCardProps> = ({
 
       {/* Gradient Overlay for Elevated Variant */}
       {variant === 'elevated' && (
-        <div className="absolute inset-0 bg-gradient-to-br from-white/5 via-transparent to-black/5 dark:from-white/5 dark:to-black/10 rounded-3xl pointer-events-none" />
+        <div className="absolute inset-0 bg-gradient-to-br from-white/10 via-transparent to-slate-900/5 dark:from-white/5 dark:to-slate-900/10 rounded-3xl pointer-events-none" />
       )}
 
       {/* Glow Effect */}
       {glow && (
-        <div className="absolute inset-0 bg-gradient-to-r from-primary-500/20 to-accent-500/20 rounded-3xl opacity-0 group-hover:opacity-100 blur-xl transition-opacity duration-300 -z-10" />
+        <div className="absolute inset-0 bg-gradient-to-r from-primary-500/20 to-accent-500/20 rounded-3xl opacity-0 group-hover:opacity-100 blur-xl transition-opacity duration-500 -z-10" />
       )}
 
-      {/* Shimmer Effect on Hover */}
+      {/* Premium Shimmer Effect on Hover */}
       {animated && interactive && (
         <motion.div
-          className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent opacity-0 group-hover:opacity-100 rounded-3xl"
+          className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent opacity-0 group-hover:opacity-100 rounded-3xl"
           animate={{
             x: ['-100%', '100%']
           }}
           transition={{
-            duration: 1.5,
+            duration: 2,
             repeat: Infinity,
-            repeatDelay: 3,
+            repeatDelay: 4,
             ease: "easeInOut"
           }}
         />

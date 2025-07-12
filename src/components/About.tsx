@@ -3,6 +3,7 @@ import { Award, Users, Target, Lightbulb, MessageCircle, Clock, Sparkles, Zap, B
 import { motion } from 'framer-motion';
 import AnimatedSection from './AnimatedSection';
 import { usePortfolioData } from '../hooks/usePortfolioData';
+import PremiumCard from './PremiumCard';
 
 const iconMap: { [key: string]: React.ElementType } = {
   Award, Users, Target, Lightbulb, MessageCircle, Clock, Sparkles, Zap, Brain, Eye
@@ -16,17 +17,20 @@ const About: React.FC = () => {
     {
       icon: Award,
       title: 'Formação em Andamento',
-      description: 'Estudando Quality Assurance com foco em testes e processos'
+      description: 'Estudando Quality Assurance com foco em testes e processos',
+      color: 'from-blue-500 to-blue-600'
     },
     {
       icon: Users,
       title: 'Projetos de Estudo',
-      description: 'Aplicando conhecimentos em projetos práticos e simulações'
+      description: 'Aplicando conhecimentos em projetos práticos e simulações',
+      color: 'from-emerald-500 to-emerald-600'
     },
     {
       icon: Target,
       title: 'Foco em Aprendizado',
-      description: 'Dedicação total ao desenvolvimento de habilidades em QA'
+      description: 'Dedicação total ao desenvolvimento de habilidades em QA',
+      color: 'from-purple-500 to-purple-600'
     }
   ];
 
@@ -36,18 +40,18 @@ const About: React.FC = () => {
 
   if (loading) {
     return (
-      <section id="about" className="section-spacing bg-gradient-to-br from-neutral-50 via-white to-neutral-100 dark:from-neutral-900 dark:via-neutral-800 dark:to-black relative overflow-hidden">
-        <div className="container-12 relative z-10">
-          <div className="col-span-12 text-center">
+      <section id="about" className="section bg-gradient-to-br from-slate-50 via-white to-slate-100 dark:from-slate-900 dark:via-slate-800 dark:to-black relative overflow-hidden">
+        <div className="container relative z-10">
+          <div className="text-center">
             <div className="animate-pulse">
-              <div className="h-12 bg-gray-300 rounded mb-4"></div>
-              <div className="h-6 bg-gray-200 rounded mb-8"></div>
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                <div className="h-96 bg-gray-200 rounded-3xl"></div>
-                <div className="space-y-6">
-                  <div className="h-32 bg-gray-200 rounded-2xl"></div>
-                  <div className="h-48 bg-gray-200 rounded-2xl"></div>
-                  <div className="h-24 bg-gray-200 rounded-2xl"></div>
+              <div className="h-16 bg-slate-300 rounded-2xl mb-6"></div>
+              <div className="h-8 bg-slate-200 rounded-xl mb-12"></div>
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
+                <div className="h-[500px] bg-slate-200 rounded-3xl"></div>
+                <div className="space-y-8">
+                  <div className="h-40 bg-slate-200 rounded-3xl"></div>
+                  <div className="h-60 bg-slate-200 rounded-3xl"></div>
+                  <div className="h-32 bg-slate-200 rounded-3xl"></div>
                 </div>
               </div>
             </div>
@@ -58,153 +62,171 @@ const About: React.FC = () => {
   }
 
   return (
-    <section id="about" className="section-spacing bg-gradient-to-br from-neutral-50 via-white to-neutral-100 dark:from-neutral-900 dark:via-neutral-800 dark:to-black relative overflow-hidden">
-      {/* Background Pattern */}
+    <section id="about" className="section bg-gradient-to-br from-slate-50 via-white to-slate-100 dark:from-slate-900 dark:via-slate-800 dark:to-black relative overflow-hidden">
+      {/* Premium Background Pattern */}
       <div className="absolute inset-0 opacity-5">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_70%,rgba(47,128,237,0.1),transparent_50%)]" />
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_70%,rgba(14,165,233,0.1),transparent_50%)]" />
+        <div className="absolute inset-0 bg-pattern-grid" />
       </div>
 
-      <div className="container-12 relative z-10">
-        <div className="col-span-12 text-center element-spacing">
+      <div className="container relative z-10">
+        <div className="text-center mb-20">
           <AnimatedSection animation="slide-up">
             <motion.div
               initial={{ opacity: 0, y: 30 }}
               whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8 }}
+              transition={{ duration: 1 }}
               viewport={{ once: true }}
             >
-              <h2 className="text-5xl md:text-6xl font-poppins font-bold text-neutral-900 dark:text-white mb-6">
+              <h2 className="text-6xl md:text-7xl font-poppins font-bold text-slate-900 dark:text-white mb-8">
                 Sobre Mim
               </h2>
-              <div className="w-24 h-1 bg-gradient-to-r from-primary-400 to-primary-600 mx-auto mb-8 rounded-full" />
-              <p className="text-xl md:text-2xl text-neutral-600 dark:text-neutral-300 max-w-3xl mx-auto leading-relaxed font-inter">
+              <div className="w-32 h-2 bg-gradient-to-r from-primary-400 to-primary-600 mx-auto mb-10 rounded-full" />
+              <p className="text-2xl md:text-3xl text-slate-600 dark:text-slate-300 max-w-4xl mx-auto leading-relaxed font-inter">
                 {personalInfo?.description || 'Iniciando minha jornada em QA com muita dedicação e vontade de aprender'}
               </p>
             </motion.div>
           </AnimatedSection>
         </div>
 
-        <div className="col-span-12 lg:col-span-6">
-          <AnimatedSection animation="scale-in" delay={1}>
-            <motion.div 
-              className="relative element-spacing"
-              whileHover={{ scale: 1.02 }}
-              transition={{ duration: 0.3 }}
-            >
-              <div className="relative overflow-hidden rounded-3xl shadow-2xl">
-                <img
-                  src={personalInfo?.profile_image || "https://images.pexels.com/photos/3184306/pexels-photo-3184306.jpeg?auto=compress&cs=tinysrgb&w=800"}
-                  alt={personalInfo?.name || "Esther Gabrielle estudando"}
-                  className="w-full h-[500px] object-cover"
-                  key={personalInfo?.profile_image} // Force re-render when image changes
-                />
-                <div className="absolute inset-0 bg-gradient-to-tr from-primary-500/20 to-transparent" />
-                <motion.div
-                  className="absolute top-6 right-6 w-12 h-12 bg-primary-400/90 backdrop-blur-sm rounded-full flex items-center justify-center"
-                  animate={{ rotate: 360 }}
-                  transition={{ duration: 10, repeat: Infinity, ease: "linear" }}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+          {/* Image Section */}
+          <div className="order-2 lg:order-1">
+            <AnimatedSection animation="scale-in" delay={1}>
+              <motion.div 
+                className="relative"
+                whileHover={{ scale: 1.02 }}
+                transition={{ duration: 0.4 }}
+              >
+                <PremiumCard
+                  variant="premium"
+                  padding="none"
+                  className="overflow-hidden"
+                  interactive={true}
+                  glow={true}
                 >
-                  <Sparkles className="w-6 h-6 text-white" />
-                </motion.div>
-              </div>
-            </motion.div>
-          </AnimatedSection>
-        </div>
-
-        {/* Content */}
-        <div className="col-span-12 lg:col-span-6 space-y-8">
-          <AnimatedSection animation="slide-up" delay={2}>
-            <motion.div 
-              className="element-spacing"
-              initial={{ opacity: 0, x: 50 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.8, delay: 0.2 }}
-              viewport={{ once: true }}
-            >
-              <h3 className="text-3xl md:text-4xl font-poppins font-bold text-neutral-900 dark:text-white mb-6">
-                Minha Jornada
-              </h3>
-              <p className="text-lg text-neutral-600 dark:text-neutral-300 leading-relaxed mb-6 font-inter">
-                {personalInfo?.description || 'Sou uma profissional em formação na área de Quality Assurance, apaixonada por tecnologia e processos organizacionais. Estou dedicando meu tempo ao aprendizado de metodologias de teste e ferramentas de QA.'}
-              </p>
-              <p className="text-lg text-neutral-600 dark:text-neutral-300 leading-relaxed font-inter">
-                Meu objetivo é me tornar uma especialista em garantir a qualidade de software, contribuindo para o desenvolvimento de produtos excepcionais.
-              </p>
-            </motion.div>
-          </AnimatedSection>
-
-          {/* Experiences */}
-          <AnimatedSection animation="slide-up" delay={3}>
-            <div className="space-y-6 element-spacing">
-              <h4 className="text-2xl font-poppins font-bold text-neutral-900 dark:text-white">
-                Áreas de Estudo
-              </h4>
-              {defaultExperiences.map((exp, index) => (
-                <motion.div
-                  key={index}
-                  className="flex items-start space-x-4 p-6 rounded-2xl bg-white/80 dark:bg-neutral-800/50 backdrop-blur-sm border border-neutral-200 dark:border-neutral-700 shadow-lg hover:shadow-xl transition-all duration-300"
-                  initial={{ opacity: 0, y: 20 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.6, delay: index * 0.1 }}
-                  viewport={{ once: true }}
-                  whileHover={{ y: -5, scale: 1.02 }}
-                >
-                  <div className="bg-gradient-to-br from-primary-500 to-primary-600 text-white p-3 rounded-xl shadow-lg">
-                    <exp.icon className="w-6 h-6" />
-                  </div>
-                  <div>
-                    <h5 className="font-bold text-neutral-900 dark:text-white mb-2 font-inter text-lg">
-                      {exp.title}
-                    </h5>
-                    <p className="text-neutral-600 dark:text-neutral-300 font-inter leading-relaxed">
-                      {exp.description}
-                    </p>
-                  </div>
-                </motion.div>
-              ))}
-            </div>
-          </AnimatedSection>
-
-          {/* Soft Skills - Agora dinâmico */}
-          <AnimatedSection animation="slide-up" delay={4}>
-            <div>
-              <h4 className="text-2xl font-poppins font-bold text-neutral-900 dark:text-white mb-6">
-                Competências
-              </h4>
-              <div className="flex flex-wrap gap-3">
-                {softSkills.length > 0 ? (
-                  softSkills.map((skill, index) => (
-                    <motion.span
-                      key={skill.id}
-                      className="px-4 py-2 bg-gradient-to-r from-primary-100 to-primary-200 dark:from-primary-900/30 dark:to-primary-800/30 text-primary-700 dark:text-primary-300 rounded-full font-medium font-inter border border-primary-200 dark:border-primary-700 shadow-sm"
-                      initial={{ opacity: 0, scale: 0.8 }}
-                      whileInView={{ opacity: 1, scale: 1 }}
-                      transition={{ duration: 0.4, delay: index * 0.1 }}
-                      viewport={{ once: true }}
-                      whileHover={{ scale: 1.05, y: -2 }}
+                  <div className="relative overflow-hidden">
+                    <img
+                      src={personalInfo?.profile_image || "https://images.pexels.com/photos/3184306/pexels-photo-3184306.jpeg?auto=compress&cs=tinysrgb&w=800"}
+                      alt={personalInfo?.name || "Esther Gabrielle estudando"}
+                      className="w-full h-[600px] object-cover"
+                      key={personalInfo?.profile_image}
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-tr from-primary-500/20 to-transparent" />
+                    <motion.div
+                      className="absolute top-8 right-8 w-16 h-16 bg-primary-400/90 backdrop-blur-sm rounded-full flex items-center justify-center shadow-xl"
+                      animate={{ rotate: 360 }}
+                      transition={{ duration: 15, repeat: Infinity, ease: "linear" }}
                     >
-                      {skill.name}
-                    </motion.span>
-                  ))
-                ) : (
-                  // Fallback para soft skills padrão se não houver dados
-                  ['Atenção aos Detalhes', 'Organização', 'Pensamento Analítico', 'Resolução de Problemas', 'Comunicação', 'Vontade de Aprender'].map((skill, index) => (
-                    <motion.span
-                      key={index}
-                      className="px-4 py-2 bg-gradient-to-r from-primary-100 to-primary-200 dark:from-primary-900/30 dark:to-primary-800/30 text-primary-700 dark:text-primary-300 rounded-full font-medium font-inter border border-primary-200 dark:border-primary-700 shadow-sm"
-                      initial={{ opacity: 0, scale: 0.8 }}
-                      whileInView={{ opacity: 1, scale: 1 }}
-                      transition={{ duration: 0.4, delay: index * 0.1 }}
-                      viewport={{ once: true }}
-                      whileHover={{ scale: 1.05, y: -2 }}
+                      <Sparkles className="w-8 h-8 text-white" />
+                    </motion.div>
+                  </div>
+                </PremiumCard>
+              </motion.div>
+            </AnimatedSection>
+          </div>
+
+          {/* Content Section */}
+          <div className="order-1 lg:order-2 space-y-10">
+            <AnimatedSection animation="slide-up" delay={2}>
+              <motion.div 
+                initial={{ opacity: 0, x: 50 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                transition={{ duration: 1, delay: 0.3 }}
+                viewport={{ once: true }}
+              >
+                <h3 className="text-4xl md:text-5xl font-poppins font-bold text-slate-900 dark:text-white mb-8">
+                  Minha Jornada
+                </h3>
+                <p className="text-xl text-slate-600 dark:text-slate-300 leading-relaxed mb-8 font-inter">
+                  {personalInfo?.description || 'Sou uma profissional em formação na área de Quality Assurance, apaixonada por tecnologia e processos organizacionais. Estou dedicando meu tempo ao aprendizado de metodologias de teste e ferramentas de QA.'}
+                </p>
+                <p className="text-xl text-slate-600 dark:text-slate-300 leading-relaxed font-inter">
+                  Meu objetivo é me tornar uma especialista em garantir a qualidade de software, contribuindo para o desenvolvimento de produtos excepcionais.
+                </p>
+              </motion.div>
+            </AnimatedSection>
+
+            {/* Experiences */}
+            <AnimatedSection animation="slide-up" delay={3}>
+              <div className="space-y-8">
+                <h4 className="text-3xl font-poppins font-bold text-slate-900 dark:text-white">
+                  Áreas de Estudo
+                </h4>
+                {defaultExperiences.map((exp, index) => (
+                  <motion.div
+                    key={index}
+                    initial={{ opacity: 0, y: 20 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.8, delay: index * 0.2 }}
+                    viewport={{ once: true }}
+                  >
+                    <PremiumCard
+                      variant="glass"
+                      padding="lg"
+                      interactive={true}
+                      className="group"
                     >
-                      {skill}
-                    </motion.span>
-                  ))
-                )}
+                      <div className="flex items-start space-x-6">
+                        <div className={`bg-gradient-to-br ${exp.color} text-white p-4 rounded-2xl shadow-xl group-hover:scale-110 transition-transform duration-300`}>
+                          <exp.icon className="w-8 h-8" />
+                        </div>
+                        <div className="flex-1">
+                          <h5 className="font-bold text-slate-900 dark:text-white mb-3 font-inter text-xl">
+                            {exp.title}
+                          </h5>
+                          <p className="text-slate-600 dark:text-slate-300 font-inter leading-relaxed text-lg">
+                            {exp.description}
+                          </p>
+                        </div>
+                      </div>
+                    </PremiumCard>
+                  </motion.div>
+                ))}
               </div>
-            </div>
-          </AnimatedSection>
+            </AnimatedSection>
+
+            {/* Soft Skills */}
+            <AnimatedSection animation="slide-up" delay={4}>
+              <div>
+                <h4 className="text-3xl font-poppins font-bold text-slate-900 dark:text-white mb-8">
+                  Competências
+                </h4>
+                <div className="flex flex-wrap gap-4">
+                  {softSkills.length > 0 ? (
+                    softSkills.map((skill, index) => (
+                      <motion.span
+                        key={skill.id}
+                        className="px-6 py-3 bg-gradient-to-r from-primary-100/80 to-primary-200/80 dark:from-primary-900/40 dark:to-primary-800/40 text-primary-700 dark:text-primary-300 rounded-2xl font-medium font-inter border border-primary-200/60 dark:border-primary-700/60 shadow-lg backdrop-blur-sm"
+                        initial={{ opacity: 0, scale: 0.8 }}
+                        whileInView={{ opacity: 1, scale: 1 }}
+                        transition={{ duration: 0.5, delay: index * 0.1 }}
+                        viewport={{ once: true }}
+                        whileHover={{ scale: 1.05, y: -3 }}
+                      >
+                        {skill.name}
+                      </motion.span>
+                    ))
+                  ) : (
+                    // Fallback para soft skills padrão se não houver dados
+                    ['Atenção aos Detalhes', 'Organização', 'Pensamento Analítico', 'Resolução de Problemas', 'Comunicação', 'Vontade de Aprender'].map((skill, index) => (
+                      <motion.span
+                        key={index}
+                        className="px-6 py-3 bg-gradient-to-r from-primary-100/80 to-primary-200/80 dark:from-primary-900/40 dark:to-primary-800/40 text-primary-700 dark:text-primary-300 rounded-2xl font-medium font-inter border border-primary-200/60 dark:border-primary-700/60 shadow-lg backdrop-blur-sm"
+                        initial={{ opacity: 0, scale: 0.8 }}
+                        whileInView={{ opacity: 1, scale: 1 }}
+                        transition={{ duration: 0.5, delay: index * 0.1 }}
+                        viewport={{ once: true }}
+                        whileHover={{ scale: 1.05, y: -3 }}
+                      >
+                        {skill}
+                      </motion.span>
+                    ))
+                  )}
+                </div>
+              </div>
+            </AnimatedSection>
+          </div>
         </div>
       </div>
     </section>
