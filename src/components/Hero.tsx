@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { ChevronDown, Download, Mail, MapPin, Phone } from 'lucide-react';
+import { ChevronDown, Download, Mail, MapPin, Phone, Sparkles, Star, Zap } from 'lucide-react';
 import { motion } from 'framer-motion';
 import AnimatedSection from './AnimatedSection';
 import { usePortfolioData } from '../hooks/usePortfolioData';
@@ -21,7 +21,6 @@ const Hero: React.FC = () => {
     );
   }
 
-  // Usar dados do Supabase
   const personalInfo = portfolioData?.personalInfo;
 
   const handleDownloadCV = () => {
@@ -36,16 +35,16 @@ const Hero: React.FC = () => {
   };
 
   return (
-    <section id="home" className="min-h-screen flex items-center justify-center bg-gradient-to-br from-indigo-900 via-purple-900 to-pink-900 relative overflow-hidden">
-      {/* Background Pattern */}
-      <div className="absolute inset-0 opacity-10">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_70%,rgba(255,255,255,0.1),transparent_50%)]" />
-        <div className="absolute inset-0 bg-[linear-gradient(45deg,transparent_48%,rgba(255,255,255,0.03)_49%,rgba(255,255,255,0.03)_51%,transparent_52%)] bg-[length:20px_20px]" />
+    <section id="home" className="min-h-screen flex items-center justify-center relative overflow-hidden">
+      {/* Premium Background */}
+      <div className="absolute inset-0 bg-gradient-to-br from-slate-900 via-indigo-900 to-purple-900">
+        <div className="absolute inset-0 bg-mesh-gradient opacity-30"></div>
+        <div className="absolute inset-0 bg-pattern-dots opacity-20"></div>
       </div>
 
       {/* Floating Elements */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        {[...Array(20)].map((_, i) => (
+        {[...Array(25)].map((_, i) => (
           <motion.div
             key={i}
             className="absolute text-white/10 text-2xl"
@@ -57,6 +56,7 @@ const Hero: React.FC = () => {
               y: [-20, 20, -20],
               opacity: [0.1, 0.3, 0.1],
               rotate: [0, 180, 360],
+              scale: [0.8, 1.2, 0.8],
             }}
             transition={{
               duration: 4 + Math.random() * 4,
@@ -65,7 +65,7 @@ const Hero: React.FC = () => {
               delay: Math.random() * 2,
             }}
           >
-            {['🔍', '🐛', '⚡', '🎯', '📋', '✅', '🚀', '💎'][Math.floor(Math.random() * 8)]}
+            {['🔍', '🐛', '⚡', '🎯', '📋', '✅', '🚀', '💎', '🔧', '📊'][Math.floor(Math.random() * 10)]}
           </motion.div>
         ))}
       </div>
@@ -78,47 +78,51 @@ const Hero: React.FC = () => {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8 }}
             >
-              {/* Profile Image */}
+              {/* Premium Profile Image */}
               <motion.div
-                className="mb-8"
+                className="mb-12"
                 initial={{ scale: 0 }}
                 animate={{ scale: 1 }}
                 transition={{ duration: 0.6, delay: 0.2 }}
               >
                 <div className="relative inline-block">
+                  <div className="absolute inset-0 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 rounded-full blur-2xl opacity-75 animate-pulse-glow"></div>
                   <motion.img
                     src={personalInfo?.profile_image || 'https://images.pexels.com/photos/774909/pexels-photo-774909.jpeg?auto=compress&cs=tinysrgb&w=400&h=400&fit=crop'}
                     alt={personalInfo?.name || 'Esther Gabrielle'}
-                    className="w-40 h-40 rounded-full object-cover shadow-2xl border-4 border-white/20 backdrop-blur-sm"
-                    whileHover={{ scale: 1.05 }}
+                    className="relative w-48 h-48 rounded-full object-cover shadow-premium-xl border-4 border-white/20 backdrop-blur-sm"
+                    whileHover={{ scale: 1.05, rotate: 2 }}
                     transition={{ duration: 0.3 }}
-                    key={personalInfo?.profile_image} // Force re-render when image changes
+                    key={personalInfo?.profile_image}
                   />
                   <motion.div
-                    className="absolute -bottom-2 -right-2 w-12 h-12 bg-green-500 rounded-full flex items-center justify-center shadow-lg"
-                    animate={{ scale: [1, 1.2, 1] }}
+                    className="absolute -bottom-4 -right-4 w-16 h-16 bg-gradient-to-r from-emerald-400 to-teal-500 rounded-full flex items-center justify-center shadow-premium"
+                    animate={{ 
+                      scale: [1, 1.2, 1],
+                      rotate: [0, 10, -10, 0]
+                    }}
                     transition={{ duration: 2, repeat: Infinity }}
                   >
-                    <span className="text-white font-bold text-sm">QA</span>
+                    <span className="text-white font-bold text-lg">QA</span>
                   </motion.div>
                 </div>
               </motion.div>
 
-              {/* Name and Title */}
+              {/* Premium Name and Title */}
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.8, delay: 0.4 }}
-                className="mb-8"
+                className="mb-12"
               >
-                <h1 className="text-5xl md:text-7xl font-poppins font-bold text-white mb-4 leading-tight">
+                <h1 className="text-6xl md:text-8xl font-poppins font-bold text-white mb-6 leading-tight">
                   Olá, sou a{' '}
-                  <span className="bg-gradient-to-r from-yellow-400 via-pink-400 to-purple-400 bg-clip-text text-transparent">
+                  <span className="gradient-text bg-gradient-to-r from-yellow-400 via-pink-400 to-purple-400 bg-clip-text text-transparent">
                     {personalInfo?.name || 'Esther Gabrielle'}
                   </span>
                 </h1>
                 
-                <h2 className="text-2xl md:text-4xl font-poppins font-semibold text-white/90 mb-6">
+                <h2 className="text-3xl md:text-5xl font-poppins font-semibold text-white/90 mb-8">
                   <span className="text-yellow-400">{personalInfo?.title || 'QA Junior'}</span> especializada em{' '}
                   <span className="text-pink-400">testes de qualidade</span>
                   <br />
@@ -126,109 +130,123 @@ const Hero: React.FC = () => {
                 </h2>
               </motion.div>
 
-              {/* Description */}
+              {/* Premium Description */}
               <motion.p
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.8, delay: 0.6 }}
-                className="text-xl md:text-2xl text-white/80 max-w-4xl mx-auto leading-relaxed mb-12 font-inter"
+                className="text-xl md:text-2xl text-white/80 max-w-4xl mx-auto leading-relaxed mb-16 font-inter"
               >
                 {personalInfo?.description || 'Iniciando minha carreira em QA com paixão por encontrar bugs e garantir qualidade. Sempre em busca de aprender e crescer na área de tecnologia.'}
               </motion.p>
 
-              {/* Action Buttons */}
+              {/* Premium Action Buttons */}
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.8, delay: 0.8 }}
-                className="flex flex-col sm:flex-row gap-6 justify-center mb-16"
+                className="flex flex-col sm:flex-row gap-6 justify-center mb-20"
               >
                 <motion.button
                   onClick={handleContact}
-                  className="bg-gradient-to-r from-pink-500 to-purple-600 text-white px-10 py-5 rounded-2xl font-inter font-bold text-lg shadow-2xl hover:shadow-pink-500/25 transition-all duration-300 flex items-center justify-center gap-3"
+                  className="btn-primary group"
                   whileHover={{ scale: 1.05, y: -2 }}
                   whileTap={{ scale: 0.98 }}
                 >
-                  <Mail className="w-6 h-6" />
+                  <Mail className="w-6 h-6 group-hover:rotate-12 transition-transform duration-300" />
                   Vamos Conversar
+                  <Sparkles className="w-5 h-5 group-hover:scale-125 transition-transform duration-300" />
                 </motion.button>
                 
                 <motion.button
                   onClick={handleDownloadCV}
-                  className="bg-white/10 backdrop-blur-sm border border-white/20 text-white px-10 py-5 rounded-2xl font-inter font-bold text-lg hover:bg-white/20 transition-all duration-300 flex items-center justify-center gap-3"
+                  className="btn-secondary group"
                   whileHover={{ scale: 1.05, y: -2 }}
                   whileTap={{ scale: 0.98 }}
                 >
-                  <Download className="w-6 h-6" />
+                  <Download className="w-6 h-6 group-hover:-translate-y-1 transition-transform duration-300" />
                   Download CV
                 </motion.button>
               </motion.div>
 
-              {/* Quick Stats */}
+              {/* Premium Quick Stats */}
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.8, delay: 1 }}
-                className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-16"
+                className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-20"
               >
                 {[
-                  { icon: '🎯', label: 'Disponível para novos projetos', value: 'Projetos de Estudo' },
-                  { icon: '📚', label: 'Dedicação aos Estudos', value: '93% Progresso QA' },
-                  { icon: '🚀', label: 'Ano de Aprendizado', value: '2024' }
+                  { icon: Star, label: 'Disponível para novos projetos', value: 'Projetos de Estudo', color: 'from-blue-500 to-cyan-500' },
+                  { icon: Zap, label: 'Dedicação aos Estudos', value: '93% Progresso QA', color: 'from-emerald-500 to-teal-500' },
+                  { icon: Sparkles, label: 'Ano de Aprendizado', value: '2024', color: 'from-purple-500 to-pink-500' }
                 ].map((stat, index) => (
                   <motion.div
                     key={index}
-                    className="bg-white/10 backdrop-blur-sm border border-white/20 p-6 rounded-2xl"
-                    whileHover={{ scale: 1.05, y: -5 }}
+                    className="stat-card group"
+                    whileHover={{ y: -8, scale: 1.02 }}
                     transition={{ duration: 0.3 }}
+                    initial={{ opacity: 0, y: 30 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.6, delay: 1.2 + index * 0.1 }}
                   >
-                    <div className="text-3xl mb-3">{stat.icon}</div>
-                    <h3 className="text-2xl font-bold text-white mb-2 font-poppins">
+                    <div className={`stat-icon bg-gradient-to-r ${stat.color}`}>
+                      <stat.icon className="w-8 h-8 text-white" />
+                    </div>
+                    <h3 className="stat-value">
                       {stat.value}
                     </h3>
-                    <p className="text-white/70 font-inter">
+                    <p className="stat-label">
                       {stat.label}
                     </p>
                   </motion.div>
                 ))}
               </motion.div>
 
-              {/* Contact Info */}
+              {/* Premium Contact Info */}
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.8, delay: 1.2 }}
-                className="flex flex-col sm:flex-row items-center justify-center gap-8 text-white/70 mb-12"
+                transition={{ duration: 0.8, delay: 1.4 }}
+                className="flex flex-col sm:flex-row items-center justify-center gap-8 text-white/70 mb-16"
               >
-                <div className="flex items-center gap-2">
-                  <MapPin className="w-5 h-5" />
+                <div className="flex items-center gap-3 group">
+                  <div className="p-2 bg-white/10 rounded-full group-hover:bg-white/20 transition-colors duration-300">
+                    <MapPin className="w-5 h-5" />
+                  </div>
                   <span className="font-inter">{personalInfo?.location || 'Santa Bárbara d\'Oeste, SP'}</span>
                 </div>
-                <div className="flex items-center gap-2">
-                  <Phone className="w-5 h-5" />
+                <div className="flex items-center gap-3 group">
+                  <div className="p-2 bg-white/10 rounded-full group-hover:bg-white/20 transition-colors duration-300">
+                    <Phone className="w-5 h-5" />
+                  </div>
                   <span className="font-inter">{personalInfo?.phone || '(19) 98926-1419'}</span>
                 </div>
-                <div className="flex items-center gap-2">
-                  <Mail className="w-5 h-5" />
+                <div className="flex items-center gap-3 group">
+                  <div className="p-2 bg-white/10 rounded-full group-hover:bg-white/20 transition-colors duration-300">
+                    <Mail className="w-5 h-5" />
+                  </div>
                   <span className="font-inter">{personalInfo?.email || 'esthergabriellesouza@gmail.com'}</span>
                 </div>
               </motion.div>
 
-              {/* Scroll Indicator */}
+              {/* Premium Scroll Indicator */}
               <motion.div
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
-                transition={{ duration: 0.8, delay: 1.4 }}
+                transition={{ duration: 0.8, delay: 1.6 }}
                 className="flex flex-col items-center"
               >
-                <p className="text-white/60 font-inter mb-4">Explore meu portfólio</p>
+                <p className="text-white/60 font-inter mb-6 text-lg">Explore meu portfólio</p>
                 <motion.div
-                  animate={{ y: [0, 10, 0] }}
+                  animate={{ y: [0, 12, 0] }}
                   transition={{ duration: 2, repeat: Infinity }}
-                  className="cursor-pointer"
+                  className="cursor-pointer group"
                   onClick={() => document.querySelector('#about')?.scrollIntoView({ behavior: 'smooth' })}
                 >
-                  <ChevronDown className="w-8 h-8 text-white/60 hover:text-white transition-colors duration-300" />
+                  <div className="p-4 bg-white/10 rounded-full group-hover:bg-white/20 transition-all duration-300 group-hover:scale-110">
+                    <ChevronDown className="w-8 h-8 text-white/60 group-hover:text-white transition-colors duration-300" />
+                  </div>
                 </motion.div>
               </motion.div>
             </motion.div>
