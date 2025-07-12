@@ -1,13 +1,31 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { LogOut, Plus, Edit, Trash2, Save, X, Upload, Download, RefreshCw, Database, CheckCircle, AlertCircle, Users, Award, BookOpen, Trophy, User, MessageSquare, Eye, Search, Filter, Image, Star, TrendingUp, Activity, Calendar, Clock, FileText, Settings, Bell, ChevronDown, ChevronRight, BarChart3, PieChart, Zap, Shield, Globe } from 'lucide-react';
+import {
+  LogOut, Plus, Edit, Trash2, Save, X, Upload, Download, RefreshCw, Database,
+  CheckCircle, AlertCircle, Users, Award, BookOpen, Trophy, User, MessageSquare,
+  Eye, Search, Filter, Image, Star, TrendingUp, Activity, Calendar, Clock,
+  FileText, Settings, Bell, ChevronDown, ChevronRight, BarChart3, PieChart,
+  Zap, Shield, Globe, GraduationCap // ✅ Ícone corrigido aqui
+} from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '../hooks/useAuth';
 import { usePortfolioData } from '../hooks/usePortfolioData';
 
 const AdminDashboard: React.FC<{ onLogout: () => void }> = ({ onLogout }) => {
   const { user, signOut } = useAuth();
-  const { data, loading, refresh, createItem, updateItem, deleteItem, uploadImage, saving } = usePortfolioData();
-  const [activeTab, setActiveTab] = useState<'overview' | 'personal' | 'projects' | 'certificates' | 'skills' | 'courses' | 'achievements' | 'feedbacks'>('overview');
+  const {
+    data,
+    loading,
+    refresh,
+    createItem,
+    updateItem,
+    deleteItem,
+    uploadImage,
+    saving
+  } = usePortfolioData();
+
+  const [activeTab, setActiveTab] = useState<
+    'overview' | 'personal' | 'projects' | 'certificates' | 'skills' | 'courses' | 'achievements' | 'feedbacks'
+  >('overview');
   const [isEditing, setIsEditing] = useState(false);
   const [editingItem, setEditingItem] = useState<any>(null);
   const [showAddForm, setShowAddForm] = useState(false);
@@ -18,6 +36,7 @@ const AdminDashboard: React.FC<{ onLogout: () => void }> = ({ onLogout }) => {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const fileInputRef = useRef<HTMLInputElement>(null);
+
 
   const handleLogout = async () => {
     try {
