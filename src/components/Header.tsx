@@ -78,12 +78,12 @@ const Header: React.FC = () => {
         transition={{ duration: 0.8, ease: "easeOut" }}
         className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${
           isScrolled 
-            ? 'glass border-b border-white/10 shadow-2xl backdrop-blur-premium' 
-            : 'bg-transparent'
+            ? 'bg-white/95 backdrop-blur-lg border-b border-slate-200 shadow-lg' 
+            : 'bg-white/80 backdrop-blur-sm'
         }`}
       >
         <div className="container mx-auto">
-          <div className="flex items-center justify-between h-24 px-6">
+          <div className="flex items-center justify-between h-20 px-6">
             {/* Premium Logo */}
             <motion.div 
               className="flex-shrink-0"
@@ -103,10 +103,10 @@ const Header: React.FC = () => {
                 <motion.button
                   key={item.href}
                   onClick={() => handleMenuClick(item.href, item.id)}
-                  className={`relative px-6 py-3 text-sm font-medium rounded-2xl transition-all duration-300 ${
+                  className={`relative px-6 py-3 text-sm font-medium rounded-xl transition-all duration-300 ${
                     activeSection === item.id
-                      ? 'text-primary-600 dark:text-primary-400 bg-primary-50/80 dark:bg-primary-950/80 shadow-lg backdrop-blur-sm'
-                      : 'text-slate-700 dark:text-slate-300 hover:text-primary-600 dark:hover:text-primary-400 hover:bg-slate-100/80 dark:hover:bg-slate-800/80 backdrop-blur-sm'
+                      ? 'text-primary-600 bg-primary-50 shadow-md'
+                      : 'text-slate-700 hover:text-primary-600 hover:bg-slate-50'
                   }`}
                   initial={{ opacity: 0, y: -20 }}
                   animate={{ opacity: 1, y: 0 }}
@@ -131,10 +131,10 @@ const Header: React.FC = () => {
 
             {/* Right side controls */}
             <div className="flex items-center space-x-4">
-              {/* Premium Dark Mode Toggle */}
+              {/* Dark Mode Toggle with Animation */}
               <motion.button
                 onClick={toggleDarkMode}
-                className="relative p-4 rounded-2xl glass border border-white/10 text-slate-700 dark:text-slate-300 hover:text-primary-600 dark:hover:text-primary-400 transition-all duration-300 group overflow-hidden backdrop-blur-premium"
+                className="relative p-3 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 hover:text-primary-600 transition-all duration-300 group overflow-hidden"
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
                 aria-label="Toggle dark mode"
@@ -156,24 +156,91 @@ const Header: React.FC = () => {
                   {isDark ? (
                     <motion.div
                       key="sun"
-                      initial={{ rotate: -90, opacity: 0 }}
-                      animate={{ rotate: 0, opacity: 1 }}
-                      exit={{ rotate: 90, opacity: 0 }}
-                      transition={{ duration: 0.4 }}
+                      initial={{ rotate: -90, opacity: 0, scale: 0.5 }}
+                      animate={{ rotate: 0, opacity: 1, scale: 1 }}
+                      exit={{ rotate: 90, opacity: 0, scale: 0.5 }}
+                      transition={{ duration: 0.5, ease: "easeInOut" }}
                       className="relative z-10"
                     >
-                      <Sun className="w-6 h-6" />
+                      <motion.div
+                        animate={{ 
+                          rotate: [0, 360],
+                          scale: [1, 1.1, 1]
+                        }}
+                        transition={{ 
+                          rotate: { duration: 8, repeat: Infinity, ease: "linear" },
+                          scale: { duration: 2, repeat: Infinity, ease: "easeInOut" }
+                        }}
+                      >
+                        <Sun className="w-5 h-5" />
+                      </motion.div>
+                      
+                      {/* Sun rays animation */}
+                      {[...Array(8)].map((_, i) => (
+                        <motion.div
+                          key={i}
+                          className="absolute w-0.5 h-2 bg-current rounded-full"
+                          style={{
+                            left: '50%',
+                            top: '50%',
+                            transformOrigin: '50% 10px',
+                            transform: `translate(-50%, -50%) rotate(${i * 45}deg)`,
+                          }}
+                          animate={{
+                            scaleY: [0.5, 1, 0.5],
+                            opacity: [0.5, 1, 0.5],
+                          }}
+                          transition={{
+                            duration: 1.5,
+                            repeat: Infinity,
+                            delay: i * 0.1,
+                          }}
+                        />
+                      ))}
                     </motion.div>
                   ) : (
                     <motion.div
                       key="moon"
-                      initial={{ rotate: 90, opacity: 0 }}
-                      animate={{ rotate: 0, opacity: 1 }}
-                      exit={{ rotate: -90, opacity: 0 }}
-                      transition={{ duration: 0.4 }}
+                      initial={{ rotate: 90, opacity: 0, scale: 0.5 }}
+                      animate={{ rotate: 0, opacity: 1, scale: 1 }}
+                      exit={{ rotate: -90, opacity: 0, scale: 0.5 }}
+                      transition={{ duration: 0.5, ease: "easeInOut" }}
                       className="relative z-10"
                     >
-                      <Moon className="w-6 h-6" />
+                      <motion.div
+                        animate={{ 
+                          rotate: [0, -10, 10, 0],
+                          scale: [1, 1.05, 1]
+                        }}
+                        transition={{ 
+                          duration: 4, 
+                          repeat: Infinity, 
+                          ease: "easeInOut" 
+                        }}
+                      >
+                        <Moon className="w-5 h-5" />
+                      </motion.div>
+                      
+                      {/* Stars around moon */}
+                      {[...Array(3)].map((_, i) => (
+                        <motion.div
+                          key={i}
+                          className="absolute w-1 h-1 bg-current rounded-full"
+                          style={{
+                            left: `${-8 + i * 8}px`,
+                            top: `${-6 + (i % 2) * 12}px`,
+                          }}
+                          animate={{
+                            opacity: [0, 1, 0],
+                            scale: [0, 1, 0],
+                          }}
+                          transition={{
+                            duration: 2,
+                            repeat: Infinity,
+                            delay: i * 0.5,
+                          }}
+                        />
+                      ))}
                     </motion.div>
                   )}
                 </AnimatePresence>
@@ -195,7 +262,7 @@ const Header: React.FC = () => {
               {/* Premium Mobile menu button */}
               <motion.button
                 onClick={() => setIsMenuOpen(!isMenuOpen)}
-                className="lg:hidden relative p-4 rounded-2xl glass border border-white/10 text-slate-700 dark:text-slate-300 hover:text-primary-600 dark:hover:text-primary-400 transition-all duration-300 group overflow-hidden backdrop-blur-premium"
+                className="lg:hidden relative p-3 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 hover:text-primary-600 transition-all duration-300 group overflow-hidden"
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
                 aria-label="Toggle menu"
@@ -214,7 +281,7 @@ const Header: React.FC = () => {
                       transition={{ duration: 0.3 }}
                       className="relative z-10"
                     >
-                      <X className="w-6 h-6" />
+                      <X className="w-5 h-5" />
                     </motion.div>
                   ) : (
                     <motion.div
@@ -225,7 +292,7 @@ const Header: React.FC = () => {
                       transition={{ duration: 0.3 }}
                       className="relative z-10"
                     >
-                      <Menu className="w-6 h-6" />
+                      <Menu className="w-5 h-5" />
                     </motion.div>
                   )}
                 </AnimatePresence>
@@ -243,7 +310,7 @@ const Header: React.FC = () => {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.4 }}
-            className="lg:hidden fixed inset-0 top-24 glass z-40 backdrop-blur-premium"
+            className="lg:hidden fixed inset-0 top-20 bg-white/95 backdrop-blur-lg z-40 border-t border-slate-200"
           >
             <motion.div
               initial={{ y: -50, opacity: 0 }}
@@ -256,10 +323,10 @@ const Header: React.FC = () => {
                 <motion.button
                   key={item.href}
                   onClick={() => handleMenuClick(item.href, item.id)}
-                  className={`block w-full text-left px-8 py-5 text-xl font-medium rounded-3xl transition-all duration-300 group ${
+                  className={`block w-full text-left px-8 py-5 text-xl font-medium rounded-2xl transition-all duration-300 group ${
                     activeSection === item.id
-                      ? 'text-primary-600 dark:text-primary-400 bg-primary-50/80 dark:bg-primary-950/80 shadow-xl'
-                      : 'text-slate-700 dark:text-slate-300 hover:text-primary-600 dark:hover:text-primary-400 hover:bg-slate-100/80 dark:hover:bg-slate-800/80'
+                      ? 'text-primary-600 bg-primary-50 shadow-lg'
+                      : 'text-slate-700 hover:text-primary-600 hover:bg-slate-50'
                   }`}
                   initial={{ x: -50, opacity: 0 }}
                   animate={{ x: 0, opacity: 1 }}
@@ -270,7 +337,7 @@ const Header: React.FC = () => {
                     <div className={`w-3 h-3 rounded-full transition-all duration-300 ${
                       activeSection === item.id 
                         ? 'bg-primary-500 scale-100' 
-                        : 'bg-slate-300 dark:bg-slate-600 scale-0 group-hover:scale-100'
+                        : 'bg-slate-300 scale-0 group-hover:scale-100'
                     }`} />
                     {item.label}
                   </div>
