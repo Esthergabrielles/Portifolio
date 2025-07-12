@@ -1,22 +1,62 @@
 import React, { useEffect, useState } from 'react';
-import { ChevronDown, Download, Mail, MapPin, Phone, Sparkles, Star, Zap } from 'lucide-react';
+import { ChevronDown, Download, Mail, MapPin, Phone, Sparkles, Star, Zap, ArrowRight, Play } from 'lucide-react';
 import { motion } from 'framer-motion';
-import AnimatedSection from './AnimatedSection';
 import { usePortfolioData } from '../hooks/usePortfolioData';
+import PremiumButton from './PremiumButton';
+import PremiumCard from './PremiumCard';
+import PremiumBadge from './PremiumBadge';
+import PremiumLoadingSpinner from './PremiumLoadingSpinner';
 
 const Hero: React.FC = () => {
-  const { data: portfolioData } = usePortfolioData();
-  const { loading } = usePortfolioData();
+  const { data: portfolioData, loading } = usePortfolioData();
+  const [typedText, setTypedText] = useState('');
+  const [currentPhraseIndex, setCurrentPhraseIndex] = useState(0);
+
+  const phrases = [
+    'QA Tester Júnior',
+    'Especialista em Testes',
+    'Caçadora de Bugs',
+    'Garantia de Qualidade'
+  ];
+
+  // Typing animation effect
+  useEffect(() => {
+    const currentPhrase = phrases[currentPhraseIndex];
+    let currentIndex = 0;
+    let isDeleting = false;
+
+    const typeInterval = setInterval(() => {
+      if (!isDeleting) {
+        setTypedText(currentPhrase.substring(0, currentIndex + 1));
+        currentIndex++;
+        
+        if (currentIndex === currentPhrase.length) {
+          setTimeout(() => {
+            isDeleting = true;
+          }, 2000);
+        }
+      } else {
+        setTypedText(currentPhrase.substring(0, currentIndex - 1));
+        currentIndex--;
+        
+        if (currentIndex === 0) {
+          isDeleting = false;
+          setCurrentPhraseIndex((prev) => (prev + 1) % phrases.length);
+        }
+      }
+    }, isDeleting ? 50 : 100);
+
+    return () => clearInterval(typeInterval);
+  }, [currentPhraseIndex]);
 
   if (loading) {
     return (
-      <section id="home" className="min-h-screen flex items-center justify-center bg-gradient-to-br from-indigo-900 via-purple-900 to-pink-900 relative overflow-hidden">
-        <div className="animate-pulse text-center">
-          <div className="w-32 h-32 bg-gray-300 rounded-full mx-auto mb-4"></div>
-          <div className="h-8 bg-gray-300 rounded w-64 mx-auto mb-2"></div>
-          <div className="h-6 bg-gray-300 rounded w-48 mx-auto mb-4"></div>
-          <div className="h-4 bg-gray-300 rounded w-96 mx-auto"></div>
-        </div>
+      <section id="home" className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary-50 via-white to-accent-50 dark:from-neutral-950 dark:via-neutral-900 dark:to-neutral-950">
+        <PremiumLoadingSpinner 
+          size="xl" 
+          variant="orbit" 
+          text="Carregando portfólio..." 
+        />
       </section>
     );
   }
@@ -34,20 +74,42 @@ const Hero: React.FC = () => {
     document.querySelector('#contact')?.scrollIntoView({ behavior: 'smooth' });
   };
 
+  const handleWatchDemo = () => {
+    document.querySelector('#projects')?.scrollIntoView({ behavior: 'smooth' });
+  };
+
   return (
     <section id="home" className="min-h-screen flex items-center justify-center relative overflow-hidden">
       {/* Premium Background */}
-      <div className="absolute inset-0 bg-gradient-to-br from-slate-900 via-indigo-900 to-purple-900">
-        <div className="absolute inset-0 bg-mesh-gradient opacity-30"></div>
-        <div className="absolute inset-0 bg-pattern-dots opacity-20"></div>
+      <div className="absolute inset-0 bg-gradient-to-br from-primary-50 via-white to-accent-50 dark:from-neutral-950 dark:via-neutral-900 dark:to-neutral-950">
+        {/* Animated Background Pattern */}
+        <div className="absolute inset-0 bg-pattern-dots opacity-20 dark:opacity-10" />
+        
+        {/* Gradient Orbs */}
+        <motion.div
+          className="absolute top-1/4 left-1/4 w-96 h-96 bg-gradient-to-r from-primary-400/30 to-accent-400/30 rounded-full blur-3xl"
+          animate={{
+            scale: [1, 1.2, 1],
+            opacity: [0.3, 0.5, 0.3],
+          }}
+          transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
+        />
+        <motion.div
+          className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-gradient-to-r from-accent-400/30 to-primary-400/30 rounded-full blur-3xl"
+          animate={{
+            scale: [1.2, 1, 1.2],
+            opacity: [0.5, 0.3, 0.5],
+          }}
+          transition={{ duration: 10, repeat: Infinity, ease: "easeInOut", delay: 2 }}
+        />
       </div>
 
       {/* Floating Elements */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        {[...Array(25)].map((_, i) => (
+        {[...Array(20)].map((_, i) => (
           <motion.div
             key={i}
-            className="absolute text-white/10 text-2xl"
+            className="absolute text-primary-200 dark:text-primary-800 text-2xl"
             style={{
               left: `${Math.random() * 100}%`,
               top: `${Math.random() * 100}%`,
@@ -70,187 +132,247 @@ const Hero: React.FC = () => {
         ))}
       </div>
 
-      <div className="container-12 relative z-10">
-        <div className="col-span-12 text-center">
-          <AnimatedSection animation="slide-up">
+      <div className="container mx-auto px-6 relative z-10">
+        <div className="text-center max-w-6xl mx-auto">
+          {/* Profile Section */}
+          <motion.div
+            className="mb-12"
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8 }}
+          >
+            {/* Premium Profile Image */}
             <motion.div
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8 }}
+              className="relative inline-block mb-8"
+              initial={{ scale: 0 }}
+              animate={{ scale: 1 }}
+              transition={{ duration: 0.6, delay: 0.2, type: "spring", bounce: 0.4 }}
             >
-              {/* Premium Profile Image */}
+              <div className="absolute inset-0 bg-gradient-to-r from-primary-500 via-accent-500 to-primary-500 rounded-full blur-2xl opacity-75 animate-pulse-glow"></div>
+              <motion.img
+                src={personalInfo?.profile_image || 'https://images.pexels.com/photos/774909/pexels-photo-774909.jpeg?auto=compress&cs=tinysrgb&w=400&h=400&fit=crop'}
+                alt={personalInfo?.name || 'Esther Gabrielle'}
+                className="relative w-48 h-48 rounded-full object-cover shadow-premium-xl border-4 border-white/20 backdrop-blur-sm"
+                whileHover={{ scale: 1.05, rotate: 2 }}
+                transition={{ duration: 0.3 }}
+                key={personalInfo?.profile_image}
+              />
+              
+              {/* Status Badge */}
               <motion.div
-                className="mb-12"
+                className="absolute -bottom-4 -right-4"
                 initial={{ scale: 0 }}
                 animate={{ scale: 1 }}
-                transition={{ duration: 0.6, delay: 0.2 }}
+                transition={{ duration: 0.5, delay: 0.8, type: "spring", bounce: 0.6 }}
               >
-                <div className="relative inline-block">
-                  <div className="absolute inset-0 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 rounded-full blur-2xl opacity-75 animate-pulse-glow"></div>
-                  <motion.img
-                    src={personalInfo?.profile_image || 'https://images.pexels.com/photos/774909/pexels-photo-774909.jpeg?auto=compress&cs=tinysrgb&w=400&h=400&fit=crop'}
-                    alt={personalInfo?.name || 'Esther Gabrielle'}
-                    className="relative w-48 h-48 rounded-full object-cover shadow-premium-xl border-4 border-white/20 backdrop-blur-sm"
-                    whileHover={{ scale: 1.05, rotate: 2 }}
-                    transition={{ duration: 0.3 }}
-                    key={personalInfo?.profile_image}
-                  />
-                  <motion.div
-                    className="absolute -bottom-4 -right-4 w-16 h-16 bg-gradient-to-r from-emerald-400 to-teal-500 rounded-full flex items-center justify-center shadow-premium"
-                    animate={{ 
-                      scale: [1, 1.2, 1],
-                      rotate: [0, 10, -10, 0]
-                    }}
-                    transition={{ duration: 2, repeat: Infinity }}
-                  >
-                    <span className="text-white font-bold text-lg">QA</span>
-                  </motion.div>
-                </div>
-              </motion.div>
-
-              {/* Premium Name and Title */}
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.8, delay: 0.4 }}
-                className="mb-12"
-              >
-                <h1 className="text-6xl md:text-8xl font-poppins font-bold text-white mb-6 leading-tight">
-                  Olá, sou a{' '}
-                  <span className="gradient-text bg-gradient-to-r from-yellow-400 via-pink-400 to-purple-400 bg-clip-text text-transparent">
-                    {personalInfo?.name || 'Esther Gabrielle'}
-                  </span>
-                </h1>
-                
-                <h2 className="text-3xl md:text-5xl font-poppins font-semibold text-white/90 mb-8">
-                  <span className="text-yellow-400">{personalInfo?.title || 'QA Junior'}</span> especializada em{' '}
-                  <span className="text-pink-400">testes de qualidade</span>
-                  <br />
-                  e <span className="text-purple-400">processos organizacionais</span>
-                </h2>
-              </motion.div>
-
-              {/* Premium Description */}
-              <motion.p
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.8, delay: 0.6 }}
-                className="text-xl md:text-2xl text-white/80 max-w-4xl mx-auto leading-relaxed mb-16 font-inter"
-              >
-                {personalInfo?.description || 'Iniciando minha carreira em QA com paixão por encontrar bugs e garantir qualidade. Sempre em busca de aprender e crescer na área de tecnologia.'}
-              </motion.p>
-
-              {/* Premium Action Buttons */}
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.8, delay: 0.8 }}
-                className="flex flex-col sm:flex-row gap-6 justify-center mb-20"
-              >
-                <motion.button
-                  onClick={handleContact}
-                  className="btn-primary group"
-                  whileHover={{ scale: 1.05, y: -2 }}
-                  whileTap={{ scale: 0.98 }}
+                <PremiumBadge 
+                  variant="gradient" 
+                  size="lg" 
+                  icon={Zap}
+                  glow={true}
+                  animated={true}
                 >
-                  <Mail className="w-6 h-6 group-hover:rotate-12 transition-transform duration-300" />
-                  Vamos Conversar
-                  <Sparkles className="w-5 h-5 group-hover:scale-125 transition-transform duration-300" />
-                </motion.button>
-                
-                <motion.button
-                  onClick={handleDownloadCV}
-                  className="btn-secondary group"
-                  whileHover={{ scale: 1.05, y: -2 }}
-                  whileTap={{ scale: 0.98 }}
-                >
-                  <Download className="w-6 h-6 group-hover:-translate-y-1 transition-transform duration-300" />
-                  Download CV
-                </motion.button>
-              </motion.div>
-
-              {/* Premium Quick Stats */}
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.8, delay: 1 }}
-                className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-20"
-              >
-                {[
-                  { icon: Star, label: 'Disponível para novos projetos', value: 'Projetos de Estudo', color: 'from-blue-500 to-cyan-500' },
-                  { icon: Zap, label: 'Dedicação aos Estudos', value: '93% Progresso QA', color: 'from-emerald-500 to-teal-500' },
-                  { icon: Sparkles, label: 'Ano de Aprendizado', value: '2024', color: 'from-purple-500 to-pink-500' }
-                ].map((stat, index) => (
-                  <motion.div
-                    key={index}
-                    className="stat-card group"
-                    whileHover={{ y: -8, scale: 1.02 }}
-                    transition={{ duration: 0.3 }}
-                    initial={{ opacity: 0, y: 30 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.6, delay: 1.2 + index * 0.1 }}
-                  >
-                    <div className={`stat-icon bg-gradient-to-r ${stat.color}`}>
-                      <stat.icon className="w-8 h-8 text-white" />
-                    </div>
-                    <h3 className="stat-value">
-                      {stat.value}
-                    </h3>
-                    <p className="stat-label">
-                      {stat.label}
-                    </p>
-                  </motion.div>
-                ))}
-              </motion.div>
-
-              {/* Premium Contact Info */}
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.8, delay: 1.4 }}
-                className="flex flex-col sm:flex-row items-center justify-center gap-8 text-white/70 mb-16"
-              >
-                <div className="flex items-center gap-3 group">
-                  <div className="p-2 bg-white/10 rounded-full group-hover:bg-white/20 transition-colors duration-300">
-                    <MapPin className="w-5 h-5" />
-                  </div>
-                  <span className="font-inter">{personalInfo?.location || 'Santa Bárbara d\'Oeste, SP'}</span>
-                </div>
-                <div className="flex items-center gap-3 group">
-                  <div className="p-2 bg-white/10 rounded-full group-hover:bg-white/20 transition-colors duration-300">
-                    <Phone className="w-5 h-5" />
-                  </div>
-                  <span className="font-inter">{personalInfo?.phone || '(19) 98926-1419'}</span>
-                </div>
-                <div className="flex items-center gap-3 group">
-                  <div className="p-2 bg-white/10 rounded-full group-hover:bg-white/20 transition-colors duration-300">
-                    <Mail className="w-5 h-5" />
-                  </div>
-                  <span className="font-inter">{personalInfo?.email || 'esthergabriellesouza@gmail.com'}</span>
-                </div>
-              </motion.div>
-
-              {/* Premium Scroll Indicator */}
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ duration: 0.8, delay: 1.6 }}
-                className="flex flex-col items-center"
-              >
-                <p className="text-white/60 font-inter mb-6 text-lg">Explore meu portfólio</p>
-                <motion.div
-                  animate={{ y: [0, 12, 0] }}
-                  transition={{ duration: 2, repeat: Infinity }}
-                  className="cursor-pointer group"
-                  onClick={() => document.querySelector('#about')?.scrollIntoView({ behavior: 'smooth' })}
-                >
-                  <div className="p-4 bg-white/10 rounded-full group-hover:bg-white/20 transition-all duration-300 group-hover:scale-110">
-                    <ChevronDown className="w-8 h-8 text-white/60 group-hover:text-white transition-colors duration-300" />
-                  </div>
-                </motion.div>
+                  QA Expert
+                </PremiumBadge>
               </motion.div>
             </motion.div>
-          </AnimatedSection>
+
+            {/* Name and Title */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, delay: 0.4 }}
+              className="mb-8"
+            >
+              <h1 className="text-6xl md:text-8xl font-poppins font-bold text-neutral-900 dark:text-white mb-6 leading-tight">
+                Olá, sou a{' '}
+                <span className="text-gradient bg-gradient-to-r from-primary-500 via-accent-500 to-primary-600 bg-clip-text text-transparent">
+                  {personalInfo?.name?.split(' ')[0] || 'Esther'}
+                </span>
+              </h1>
+              
+              <div className="text-3xl md:text-5xl font-poppins font-semibold text-neutral-700 dark:text-neutral-300 mb-8">
+                <span className="text-primary-600 dark:text-primary-400">
+                  {typedText}
+                </span>
+                <motion.span
+                  className="inline-block w-1 h-12 bg-primary-500 ml-2"
+                  animate={{ opacity: [0, 1, 0] }}
+                  transition={{ duration: 1, repeat: Infinity }}
+                />
+                <br />
+                <span className="text-accent-600 dark:text-accent-400">especializada em qualidade</span>
+              </div>
+            </motion.div>
+
+            {/* Description */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, delay: 0.6 }}
+              className="mb-12"
+            >
+              <PremiumCard 
+                variant="glass" 
+                padding="lg" 
+                className="max-w-4xl mx-auto"
+                animated={true}
+              >
+                <p className="text-xl md:text-2xl text-neutral-700 dark:text-neutral-300 leading-relaxed font-inter">
+                  {personalInfo?.description || 'Iniciando minha carreira em QA com paixão por encontrar bugs e garantir qualidade. Sempre em busca de aprender e crescer na área de tecnologia.'}
+                </p>
+              </PremiumCard>
+            </motion.div>
+
+            {/* Action Buttons */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, delay: 0.8 }}
+              className="flex flex-col sm:flex-row gap-6 justify-center mb-16"
+            >
+              <PremiumButton
+                variant="gradient"
+                size="xl"
+                icon={Mail}
+                glow={true}
+                animated={true}
+                onClick={handleContact}
+              >
+                Vamos Conversar
+              </PremiumButton>
+              
+              <PremiumButton
+                variant="outline"
+                size="xl"
+                icon={Download}
+                animated={true}
+                onClick={handleDownloadCV}
+              >
+                Download CV
+              </PremiumButton>
+
+              <PremiumButton
+                variant="ghost"
+                size="xl"
+                icon={Play}
+                animated={true}
+                onClick={handleWatchDemo}
+              >
+                Ver Projetos
+              </PremiumButton>
+            </motion.div>
+
+            {/* Premium Stats */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, delay: 1 }}
+              className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-16"
+            >
+              {[
+                { 
+                  icon: Star, 
+                  label: 'Projetos de Estudo', 
+                  value: '5+', 
+                  color: 'from-blue-500 to-cyan-500',
+                  description: 'Projetos práticos desenvolvidos'
+                },
+                { 
+                  icon: Zap, 
+                  label: 'Progresso QA Bootcamp', 
+                  value: '93%', 
+                  color: 'from-emerald-500 to-teal-500',
+                  description: 'Dedicação aos estudos'
+                },
+                { 
+                  icon: Sparkles, 
+                  label: 'Certificações', 
+                  value: '15+', 
+                  color: 'from-purple-500 to-pink-500',
+                  description: 'Certificados conquistados'
+                }
+              ].map((stat, index) => (
+                <motion.div
+                  key={index}
+                  initial={{ opacity: 0, y: 30 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.6, delay: 1.2 + index * 0.1 }}
+                >
+                  <PremiumCard 
+                    variant="glass" 
+                    padding="lg" 
+                    interactive={true}
+                    glow={true}
+                    className="text-center group"
+                  >
+                    <div className={`bg-gradient-to-r ${stat.color} w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg group-hover:scale-110 transition-transform duration-300`}>
+                      <stat.icon className="w-8 h-8 text-white" />
+                    </div>
+                    <h3 className="text-3xl font-bold text-neutral-900 dark:text-white mb-2 font-poppins">
+                      {stat.value}
+                    </h3>
+                    <p className="text-lg font-semibold text-neutral-700 dark:text-neutral-300 mb-2 font-inter">
+                      {stat.label}
+                    </p>
+                    <p className="text-sm text-neutral-500 dark:text-neutral-400 font-inter">
+                      {stat.description}
+                    </p>
+                  </PremiumCard>
+                </motion.div>
+              ))}
+            </motion.div>
+
+            {/* Contact Info */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, delay: 1.4 }}
+              className="flex flex-col sm:flex-row items-center justify-center gap-8 text-neutral-600 dark:text-neutral-400 mb-16"
+            >
+              {[
+                { icon: MapPin, text: personalInfo?.location || 'Santa Bárbara d\'Oeste, SP' },
+                { icon: Phone, text: personalInfo?.phone || '(19) 98926-1419' },
+                { icon: Mail, text: personalInfo?.email || 'esthergabriellesouza@gmail.com' }
+              ].map((item, index) => (
+                <motion.div
+                  key={index}
+                  className="flex items-center gap-3 group cursor-pointer"
+                  whileHover={{ scale: 1.05, y: -2 }}
+                  transition={{ duration: 0.2 }}
+                >
+                  <div className="p-3 bg-white/80 dark:bg-neutral-800/80 backdrop-blur-sm rounded-xl group-hover:bg-primary-50 dark:group-hover:bg-primary-950 transition-colors duration-300 shadow-lg">
+                    <item.icon className="w-5 h-5 text-primary-600 dark:text-primary-400" />
+                  </div>
+                  <span className="font-inter font-medium group-hover:text-primary-600 dark:group-hover:text-primary-400 transition-colors duration-300">
+                    {item.text}
+                  </span>
+                </motion.div>
+              ))}
+            </motion.div>
+
+            {/* Scroll Indicator */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.8, delay: 1.6 }}
+              className="flex flex-col items-center"
+            >
+              <p className="text-neutral-500 dark:text-neutral-400 font-inter mb-6 text-lg">
+                Explore meu portfólio
+              </p>
+              <motion.div
+                animate={{ y: [0, 12, 0] }}
+                transition={{ duration: 2, repeat: Infinity }}
+                className="cursor-pointer group"
+                onClick={() => document.querySelector('#about')?.scrollIntoView({ behavior: 'smooth' })}
+              >
+                <div className="p-4 glass rounded-full group-hover:bg-primary-50 dark:group-hover:bg-primary-950 transition-all duration-300 group-hover:scale-110 shadow-lg">
+                  <ChevronDown className="w-8 h-8 text-primary-600 dark:text-primary-400 group-hover:text-primary-700 dark:group-hover:text-primary-300 transition-colors duration-300" />
+                </div>
+              </motion.div>
+            </motion.div>
+          </motion.div>
         </div>
       </div>
     </section>
