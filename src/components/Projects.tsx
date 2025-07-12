@@ -1,9 +1,7 @@
 import React, { useState } from 'react';
 import { ExternalLink, Github, Eye, Award, TrendingUp, Shield, Zap, FileText, Code, TestTube, Bug, Send } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useLanguage } from '../hooks/useLanguage';
 import { usePortfolioData } from '../hooks/usePortfolioData';
-import { t } from '../data/translations';
 import AnimatedSection from './AnimatedSection';
 import { Project } from '../types';
 import ProjectDetailsPage from './ProjectDetailsPage';
@@ -14,7 +12,6 @@ const Projects: React.FC = () => {
   const [filter, setFilter] = useState<string>('All');
   const [showProjectDetails, setShowProjectDetails] = useState(false);
   const [showPostmanInterface, setShowPostmanInterface] = useState(false);
-  const { language } = useLanguage();
   const { data: portfolioData, loading } = usePortfolioData();
 
   const testTypes = ['All', 'Functional Testing', 'Security Testing', 'API Testing', 'Performance Testing', 'Postman Collections'];
@@ -135,11 +132,11 @@ const Projects: React.FC = () => {
               viewport={{ once: true }}
             >
               <h2 className="text-5xl md:text-6xl font-poppins font-bold text-neutral-900 dark:text-white mb-6">
-                {t('featuredProjects', language)}
+               Projetos em Destaque
               </h2>
               <div className="w-24 h-1 bg-gradient-to-r from-primary-400 to-primary-600 mx-auto mb-8 rounded-full" />
               <p className="text-xl md:text-2xl text-neutral-600 dark:text-neutral-300 max-w-4xl mx-auto leading-relaxed font-inter">
-                {t('projectsSubtitle', language)}
+               Alguns dos projetos em que trabalhei, demonstrando expertise em diferentes tipos de testes e tecnologias de ponta
               </p>
             </motion.div>
           </AnimatedSection>
@@ -294,7 +291,7 @@ const Projects: React.FC = () => {
                           whileHover={{ scale: 1.02, y: -2 }}
                           whileTap={{ scale: 0.98 }}
                         >
-                          {t('viewFullDetails', language)}
+                         Ver Detalhes Completos
                           <ExternalLink className="w-5 h-5" />
                         </motion.button>
                       </div>

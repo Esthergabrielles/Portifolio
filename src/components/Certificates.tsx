@@ -6,8 +6,6 @@ import { usePortfolioData } from '../hooks/usePortfolioData';
 import AnimatedSection from './AnimatedSection';
 import CertificateModal from './CertificateModal';
 import { Certificate } from '../types';
-import { useLanguage } from '../hooks/useLanguage';
-import { t } from '../data/translations';
 
 const Certificates: React.FC = () => {
   const [selectedCertificate, setSelectedCertificate] = useState<Certificate | null>(null);
@@ -15,7 +13,6 @@ const Certificates: React.FC = () => {
   const [hoveredCard, setHoveredCard] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [showCertificateModal, setShowCertificateModal] = useState(false);
-  const { language } = useLanguage();
   const { data: portfolioData, loading } = usePortfolioData();
 
   // Usar dados do hook em vez de importação estática
@@ -63,10 +60,10 @@ const Certificates: React.FC = () => {
   };
 
   const stats = [
-    { icon: Award, label: t('activeCertifications', language), value: certificates.length, color: 'text-blue-500' },
-    { icon: Star, label: t('institutions', language), value: '2', color: 'text-yellow-500' },
-    { icon: CheckCircle, label: t('expertiseAreas', language), value: categories.length - 1, color: 'text-green-500' },
-    { icon: Trophy, label: t('studyHours', language), value: '400+', color: 'text-purple-500' }
+    { icon: Award, label: 'Certificações Ativas', value: certificates.length, color: 'text-blue-500' },
+    { icon: Star, label: 'Instituições', value: '2', color: 'text-yellow-500' },
+    { icon: CheckCircle, label: 'Áreas de Expertise', value: categories.length - 1, color: 'text-green-500' },
+    { icon: Trophy, label: 'Horas de Estudo', value: '400+', color: 'text-purple-500' }
   ];
 
   const handleCertificateClick = (certificate: Certificate) => {
@@ -122,11 +119,11 @@ const Certificates: React.FC = () => {
               viewport={{ once: true }}
             >
               <h2 className="text-5xl md:text-6xl font-poppins font-bold text-neutral-900 dark:text-white mb-6">
-                {t('digitalTrophies', language)} 🏆
+                Meus Troféus Digitais 🏆
               </h2>
               <div className="w-24 h-1 bg-gradient-to-r from-primary-400 to-primary-600 mx-auto mb-8 rounded-full" />
               <p className="text-xl md:text-2xl text-neutral-600 dark:text-neutral-300 max-w-4xl mx-auto leading-relaxed font-inter">
-                {t('certificatesSubtitle', language)}
+                Cada certificação é uma batalha vencida, uma nova habilidade desbloqueada. Clique nos certificados para visualizar em detalhes!
               </p>
             </motion.div>
           </AnimatedSection>
@@ -170,7 +167,7 @@ const Certificates: React.FC = () => {
               <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-neutral-400" />
               <input
                 type="text"
-                placeholder={t('searchCertifications', language)}
+                placeholder="Buscar certificações..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="w-full pl-12 pr-4 py-3 bg-white/80 dark:bg-neutral-800/50 backdrop-blur-sm border border-neutral-200 dark:border-neutral-700 rounded-2xl focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all duration-300 font-inter"
@@ -343,10 +340,10 @@ const Certificates: React.FC = () => {
             >
               <Search className="w-16 h-16 text-neutral-400 mx-auto mb-4" />
               <h3 className="text-xl font-bold text-neutral-900 dark:text-white mb-2">
-                {t('noCertificatesFound', language)}
+                Nenhuma certificação encontrada
               </h3>
               <p className="text-neutral-600 dark:text-neutral-300">
-                {t('adjustFilters', language)}
+                Tente ajustar os filtros ou termo de busca
               </p>
             </motion.div>
           )}
@@ -378,23 +375,23 @@ const Certificates: React.FC = () => {
               </motion.div>
               
               <h3 className="text-3xl md:text-4xl font-poppins font-bold mb-6">
-                {t('collectingKnowledge', language)} 📚
+                Colecionando Conhecimento 📚
               </h3>
               <p className="text-xl mb-8 max-w-3xl mx-auto font-inter opacity-90 leading-relaxed">
-                {t('coursesMotivation', language)}
+                Cada curso é uma nova aventura, cada certificação é uma conquista. Meu objetivo é sempre estar um passo à frente, dominando as tecnologias mais modernas e as melhores práticas do mercado.
               </p>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-center">
                 <div>
                   <div className="text-3xl font-bold mb-2">{certificates.length}</div>
-                  <div className="text-sm opacity-80">{t('conqueredCertifications', language)}</div>
+                  <div className="text-sm opacity-80">Certificações Conquistadas</div>
                 </div>
                 <div>
                   <div className="text-3xl font-bold mb-2">400+</div>
-                  <div className="text-sm opacity-80">{t('studyHours', language)}</div>
+                  <div className="text-sm opacity-80">Horas de Estudo</div>
                 </div>
                 <div>
                   <div className="text-3xl font-bold mb-2">∞</div>
-                  <div className="text-sm opacity-80">{t('knowledgeThirst', language)}</div>
+                  <div className="text-sm opacity-80">Sede de Conhecimento</div>
                 </div>
               </div>
             </div>

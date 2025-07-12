@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { translations } from '../data/translations'; // ajuste o caminho se necessário
 
 export type Language = 'pt' | 'en';
 
@@ -17,8 +18,12 @@ export const useLanguage = () => {
   }, [language]);
 
   const toggleLanguage = () => {
-    setLanguage(prev => prev === 'pt' ? 'en' : 'pt');
+    setLanguage(prev => (prev === 'pt' ? 'en' : 'pt'));
   };
 
-  return { language, toggleLanguage };
+  const t = (key: string): string => {
+    return translations[language]?.[key] ?? key;
+  };
+
+  return { language, toggleLanguage, t };
 };

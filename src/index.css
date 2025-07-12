@@ -134,7 +134,7 @@
 
   /* Premium Button System */
   .btn-primary {
-    @apply relative overflow-hidden bg-gradient-to-r from-indigo-600 via-purple-600 to-indigo-600 bg-size-200 text-white px-8 py-4 rounded-2xl font-inter font-semibold text-lg shadow-xl hover:shadow-2xl transition-all duration-500 hover:bg-pos-100 hover:scale-105 hover:-translate-y-1;
+    @apply relative overflow-hidden bg-gradient-to-r from-indigo-600 via-purple-600 to-indigo-600 bg-[length:200%_200%] text-white px-8 py-4 rounded-2xl font-inter font-semibold text-lg shadow-xl hover:shadow-2xl transition-all duration-500 hover:bg-[position:100%_50%] hover:scale-105 hover:-translate-y-1;
   }
 
   .btn-secondary {
@@ -227,7 +227,8 @@
   }
 
   .progress-fill-premium {
-    @apply bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 bg-size-200 rounded-full shadow-lg relative overflow-hidden;
+    @apply bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 rounded-full shadow-lg relative overflow-hidden;
+    background-size: 200% 200%;
     animation: progressShimmer 3s ease-in-out infinite;
   }
 
