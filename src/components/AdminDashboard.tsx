@@ -1,381 +1,669 @@
-import React, { useState, useEffect, useRef } from 'react';
-import {
-  LogOut, Plus, Edit, Trash2, Save, X, Upload, Download, RefreshCw, Database,
-  CheckCircle, AlertCircle, Users, Award, BookOpen, Trophy, User, MessageSquare,
-  Eye, Search, Filter, Image, Star, TrendingUp, Activity, Calendar, Clock,
-  FileText, Settings, Bell, ChevronDown, ChevronRight, BarChart3, PieChart,
-  Zap, Shield, Globe, GraduationCap // ✅ Ícone corrigido aqui
+import React, { useState, useEffect } from 'react';
+import { 
+  LogOut, 
+  Plus, 
+  Edit, 
+  Trash2, 
+  Save, 
+  X, 
+  Upload, 
+  Download, 
+  Settings, 
+  User, 
+  Award, 
+  BookOpen, 
+  Target, 
+  Trophy,
+  Eye,
+  EyeOff,
+  Search,
+  Filter,
+  RefreshCw,
+  BarChart3,
+  Users,
+  MessageSquare,
+  Star
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '../hooks/useAuth';
 import { usePortfolioData } from '../hooks/usePortfolioData';
+import PremiumButton from './PremiumButton';
+import PremiumCard from './PremiumCard';
+import PremiumLoadingSpinner from './PremiumLoadingSpinner';
 
-const AdminDashboard: React.FC<{ onLogout: () => void }> = ({ onLogout }) => {
+interface AdminDashboardProps {
+  onLogout: () => void;
+}
+
+type TabType = 'overview' | 'personal' | 'projects' | 'certificates' | 'skills' | 'courses' | 'achievements' | 'feedbacks';
+
+interface EditingItem {
+  type: TabType;
+  item: any;
+  isNew: boolean;
+}
+
+const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogout }) => {
   const { user, signOut } = useAuth();
-  const {
-    data,
-    loading,
-    refresh,
-    createItem,
-    updateItem,
-    deleteItem,
-    uploadImage,
-    saving
-  } = usePortfolioData();
-
-  const [activeTab, setActiveTab] = useState<
-    'overview' | 'personal' | 'projects' | 'certificates' | 'skills' | 'courses' | 'achievements' | 'feedbacks'
-  >('overview');
-  const [isEditing, setIsEditing] = useState(false);
-  const [editingItem, setEditingItem] = useState<any>(null);
-  const [showAddForm, setShowAddForm] = useState(false);
-  const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
+  const { data, loading, saving, createItem, updateItem, deleteItem, uploadImage } = usePortfolioData();
+  
+  const [activeTab, setActiveTab] = useState<TabType>('overview');
+  const [editingItem, setEditingItem] = useState<EditingItem | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [filterCategory, setFilterCategory] = useState('all');
-  const [uploadingImage, setUploadingImage] = useState(false);
-  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
-  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
-  const fileInputRef = useRef<HTMLInputElement>(null);
-
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState<string | null>(null);
 
   const handleLogout = async () => {
-    try {
-      await signOut();
-      onLogout();
-    } catch (error) {
-      console.error('Erro ao fazer logout:', error);
-    }
-  };
-
-  const showMessage = (type: 'success' | 'error', text: string) => {
-    setMessage({ type, text });
-    setTimeout(() => setMessage(null), 5000);
-  };
-
-  const handleImageUpload = async (file: File): Promise<string> => {
-    setUploadingImage(true);
-    try {
-      const result = await uploadImage(file);
-      if (result.success) {
-        return result.url!;
-      } else {
-        throw new Error(result.error || 'Erro no upload');
-      }
-    } catch (error) {
-      throw error;
-    } finally {
-      setUploadingImage(false);
-    }
-  };
-
-  // Funções CRUD
-  const handleCreate = async (type: string, formData: any) => {
-    const actualType = type === 'personal' ? 'personalInfo' : type;
-    const result = await createItem(actualType as any, formData);
-    
-    if (result.success) {
-      setShowAddForm(false);
-      showMessage('success', 'Item criado com sucesso!');
-    } else {
-      showMessage('error', `Erro ao criar item: ${result.error}`);
-    }
-  };
-
-  const handleUpdate = async (type: string, id: string, formData: any) => {
-    const actualType = type === 'personal' ? 'personalInfo' : type;
-    const result = await updateItem(actualType as any, id, formData);
-    
-    if (result.success) {
-      setIsEditing(false);
-      setEditingItem(null);
-      if (type === 'personal') {
-        showMessage('success', 'Informações pessoais atualizadas! A foto de perfil foi sincronizada automaticamente.');
-      } else {
-        showMessage('success', 'Item atualizado com sucesso!');
-      }
-    } else {
-      showMessage('error', `Erro ao atualizar item: ${result.error}`);
-    }
-  };
-
-  const handleDelete = async (type: string, id: string) => {
-    if (!confirm('Tem certeza que deseja deletar este item?')) return;
-    
-    const result = await deleteItem(type as any, id);
-    
-    if (result.success) {
-      showMessage('success', 'Item deletado com sucesso!');
-    } else {
-      showMessage('error', `Erro ao deletar item: ${result.error}`);
-    }
+    await signOut();
+    onLogout();
   };
 
   const tabs = [
-    { 
-      id: 'overview', 
-      label: 'Dashboard', 
-      icon: BarChart3, 
-      color: 'from-blue-500 to-blue-600',
-      description: 'Visão geral do sistema'
-    },
-    { 
-      id: 'personal', 
-      label: 'Perfil', 
-      icon: User, 
-      color: 'from-purple-500 to-purple-600',
-      description: 'Informações pessoais'
-    },
-    { 
-      id: 'projects', 
-      label: 'Projetos', 
-      icon: BookOpen, 
-      color: 'from-green-500 to-green-600',
-      description: 'Gerenciar projetos'
-    },
-    { 
-      id: 'certificates', 
-      label: 'Certificados', 
-      icon: Award, 
-      color: 'from-yellow-500 to-yellow-600',
-      description: 'Certificações e cursos'
-    },
-    { 
-      id: 'skills', 
-      label: 'Habilidades', 
-      icon: Zap, 
-      color: 'from-orange-500 to-orange-600',
-      description: 'Skills técnicas e soft'
-    },
-    { 
-      id: 'courses', 
-      label: 'Cursos', 
-      icon: GraduationCap, 
-      color: 'from-indigo-500 to-indigo-600',
-      description: 'Cursos em andamento'
-    },
-    { 
-      id: 'achievements', 
-      label: 'Conquistas', 
-      icon: Trophy, 
-      color: 'from-red-500 to-red-600',
-      description: 'Reconhecimentos'
-    },
-    { 
-      id: 'feedbacks', 
-      label: 'Feedbacks', 
-      icon: MessageSquare, 
-      color: 'from-pink-500 to-pink-600',
-      description: 'Avaliações dos visitantes'
-    }
+    { id: 'overview', label: 'Visão Geral', icon: BarChart3, color: 'from-blue-500 to-blue-600' },
+    { id: 'personal', label: 'Informações Pessoais', icon: User, color: 'from-green-500 to-green-600' },
+    { id: 'projects', label: 'Projetos', icon: Target, color: 'from-purple-500 to-purple-600' },
+    { id: 'certificates', label: 'Certificados', icon: Award, color: 'from-orange-500 to-orange-600' },
+    { id: 'skills', label: 'Habilidades', icon: Star, color: 'from-pink-500 to-pink-600' },
+    { id: 'courses', label: 'Cursos', icon: BookOpen, color: 'from-indigo-500 to-indigo-600' },
+    { id: 'achievements', label: 'Conquistas', icon: Trophy, color: 'from-yellow-500 to-yellow-600' },
+    { id: 'feedbacks', label: 'Feedbacks', icon: MessageSquare, color: 'from-red-500 to-red-600' }
   ];
 
-  const stats = [
-    { 
-      label: 'Projetos', 
-      value: data.projects?.length || 0, 
-      icon: BookOpen, 
-      color: 'from-blue-500 to-blue-600',
-      change: '+12%',
-      trend: 'up'
-    },
-    { 
-      label: 'Certificados', 
-      value: data.certificates?.length || 0, 
-      icon: Award, 
-      color: 'from-green-500 to-green-600',
-      change: '+8%',
-      trend: 'up'
-    },
-    { 
-      label: 'Habilidades', 
-      value: data.skills?.length || 0, 
-      icon: Zap, 
-      color: 'from-purple-500 to-purple-600',
-      change: '+15%',
-      trend: 'up'
-    },
-    { 
-      label: 'Feedbacks', 
-      value: data.feedbacks?.length || 0, 
-      icon: MessageSquare, 
-      color: 'from-orange-500 to-orange-600',
-      change: '+25%',
-      trend: 'up'
+  const handleSave = async (formData: any) => {
+    if (!editingItem) return;
+
+    try {
+      if (editingItem.isNew) {
+        await createItem(editingItem.type, formData);
+      } else {
+        await updateItem(editingItem.type, editingItem.item.id, formData);
+      }
+      setEditingItem(null);
+    } catch (error) {
+      console.error('Erro ao salvar:', error);
+      alert('Erro ao salvar. Tente novamente.');
     }
-  ];
+  };
 
-  // Componente para formulário de edição/criação
-  const FormModal: React.FC<{ type: string; item?: any; onSave: (data: any) => void; onClose: () => void }> = ({ type, item, onSave, onClose }) => {
-    const [formData, setFormData] = useState(item || {});
-    const [imageFile, setImageFile] = useState<File | null>(null);
-    const [imagePreview, setImagePreview] = useState<string | null>(null);
-    const [currentStep, setCurrentStep] = useState(0);
+  const handleDelete = async (type: TabType, id: string) => {
+    try {
+      await deleteItem(type, id);
+      setShowDeleteConfirm(null);
+    } catch (error) {
+      console.error('Erro ao deletar:', error);
+      alert('Erro ao deletar. Tente novamente.');
+    }
+  };
 
-    useEffect(() => {
-      if (item) {
-        setFormData(item);
-        if (item.image) setImagePreview(item.image);
-        if (item.profile_image) setImagePreview(item.profile_image);
+  const handleImageUpload = async (file: File) => {
+    try {
+      const result = await uploadImage(file);
+      if (result.success) {
+        return result.url;
+      } else {
+        throw new Error(result.error);
       }
-    }, [item]);
+    } catch (error) {
+      console.error('Erro no upload:', error);
+      alert('Erro no upload da imagem. Tente novamente.');
+      return null;
+    }
+  };
 
-    const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-      const file = e.target.files?.[0];
-      if (file) {
-        setImageFile(file);
-        const reader = new FileReader();
-        reader.onload = () => setImagePreview(reader.result as string);
-        reader.readAsDataURL(file);
-      }
+  const getStats = () => {
+    return {
+      projects: data?.projects?.length || 0,
+      certificates: data?.certificates?.length || 0,
+      skills: data?.skills?.length || 0,
+      courses: data?.courses?.length || 0,
+      achievements: data?.achievements?.length || 0,
+      feedbacks: data?.feedbacks?.length || 0
     };
+  };
 
-    const handleSubmit = async (e: React.FormEvent) => {
-      e.preventDefault();
-      
-      let finalData = { ...formData };
-      
-      if (imageFile) {
-        try {
-          const imageUrl = await handleImageUpload(imageFile);
-          if (type === 'personal') {
-            finalData.profile_image = imageUrl;
-          } else {
-            finalData.image = imageUrl;
-          }
-        } catch (error) {
-          showMessage('error', 'Erro ao fazer upload da imagem');
-          return;
-        }
-      }
-
-      if (type === 'projects' && typeof finalData.technologies === 'string') {
-        finalData.technologies = finalData.technologies.split(',').map((t: string) => t.trim()).filter(Boolean);
-      }
-
-      if (type === 'certificates' && typeof finalData.skills === 'string') {
-        finalData.skills = finalData.skills.split(',').map((s: string) => s.trim()).filter(Boolean);
-      }
-
-      if (type === 'courses' && typeof finalData.skills === 'string') {
-        finalData.skills = finalData.skills.split(',').map((s: string) => s.trim()).filter(Boolean);
-      }
-
-      if (type === 'skills') {
-        finalData.level = parseInt(finalData.level) || 0;
-      }
-
-      if (type === 'courses') {
-        finalData.progress = parseInt(finalData.progress) || 0;
-      }
-
-      onSave(finalData);
-    };
-
-    const getFormFields = () => {
-      switch (type) {
-        case 'personal':
-          return (
-            <div className="space-y-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="space-y-2">
-                  <label className="block text-sm font-semibold text-slate-300">Nome Completo</label>
-                  <input
-                    type="text"
-                    placeholder="Seu nome completo"
-                    value={formData.name || ''}
-                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                    className="w-full p-4 bg-slate-700/50 border border-slate-600 rounded-xl text-white placeholder-slate-400 focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-300"
-                    required
-                  />
-                </div>
-                <div className="space-y-2">
-                  <label className="block text-sm font-semibold text-slate-300">Título Profissional</label>
-                  <input
-                    type="text"
-                    placeholder="Ex: QA Tester Júnior"
-                    value={formData.title || ''}
-                    onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                    className="w-full p-4 bg-slate-700/50 border border-slate-600 rounded-xl text-white placeholder-slate-400 focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-300"
-                    required
-                  />
-                </div>
-              </div>
-              
-              <div className="space-y-2">
-                <label className="block text-sm font-semibold text-slate-300">Descrição Profissional</label>
-                <textarea
-                  placeholder="Descreva sua experiência e especialidades"
-                  value={formData.description || ''}
-                  onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                  className="w-full p-4 bg-slate-700/50 border border-slate-600 rounded-xl text-white placeholder-slate-400 focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-300 h-32 resize-none"
-                  required
-                />
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="space-y-2">
-                  <label className="block text-sm font-semibold text-slate-300">Email</label>
-                  <input
-                    type="email"
-                    placeholder="seu@email.com"
-                    value={formData.email || ''}
-                    onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                    className="w-full p-4 bg-slate-700/50 border border-slate-600 rounded-xl text-white placeholder-slate-400 focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-300"
-                    required
-                  />
-                </div>
-                <div className="space-y-2">
-                  <label className="block text-sm font-semibold text-slate-300">Telefone</label>
-                  <input
-                    type="text"
-                    placeholder="(00) 00000-0000"
-                    value={formData.phone || ''}
-                    onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                    className="w-full p-4 bg-slate-700/50 border border-slate-600 rounded-xl text-white placeholder-slate-400 focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-300"
-                    required
-                  />
-                </div>
-              </div>
-
-              <div className="space-y-2">
-                <label className="block text-sm font-semibold text-slate-300">Localização</label>
-                <input
-                  type="text"
-                  placeholder="Cidade, Estado - País"
-                  value={formData.location || ''}
-                  onChange={(e) => setFormData({ ...formData, location: e.target.value })}
-                  className="w-full p-4 bg-slate-700/50 border border-slate-600 rounded-xl text-white placeholder-slate-400 focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-300"
-                  required
-                />
-              </div>
-
-              <div className="space-y-4">
-                <label className="block text-sm font-semibold text-slate-300">Foto de Perfil</label>
-                <div className="flex items-center gap-6">
-                  {imagePreview && (
-                    <div className="relative">
-                      <img src={imagePreview} alt="Preview" className="w-24 h-24 object-cover rounded-xl border-2 border-slate-600" />
-                      <div className="absolute inset-0 bg-black/20 rounded-xl flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity">
-                        <Eye className="w-6 h-6 text-white" />
-                      </div>
-                    </div>
-                  )}
-                  <div className="flex-1">
-                    <input
-                      type="file"
-                      accept="image/*"
-                      onChange={handleImageChange}
-                      className="w-full p-4 bg-slate-700/50 border border-slate-600 rounded-xl text-white file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-purple-600 file:text-white file:cursor-pointer hover:file:bg-purple-700 transition-all duration-300"
-                    />
-                    <p className="text-xs text-slate-400 mt-2">Formatos aceitos: JPG, PNG, GIF (máx. 5MB)</p>
+  const renderOverview = () => {
+    const stats = getStats();
+    
+    return (
+      <div className="space-y-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {Object.entries(stats).map(([key, value], index) => {
+            const tab = tabs.find(t => t.id === key || (key === 'feedbacks' && t.id === 'feedbacks'));
+            if (!tab) return null;
+            
+            return (
+              <motion.div
+                key={key}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: index * 0.1 }}
+              >
+                <PremiumCard
+                  variant="default"
+                  padding="lg"
+                  className="text-center hover:shadow-xl transition-all duration-300"
+                  interactive
+                  onClick={() => setActiveTab(key as TabType)}
+                >
+                  <div className={`bg-gradient-to-r ${tab.color} w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg`}>
+                    <tab.icon className="w-8 h-8 text-white" />
                   </div>
+                  <h3 className="text-3xl font-bold text-slate-900 mb-2 font-poppins">
+                    {value}
+                  </h3>
+                  <p className="text-slate-600 font-inter font-medium">
+                    {tab.label}
+                  </p>
+                </PremiumCard>
+              </motion.div>
+            );
+          })}
+        </div>
+
+        <PremiumCard variant="default" padding="lg">
+          <h3 className="text-2xl font-bold text-slate-900 mb-4">Informações do Sistema</h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <h4 className="font-semibold text-slate-700 mb-2">Usuário Logado</h4>
+              <p className="text-slate-600">{user?.email}</p>
+            </div>
+            <div>
+              <h4 className="font-semibold text-slate-700 mb-2">Último Login</h4>
+              <p className="text-slate-600">{new Date().toLocaleString('pt-BR')}</p>
+            </div>
+          </div>
+        </PremiumCard>
+      </div>
+    );
+  };
+
+  const renderPersonalInfo = () => {
+    const personalInfo = data?.personalInfo;
+    
+    return (
+      <div className="space-y-6">
+        <div className="flex justify-between items-center">
+          <h3 className="text-2xl font-bold text-slate-900">Informações Pessoais</h3>
+          <PremiumButton
+            variant="primary"
+            icon={Edit}
+            onClick={() => setEditingItem({
+              type: 'personal',
+              item: personalInfo || {},
+              isNew: !personalInfo
+            })}
+          >
+            Editar
+          </PremiumButton>
+        </div>
+
+        {personalInfo ? (
+          <PremiumCard variant="default" padding="lg">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <img
+                  src={personalInfo.profile_image}
+                  alt={personalInfo.name}
+                  className="w-32 h-32 rounded-full object-cover mx-auto mb-4"
+                />
+              </div>
+              <div className="space-y-4">
+                <div>
+                  <label className="font-semibold text-slate-700">Nome:</label>
+                  <p className="text-slate-600">{personalInfo.name}</p>
+                </div>
+                <div>
+                  <label className="font-semibold text-slate-700">Título:</label>
+                  <p className="text-slate-600">{personalInfo.title}</p>
+                </div>
+                <div>
+                  <label className="font-semibold text-slate-700">Email:</label>
+                  <p className="text-slate-600">{personalInfo.email}</p>
+                </div>
+                <div>
+                  <label className="font-semibold text-slate-700">Telefone:</label>
+                  <p className="text-slate-600">{personalInfo.phone}</p>
+                </div>
+                <div>
+                  <label className="font-semibold text-slate-700">Localização:</label>
+                  <p className="text-slate-600">{personalInfo.location}</p>
                 </div>
               </div>
             </div>
+            <div className="mt-6">
+              <label className="font-semibold text-slate-700">Descrição:</label>
+              <p className="text-slate-600 mt-2">{personalInfo.description}</p>
+            </div>
+          </PremiumCard>
+        ) : (
+          <PremiumCard variant="default" padding="lg" className="text-center">
+            <p className="text-slate-600 mb-4">Nenhuma informação pessoal cadastrada</p>
+            <PremiumButton
+              variant="primary"
+              icon={Plus}
+              onClick={() => setEditingItem({
+                type: 'personal',
+                item: {},
+                isNew: true
+              })}
+            >
+              Adicionar Informações
+            </PremiumButton>
+          </PremiumCard>
+        )}
+      </div>
+    );
+  };
+
+  const renderDataList = (type: TabType, items: any[], title: string) => {
+    const filteredItems = items?.filter(item => {
+      const matchesSearch = !searchTerm || 
+        item.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        item.title?.toLowerCase().includes(searchTerm.toLowerCase());
+      
+      const matchesFilter = filterCategory === 'all' || 
+        item.category === filterCategory ||
+        item.type === filterCategory;
+      
+      return matchesSearch && matchesFilter;
+    }) || [];
+
+    return (
+      <div className="space-y-6">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+          <h3 className="text-2xl font-bold text-slate-900">{title}</h3>
+          
+          <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-slate-400" />
+              <input
+                type="text"
+                placeholder="Buscar..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="pl-10 pr-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+              />
+            </div>
+            
+            <PremiumButton
+              variant="primary"
+              icon={Plus}
+              onClick={() => setEditingItem({
+                type,
+                item: {},
+                isNew: true
+              })}
+            >
+              Adicionar
+            </PremiumButton>
+          </div>
+        </div>
+
+        {loading ? (
+          <div className="flex justify-center py-12">
+            <PremiumLoadingSpinner size="lg" text="Carregando..." />
+          </div>
+        ) : filteredItems.length > 0 ? (
+          <div className="grid grid-cols-1 gap-4">
+            {filteredItems.map((item, index) => (
+              <motion.div
+                key={item.id}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.3, delay: index * 0.1 }}
+              >
+                <PremiumCard variant="default" padding="lg" className="hover:shadow-lg transition-all duration-300">
+                  <div className="flex justify-between items-start">
+                    <div className="flex-1">
+                      <h4 className="text-lg font-bold text-slate-900 mb-2">
+                        {item.name || item.title}
+                      </h4>
+                      {item.company && (
+                        <p className="text-slate-600 mb-1">{item.company}</p>
+                      )}
+                      {item.issuer && (
+                        <p className="text-slate-600 mb-1">{item.issuer}</p>
+                      )}
+                      {item.organization && (
+                        <p className="text-slate-600 mb-1">{item.organization}</p>
+                      )}
+                      {item.institution && (
+                        <p className="text-slate-600 mb-1">{item.institution}</p>
+                      )}
+                      {item.description && (
+                        <p className="text-slate-500 text-sm mt-2 line-clamp-2">
+                          {item.description}
+                        </p>
+                      )}
+                      {item.level && (
+                        <div className="mt-2">
+                          <div className="flex items-center gap-2">
+                            <span className="text-sm text-slate-600">Nível:</span>
+                            <div className="flex-1 bg-slate-200 rounded-full h-2">
+                              <div 
+                                className="bg-primary-500 h-2 rounded-full transition-all duration-300"
+                                style={{ width: `${item.level}%` }}
+                              />
+                            </div>
+                            <span className="text-sm font-medium text-slate-700">{item.level}%</span>
+                          </div>
+                        </div>
+                      )}
+                      {item.progress !== undefined && (
+                        <div className="mt-2">
+                          <div className="flex items-center gap-2">
+                            <span className="text-sm text-slate-600">Progresso:</span>
+                            <div className="flex-1 bg-slate-200 rounded-full h-2">
+                              <div 
+                                className="bg-green-500 h-2 rounded-full transition-all duration-300"
+                                style={{ width: `${item.progress}%` }}
+                              />
+                            </div>
+                            <span className="text-sm font-medium text-slate-700">{item.progress}%</span>
+                          </div>
+                        </div>
+                      )}
+                      {item.rating && (
+                        <div className="mt-2 flex items-center gap-1">
+                          {[...Array(5)].map((_, i) => (
+                            <Star
+                              key={i}
+                              className={`w-4 h-4 ${
+                                i < item.rating ? 'text-yellow-400 fill-current' : 'text-slate-300'
+                              }`}
+                            />
+                          ))}
+                          <span className="text-sm text-slate-600 ml-2">({item.rating}/5)</span>
+                        </div>
+                      )}
+                    </div>
+                    
+                    <div className="flex gap-2 ml-4">
+                      <PremiumButton
+                        variant="outline"
+                        size="sm"
+                        icon={Edit}
+                        onClick={() => setEditingItem({
+                          type,
+                          item,
+                          isNew: false
+                        })}
+                      >
+                        Editar
+                      </PremiumButton>
+                      
+                      <PremiumButton
+                        variant="outline"
+                        size="sm"
+                        icon={Trash2}
+                        onClick={() => setShowDeleteConfirm(item.id)}
+                        className="text-red-600 border-red-300 hover:bg-red-50"
+                      >
+                        Excluir
+                      </PremiumButton>
+                    </div>
+                  </div>
+                </PremiumCard>
+              </motion.div>
+            ))}
+          </div>
+        ) : (
+          <PremiumCard variant="default" padding="lg" className="text-center">
+            <p className="text-slate-600 mb-4">Nenhum item encontrado</p>
+            <PremiumButton
+              variant="primary"
+              icon={Plus}
+              onClick={() => setEditingItem({
+                type,
+                item: {},
+                isNew: true
+              })}
+            >
+              Adicionar {title.slice(0, -1)}
+            </PremiumButton>
+          </PremiumCard>
+        )}
+      </div>
+    );
+  };
+
+  const renderEditForm = () => {
+    if (!editingItem) return null;
+
+    const { type, item, isNew } = editingItem;
+    const [formData, setFormData] = useState(item);
+    const [uploading, setUploading] = useState(false);
+
+    const handleInputChange = (field: string, value: any) => {
+      setFormData((prev: any) => ({ ...prev, [field]: value }));
+    };
+
+    const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+      const file = e.target.files?.[0];
+      if (!file) return;
+
+      setUploading(true);
+      try {
+        const url = await handleImageUpload(file);
+        if (url) {
+          handleInputChange('image', url);
+        }
+      } catch (error) {
+        console.error('Erro no upload:', error);
+      } finally {
+        setUploading(false);
+      }
+    };
+
+    const renderFormFields = () => {
+      switch (type) {
+        case 'personal':
+          return (
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-2">Nome</label>
+                <input
+                  type="text"
+                  value={formData.name || ''}
+                  onChange={(e) => handleInputChange('name', e.target.value)}
+                  className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-2">Título</label>
+                <input
+                  type="text"
+                  value={formData.title || ''}
+                  onChange={(e) => handleInputChange('title', e.target.value)}
+                  className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-2">Descrição</label>
+                <textarea
+                  value={formData.description || ''}
+                  onChange={(e) => handleInputChange('description', e.target.value)}
+                  rows={3}
+                  className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-2">Email</label>
+                <input
+                  type="email"
+                  value={formData.email || ''}
+                  onChange={(e) => handleInputChange('email', e.target.value)}
+                  className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-2">Telefone</label>
+                <input
+                  type="text"
+                  value={formData.phone || ''}
+                  onChange={(e) => handleInputChange('phone', e.target.value)}
+                  className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-2">Localização</label>
+                <input
+                  type="text"
+                  value={formData.location || ''}
+                  onChange={(e) => handleInputChange('location', e.target.value)}
+                  className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-2">Imagem de Perfil</label>
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={handleFileUpload}
+                  className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                />
+                {uploading && <p className="text-sm text-blue-600 mt-1">Fazendo upload...</p>}
+                {formData.profile_image && (
+                  <img src={formData.profile_image} alt="Preview" className="mt-2 w-20 h-20 rounded-full object-cover" />
+                )}
+              </div>
+            </div>
           );
-        // Outros casos de formulário mantidos similares mas com melhor styling...
+
+        case 'projects':
+          return (
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-2">Nome do Projeto</label>
+                <input
+                  type="text"
+                  value={formData.name || ''}
+                  onChange={(e) => handleInputChange('name', e.target.value)}
+                  className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-2">Empresa</label>
+                <input
+                  type="text"
+                  value={formData.company || ''}
+                  onChange={(e) => handleInputChange('company', e.target.value)}
+                  className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-2">Tipo</label>
+                <select
+                  value={formData.type || ''}
+                  onChange={(e) => handleInputChange('type', e.target.value)}
+                  className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                >
+                  <option value="">Selecione um tipo</option>
+                  <option value="Functional Testing">Functional Testing</option>
+                  <option value="API Testing">API Testing</option>
+                  <option value="Mobile Testing">Mobile Testing</option>
+                  <option value="Security Testing">Security Testing</option>
+                  <option value="Performance Testing">Performance Testing</option>
+                </select>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-2">Tecnologias (separadas por vírgula)</label>
+                <input
+                  type="text"
+                  value={Array.isArray(formData.technologies) ? formData.technologies.join(', ') : ''}
+                  onChange={(e) => handleInputChange('technologies', e.target.value.split(', ').filter(t => t.trim()))}
+                  className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-2">Descrição</label>
+                <textarea
+                  value={formData.description || ''}
+                  onChange={(e) => handleInputChange('description', e.target.value)}
+                  rows={3}
+                  className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-2">Detalhes</label>
+                <textarea
+                  value={formData.details || ''}
+                  onChange={(e) => handleInputChange('details', e.target.value)}
+                  rows={4}
+                  className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-2">Imagem</label>
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={handleFileUpload}
+                  className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                />
+                {uploading && <p className="text-sm text-blue-600 mt-1">Fazendo upload...</p>}
+                {formData.image && (
+                  <img src={formData.image} alt="Preview" className="mt-2 w-32 h-20 rounded object-cover" />
+                )}
+              </div>
+            </div>
+          );
+
+        case 'skills':
+          return (
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-2">Nome da Habilidade</label>
+                <input
+                  type="text"
+                  value={formData.name || ''}
+                  onChange={(e) => handleInputChange('name', e.target.value)}
+                  className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-2">Nível (0-100)</label>
+                <input
+                  type="number"
+                  min="0"
+                  max="100"
+                  value={formData.level || 0}
+                  onChange={(e) => handleInputChange('level', parseInt(e.target.value))}
+                  className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-2">Categoria</label>
+                <select
+                  value={formData.category || ''}
+                  onChange={(e) => handleInputChange('category', e.target.value)}
+                  className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                >
+                  <option value="">Selecione uma categoria</option>
+                  <option value="technical">Técnica</option>
+                  <option value="documentation">Documentação</option>
+                  <option value="soft">Soft Skills</option>
+                </select>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-2">Ícone</label>
+                <input
+                  type="text"
+                  value={formData.icon || ''}
+                  onChange={(e) => handleInputChange('icon', e.target.value)}
+                  placeholder="Ex: Bot, Search, Globe, etc."
+                  className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                />
+              </div>
+            </div>
+          );
+
         default:
-          return <div>Formulário não implementado para este tipo</div>;
+          return (
+            <div className="text-center py-8">
+              <p className="text-slate-600">Formulário não implementado para este tipo de item.</p>
+            </div>
+          );
       }
     };
 
@@ -384,766 +672,267 @@ const AdminDashboard: React.FC<{ onLogout: () => void }> = ({ onLogout }) => {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
-        className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4"
-        onClick={onClose}
+        className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+        onClick={() => setEditingItem(null)}
       >
         <motion.div
-          initial={{ scale: 0.9, opacity: 0, y: 20 }}
-          animate={{ scale: 1, opacity: 1, y: 0 }}
-          exit={{ scale: 0.9, opacity: 0, y: 20 }}
-          className="bg-slate-800/95 backdrop-blur-xl border border-slate-700/50 rounded-3xl p-8 max-w-4xl w-full max-h-[90vh] overflow-y-auto shadow-2xl"
+          initial={{ opacity: 0, scale: 0.9, y: 20 }}
+          animate={{ opacity: 1, scale: 1, y: 0 }}
+          exit={{ opacity: 0, scale: 0.9, y: 20 }}
+          className="bg-white rounded-3xl p-8 max-w-2xl w-full max-h-[90vh] overflow-y-auto shadow-2xl"
           onClick={(e) => e.stopPropagation()}
         >
-          <div className="flex items-center justify-between mb-8">
-            <div>
-              <h3 className="text-2xl font-bold text-white mb-2">
-                {item ? 'Editar' : 'Adicionar'} {type === 'personal' ? 'Informações Pessoais' : type}
-              </h3>
-              <p className="text-slate-400">
-                {item ? 'Atualize as informações abaixo' : 'Preencha os campos para adicionar um novo item'}
-              </p>
-            </div>
-            <motion.button
-              onClick={onClose}
-              className="p-3 hover:bg-slate-700/50 rounded-xl transition-all duration-300 group"
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
+          <div className="flex justify-between items-center mb-6">
+            <h3 className="text-2xl font-bold text-slate-900">
+              {isNew ? 'Adicionar' : 'Editar'} {tabs.find(t => t.id === type)?.label}
+            </h3>
+            <button
+              onClick={() => setEditingItem(null)}
+              className="p-2 hover:bg-slate-100 rounded-full transition-colors"
             >
-              <X className="w-6 h-6 text-slate-400 group-hover:text-white transition-colors" />
-            </motion.button>
+              <X className="w-6 h-6 text-slate-500" />
+            </button>
           </div>
 
-          <form onSubmit={handleSubmit} className="space-y-8">
-            {getFormFields()}
+          {renderFormFields()}
+
+          <div className="flex gap-3 mt-8">
+            <PremiumButton
+              variant="primary"
+              icon={Save}
+              onClick={() => handleSave(formData)}
+              disabled={saving}
+              className="flex-1"
+            >
+              {saving ? 'Salvando...' : 'Salvar'}
+            </PremiumButton>
             
-            <div className="flex gap-4 pt-6 border-t border-slate-700">
-              <motion.button
-                type="submit"
-                disabled={saving || uploadingImage}
-                className="flex-1 bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 disabled:opacity-50 disabled:cursor-not-allowed text-white py-4 px-6 rounded-xl font-semibold transition-all duration-300 flex items-center justify-center gap-3 shadow-lg hover:shadow-purple-500/25"
-                whileHover={{ scale: saving || uploadingImage ? 1 : 1.02 }}
-                whileTap={{ scale: saving || uploadingImage ? 1 : 0.98 }}
-              >
-                {saving || uploadingImage ? (
-                  <>
-                    <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                    {uploadingImage ? 'Enviando imagem...' : 'Salvando...'}
-                  </>
-                ) : (
-                  <>
-                    <Save className="w-5 h-5" />
-                    {item ? 'Atualizar' : 'Criar'}
-                  </>
-                )}
-              </motion.button>
-              <motion.button
-                type="button"
-                onClick={onClose}
-                className="px-8 py-4 bg-slate-700/50 hover:bg-slate-600/50 text-slate-300 hover:text-white rounded-xl transition-all duration-300 font-semibold"
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-              >
-                Cancelar
-              </motion.button>
-            </div>
-          </form>
+            <PremiumButton
+              variant="outline"
+              onClick={() => setEditingItem(null)}
+              className="flex-1"
+            >
+              Cancelar
+            </PremiumButton>
+          </div>
         </motion.div>
       </motion.div>
     );
   };
 
-  // Componente para renderizar lista de itens com CRUD
-  const renderItemsList = (items: any[], type: string, fields: string[]) => {
-    const filteredItems = items.filter(item => {
-      const matchesSearch = searchTerm === '' || 
-        Object.values(item).some(value => 
-          String(value).toLowerCase().includes(searchTerm.toLowerCase())
-        );
-      const matchesFilter = filterCategory === 'all' || 
-        (item.category && item.category === filterCategory);
-      return matchesSearch && matchesFilter;
-    });
+  const renderDeleteConfirm = () => {
+    if (!showDeleteConfirm) return null;
 
     return (
-      <div className="space-y-6">
-        {/* Header com controles */}
-        <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
-          <div className="flex items-center gap-4 flex-1">
-            <div className="relative flex-1 max-w-md">
-              <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-slate-400" />
-              <input
-                type="text"
-                placeholder="Buscar itens..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-12 pr-4 py-3 bg-slate-800/50 border border-slate-700 rounded-xl text-white placeholder-slate-400 focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-300"
-              />
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+        onClick={() => setShowDeleteConfirm(null)}
+      >
+        <motion.div
+          initial={{ opacity: 0, scale: 0.9 }}
+          animate={{ opacity: 1, scale: 1 }}
+          exit={{ opacity: 0, scale: 0.9 }}
+          className="bg-white rounded-2xl p-8 max-w-md w-full shadow-2xl"
+          onClick={(e) => e.stopPropagation()}
+        >
+          <div className="text-center">
+            <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+              <Trash2 className="w-8 h-8 text-red-600" />
             </div>
-            
-            <div className="flex items-center gap-2 bg-slate-800/50 border border-slate-700 rounded-xl p-1">
-              <motion.button
-                onClick={() => setViewMode('grid')}
-                className={`p-2 rounded-lg transition-all duration-300 ${
-                  viewMode === 'grid' 
-                    ? 'bg-purple-600 text-white shadow-lg' 
-                    : 'text-slate-400 hover:text-white hover:bg-slate-700/50'
-                }`}
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
+            <h3 className="text-xl font-bold text-slate-900 mb-2">Confirmar Exclusão</h3>
+            <p className="text-slate-600 mb-6">
+              Tem certeza que deseja excluir este item? Esta ação não pode ser desfeita.
+            </p>
+            <div className="flex gap-3">
+              <PremiumButton
+                variant="outline"
+                onClick={() => setShowDeleteConfirm(null)}
+                className="flex-1"
               >
-                <div className="w-4 h-4 grid grid-cols-2 gap-0.5">
-                  <div className="bg-current rounded-sm"></div>
-                  <div className="bg-current rounded-sm"></div>
-                  <div className="bg-current rounded-sm"></div>
-                  <div className="bg-current rounded-sm"></div>
-                </div>
-              </motion.button>
-              <motion.button
-                onClick={() => setViewMode('list')}
-                className={`p-2 rounded-lg transition-all duration-300 ${
-                  viewMode === 'list' 
-                    ? 'bg-purple-600 text-white shadow-lg' 
-                    : 'text-slate-400 hover:text-white hover:bg-slate-700/50'
-                }`}
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
+                Cancelar
+              </PremiumButton>
+              <PremiumButton
+                variant="primary"
+                onClick={() => handleDelete(activeTab, showDeleteConfirm)}
+                className="flex-1 bg-red-600 hover:bg-red-700"
+                disabled={saving}
               >
-                <div className="w-4 h-4 flex flex-col gap-0.5">
-                  <div className="bg-current h-0.5 rounded-full"></div>
-                  <div className="bg-current h-0.5 rounded-full"></div>
-                  <div className="bg-current h-0.5 rounded-full"></div>
-                  <div className="bg-current h-0.5 rounded-full"></div>
-                </div>
-              </motion.button>
+                {saving ? 'Excluindo...' : 'Excluir'}
+              </PremiumButton>
             </div>
           </div>
-          
-          <motion.button
-            onClick={() => setShowAddForm(true)}
-            className="flex items-center gap-3 bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white px-6 py-3 rounded-xl font-semibold transition-all duration-300 shadow-lg hover:shadow-purple-500/25"
-            whileHover={{ scale: 1.02, y: -2 }}
-            whileTap={{ scale: 0.98 }}
-          >
-            <Plus className="w-5 h-5" />
-            Adicionar Novo
-          </motion.button>
-        </div>
-
-        {/* Lista de itens */}
-        <div className={viewMode === 'grid' ? 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6' : 'space-y-4'}>
-          {filteredItems.map((item, index) => (
-            <motion.div
-              key={item.id}
-              className={`bg-slate-800/40 backdrop-blur-sm border border-slate-700/50 rounded-2xl p-6 hover:bg-slate-800/60 transition-all duration-300 group ${
-                viewMode === 'list' ? 'flex items-center gap-6' : ''
-              }`}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: index * 0.1 }}
-              whileHover={{ scale: 1.02, y: -4 }}
-            >
-              {(item.image || item.profile_image) && (
-                <div className={`relative overflow-hidden rounded-xl ${
-                  viewMode === 'list' ? 'w-16 h-16 flex-shrink-0' : 'w-full h-48 mb-4'
-                }`}>
-                  <img 
-                    src={item.image || item.profile_image} 
-                    alt="Preview" 
-                    className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110" 
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                </div>
-              )}
-              
-              <div className="flex-1">
-                <div className="flex items-start justify-between mb-3">
-                  <h3 className="font-bold text-white text-lg group-hover:text-purple-300 transition-colors duration-300">
-                    {item.name || item.title}
-                  </h3>
-                  <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                    <motion.button
-                      onClick={() => {
-                        setEditingItem(item);
-                        setIsEditing(true);
-                      }}
-                      className="p-2 bg-blue-600/80 hover:bg-blue-600 rounded-lg transition-all duration-300 backdrop-blur-sm"
-                      whileHover={{ scale: 1.1 }}
-                      whileTap={{ scale: 0.9 }}
-                      title="Editar"
-                    >
-                      <Edit className="w-4 h-4 text-white" />
-                    </motion.button>
-                    
-                    <motion.button
-                      onClick={() => handleDelete(type, item.id)}
-                      className="p-2 bg-red-600/80 hover:bg-red-600 rounded-lg transition-all duration-300 backdrop-blur-sm"
-                      whileHover={{ scale: 1.1 }}
-                      whileTap={{ scale: 0.9 }}
-                      title="Deletar"
-                    >
-                      <Trash2 className="w-4 h-4 text-white" />
-                    </motion.button>
-                  </div>
-                </div>
-                
-                <div className={`text-sm text-slate-300 space-y-2 ${
-                  viewMode === 'list' ? 'flex flex-wrap gap-4' : 'grid grid-cols-1 gap-2'
-                }`}>
-                  {fields.slice(0, viewMode === 'list' ? 2 : 4).map(field => (
-                    <div key={field} className={viewMode === 'list' ? 'flex items-center gap-2' : ''}>
-                      <span className="text-slate-400 font-medium capitalize">{field}:</span>
-                      <span className="text-white">
-                        {Array.isArray(item[field]) 
-                          ? item[field].join(', ') 
-                          : item[field] || 'N/A'
-                        }
-                      </span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </motion.div>
-          ))}
-        </div>
-
-        {filteredItems.length === 0 && (
-          <motion.div
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            className="text-center py-16"
-          >
-            <div className="bg-slate-800/30 rounded-full w-24 h-24 flex items-center justify-center mx-auto mb-6">
-              <Database className="w-12 h-12 text-slate-400" />
-            </div>
-            <h3 className="text-xl font-semibold text-white mb-2">Nenhum item encontrado</h3>
-            <p className="text-slate-400 mb-6">
-              {searchTerm ? 'Tente ajustar sua busca ou' : 'Comece'} adicionando um novo item
-            </p>
-            <motion.button
-              onClick={() => setShowAddForm(true)}
-              className="bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white px-6 py-3 rounded-xl font-semibold transition-all duration-300"
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-            >
-              Adicionar Primeiro Item
-            </motion.button>
-          </motion.div>
-        )}
-      </div>
+        </motion.div>
+      </motion.div>
     );
   };
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-black text-white flex items-center justify-center">
-        <motion.div
-          initial={{ opacity: 0, scale: 0.9 }}
-          animate={{ opacity: 1, scale: 1 }}
-          className="text-center"
-        >
-          <div className="relative">
-            <div className="w-20 h-20 border-4 border-purple-500/30 border-t-purple-500 rounded-full animate-spin mx-auto mb-6"></div>
-            <div className="absolute inset-0 w-20 h-20 border-4 border-transparent border-t-purple-300 rounded-full animate-spin mx-auto" style={{ animationDirection: 'reverse', animationDuration: '1.5s' }}></div>
-          </div>
-          <h2 className="text-2xl font-bold mb-2">Carregando Dashboard</h2>
-          <p className="text-slate-400">Preparando seus dados...</p>
-        </motion.div>
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 flex items-center justify-center">
+        <PremiumLoadingSpinner size="xl" text="Carregando painel administrativo..." />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-black text-white">
-      {/* Header Premium */}
-      <div className="bg-slate-800/30 backdrop-blur-xl border-b border-slate-700/50 sticky top-0 z-40">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
+      {/* Header */}
+      <div className="bg-white border-b border-slate-200 shadow-sm">
         <div className="max-w-7xl mx-auto px-6 py-4">
-          <div className="flex items-center justify-between">
+          <div className="flex justify-between items-center">
+            <div>
+              <h1 className="text-2xl font-bold text-slate-900">Painel Administrativo</h1>
+              <p className="text-slate-600">Gerencie o conteúdo do seu portfólio</p>
+            </div>
+            
             <div className="flex items-center gap-4">
-              <motion.div
-                className="w-12 h-12 bg-gradient-to-r from-purple-600 to-purple-700 rounded-xl flex items-center justify-center shadow-lg"
-                whileHover={{ scale: 1.05, rotate: 5 }}
-              >
-                <Shield className="w-6 h-6 text-white" />
-              </motion.div>
-              <div>
-                <h1 className="text-2xl font-bold bg-gradient-to-r from-white to-slate-300 bg-clip-text text-transparent">
-                  Admin Dashboard
-                </h1>
-                <p className="text-slate-400 text-sm">
-                  Bem-vindo, <span className="text-purple-400 font-medium">{user?.email}</span>
-                </p>
-              </div>
-            </div>
-            
-            <div className="flex items-center gap-3">
-              <motion.button
-                onClick={refresh}
-                className="p-3 bg-slate-700/50 hover:bg-slate-600/50 rounded-xl transition-all duration-300 group"
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                title="Atualizar dados"
-              >
-                <RefreshCw className="w-5 h-5 text-slate-400 group-hover:text-white transition-colors" />
-              </motion.button>
-              
-              <motion.button
+              <span className="text-sm text-slate-600">
+                Logado como: <strong>{user?.email}</strong>
+              </span>
+              <PremiumButton
+                variant="outline"
+                icon={LogOut}
                 onClick={handleLogout}
-                className="flex items-center gap-2 bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 px-4 py-3 rounded-xl transition-all duration-300 font-semibold shadow-lg hover:shadow-red-500/25"
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
               >
-                <LogOut className="w-5 h-5" />
                 Sair
-              </motion.button>
+              </PremiumButton>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Message Toast */}
-      <AnimatePresence>
-        {message && (
-          <motion.div
-            initial={{ opacity: 0, y: -100, scale: 0.9 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: -100, scale: 0.9 }}
-            className={`fixed top-24 right-6 z-50 p-4 rounded-2xl shadow-2xl backdrop-blur-xl border ${
-              message.type === 'success' 
-                ? 'bg-green-600/90 border-green-500/50 text-white' 
-                : 'bg-red-600/90 border-red-500/50 text-white'
-            }`}
-          >
-            <div className="flex items-center gap-3">
-              {message.type === 'success' ? (
-                <CheckCircle className="w-6 h-6" />
-              ) : (
-                <AlertCircle className="w-6 h-6" />
-              )}
-              <span className="font-medium">{message.text}</span>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-
-      <div className="max-w-7xl mx-auto px-6 py-8">
-        {/* Navigation Sidebar */}
-        <div className="flex gap-8">
-          <motion.div
-            className={`bg-slate-800/30 backdrop-blur-xl border border-slate-700/50 rounded-2xl p-6 transition-all duration-300 ${
-              sidebarCollapsed ? 'w-20' : 'w-80'
-            }`}
-            layout
-          >
-            <div className="flex items-center justify-between mb-8">
-              {!sidebarCollapsed && (
-                <h3 className="text-lg font-semibold text-white">Navegação</h3>
-              )}
+      {/* Navigation Tabs */}
+      <div className="bg-white border-b border-slate-200">
+        <div className="max-w-7xl mx-auto px-6">
+          <div className="flex gap-2 overflow-x-auto py-4">
+            {tabs.map((tab) => (
               <motion.button
-                onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
-                className="p-2 hover:bg-slate-700/50 rounded-lg transition-colors"
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
+                key={tab.id}
+                onClick={() => setActiveTab(tab.id as TabType)}
+                className={`px-6 py-3 rounded-xl font-inter font-semibold transition-all duration-300 flex items-center gap-2 whitespace-nowrap ${
+                  activeTab === tab.id
+                    ? `bg-gradient-to-r ${tab.color} text-white shadow-lg`
+                    : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
+                }`}
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
               >
-                <ChevronRight className={`w-5 h-5 text-slate-400 transition-transform ${sidebarCollapsed ? '' : 'rotate-180'}`} />
+                <tab.icon className="w-5 h-5" />
+                {tab.label}
               </motion.button>
-            </div>
-            
-            <div className="space-y-2">
-              {tabs.map((tab) => (
-                <motion.button
-                  key={tab.id}
-                  onClick={() => setActiveTab(tab.id as any)}
-                  className={`w-full flex items-center gap-4 p-4 rounded-xl transition-all duration-300 group ${
-                    activeTab === tab.id
-                      ? `bg-gradient-to-r ${tab.color} text-white shadow-lg`
-                      : 'text-slate-300 hover:bg-slate-700/30 hover:text-white'
-                  }`}
-                  whileHover={{ scale: 1.02, x: 4 }}
-                  whileTap={{ scale: 0.98 }}
-                >
-                  <tab.icon className="w-6 h-6 flex-shrink-0" />
-                  {!sidebarCollapsed && (
-                    <div className="text-left">
-                      <div className="font-semibold">{tab.label}</div>
-                      <div className="text-xs opacity-75">{tab.description}</div>
-                    </div>
-                  )}
-                </motion.button>
-              ))}
-            </div>
-          </motion.div>
-
-          {/* Main Content */}
-          <div className="flex-1">
-            <AnimatePresence mode="wait">
-              {activeTab === 'overview' && (
-                <motion.div
-                  key="overview"
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -20 }}
-                  className="space-y-8"
-                >
-                  {/* Stats Grid */}
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                    {stats.map((stat, index) => (
-                      <motion.div
-                        key={index}
-                        className="bg-slate-800/30 backdrop-blur-xl border border-slate-700/50 p-6 rounded-2xl hover:bg-slate-800/50 transition-all duration-300 group"
-                        initial={{ opacity: 0, scale: 0.9 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        transition={{ delay: index * 0.1 }}
-                        whileHover={{ scale: 1.02, y: -4 }}
-                      >
-                        <div className="flex items-center justify-between mb-4">
-                          <div className={`w-12 h-12 bg-gradient-to-r ${stat.color} rounded-xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform duration-300`}>
-                            <stat.icon className="w-6 h-6 text-white" />
-                          </div>
-                          <div className="flex items-center gap-1 text-green-400 text-sm font-medium">
-                            <TrendingUp className="w-4 h-4" />
-                            {stat.change}
-                          </div>
-                        </div>
-                        <h3 className="text-3xl font-bold text-white mb-1">{stat.value}</h3>
-                        <p className="text-slate-400 font-medium">{stat.label}</p>
-                      </motion.div>
-                    ))}
-                  </div>
-
-                  {/* System Status */}
-                  <div className="bg-slate-800/30 backdrop-blur-xl border border-slate-700/50 p-8 rounded-2xl">
-                    <div className="flex items-center gap-3 mb-6">
-                      <Activity className="w-6 h-6 text-green-400" />
-                      <h3 className="text-xl font-bold text-white">Status do Sistema</h3>
-                    </div>
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                      {[
-                        { label: 'Sistema', status: 'Operacional', icon: CheckCircle },
-                        { label: 'Autenticação', status: 'Ativa', icon: Shield },
-                        { label: 'Banco de Dados', status: 'Conectado', icon: Database },
-                        { label: 'API', status: 'Funcionando', icon: Globe }
-                      ].map((item, index) => (
-                        <motion.div
-                          key={index}
-                          className="flex items-center gap-3 p-4 bg-slate-700/30 rounded-xl"
-                          initial={{ opacity: 0, x: -20 }}
-                          animate={{ opacity: 1, x: 0 }}
-                          transition={{ delay: index * 0.1 }}
-                        >
-                          <item.icon className="w-5 h-5 text-green-400" />
-                          <div>
-                            <div className="font-medium text-white">{item.label}</div>
-                            <div className="text-sm text-green-400">{item.status}</div>
-                          </div>
-                        </motion.div>
-                      ))}
-                    </div>
-                  </div>
-
-                  {/* Quick Actions */}
-                  <div className="bg-slate-800/30 backdrop-blur-xl border border-slate-700/50 p-8 rounded-2xl">
-                    <h3 className="text-xl font-bold text-white mb-6">Ações Rápidas</h3>
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                      {[
-                        { label: 'Adicionar Projeto', icon: Plus, action: () => { setActiveTab('projects'); setShowAddForm(true); } },
-                        { label: 'Novo Certificado', icon: Award, action: () => { setActiveTab('certificates'); setShowAddForm(true); } },
-                        { label: 'Atualizar Perfil', icon: User, action: () => { setActiveTab('personal'); setIsEditing(true); setEditingItem(data.personalInfo); } }
-                      ].map((action, index) => (
-                        <motion.button
-                          key={index}
-                          onClick={action.action}
-                          className="flex items-center gap-3 p-4 bg-slate-700/30 hover:bg-slate-700/50 rounded-xl transition-all duration-300 text-left group"
-                          whileHover={{ scale: 1.02, y: -2 }}
-                          whileTap={{ scale: 0.98 }}
-                        >
-                          <action.icon className="w-5 h-5 text-purple-400 group-hover:text-purple-300 transition-colors" />
-                          <span className="font-medium text-white group-hover:text-purple-300 transition-colors">{action.label}</span>
-                        </motion.button>
-                      ))}
-                    </div>
-                  </div>
-                </motion.div>
-              )}
-
-              {/* Personal Tab */}
-              {activeTab === 'personal' && (
-                <motion.div
-                  key="personal"
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -20 }}
-                  className="space-y-8"
-                >
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <h2 className="text-3xl font-bold text-white mb-2">Informações Pessoais</h2>
-                      <p className="text-slate-400">Gerencie suas informações de perfil público</p>
-                    </div>
-                    <motion.button
-                      onClick={() => {
-                        setEditingItem(data.personalInfo);
-                        setIsEditing(true);
-                      }}
-                      className="flex items-center gap-2 bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 px-6 py-3 rounded-xl transition-all duration-300 font-semibold shadow-lg hover:shadow-purple-500/25"
-                      whileHover={{ scale: 1.05 }}
-                      whileTap={{ scale: 0.95 }}
-                    >
-                      <Edit className="w-5 h-5" />
-                      Editar Perfil
-                    </motion.button>
-                  </div>
-
-                  {data.personalInfo ? (
-                    <div className="bg-slate-800/30 backdrop-blur-xl border border-slate-700/50 rounded-2xl p-8">
-                      <div className="flex flex-col lg:flex-row gap-8">
-                        <div className="lg:w-1/3">
-                          <div className="relative group">
-                            <img
-                              src={data.personalInfo.profile_image}
-                              alt="Profile"
-                              className="w-full aspect-square object-cover rounded-2xl shadow-2xl transition-transform duration-300 group-hover:scale-105"
-                            />
-                            <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                          </div>
-                        </div>
-                        
-                        <div className="lg:w-2/3 space-y-6">
-                          <div>
-                            <h3 className="text-2xl font-bold text-white mb-2">{data.personalInfo.name}</h3>
-                            <p className="text-xl text-purple-400 font-semibold">{data.personalInfo.title}</p>
-                          </div>
-                          
-                          <p className="text-slate-300 text-lg leading-relaxed">{data.personalInfo.description}</p>
-                          
-                          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <div className="space-y-4">
-                              <div className="flex items-center gap-3 p-4 bg-slate-700/30 rounded-xl">
-                                <div className="w-10 h-10 bg-blue-600/20 rounded-lg flex items-center justify-center">
-                                  <MessageSquare className="w-5 h-5 text-blue-400" />
-                                </div>
-                                <div>
-                                  <div className="text-sm text-slate-400">Email</div>
-                                  <div className="font-medium text-white">{data.personalInfo.email}</div>
-                                </div>
-                              </div>
-                              
-                              <div className="flex items-center gap-3 p-4 bg-slate-700/30 rounded-xl">
-                                <div className="w-10 h-10 bg-green-600/20 rounded-lg flex items-center justify-center">
-                                  <Phone className="w-5 h-5 text-green-400" />
-                                </div>
-                                <div>
-                                  <div className="text-sm text-slate-400">Telefone</div>
-                                  <div className="font-medium text-white">{data.personalInfo.phone}</div>
-                                </div>
-                              </div>
-                            </div>
-                            
-                            <div className="flex items-center gap-3 p-4 bg-slate-700/30 rounded-xl">
-                              <div className="w-10 h-10 bg-purple-600/20 rounded-lg flex items-center justify-center">
-                                <Globe className="w-5 h-5 text-purple-400" />
-                              </div>
-                              <div>
-                                <div className="text-sm text-slate-400">Localização</div>
-                                <div className="font-medium text-white">{data.personalInfo.location}</div>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  ) : (
-                    <motion.div
-                      initial={{ opacity: 0, scale: 0.9 }}
-                      animate={{ opacity: 1, scale: 1 }}
-                      className="text-center py-16 bg-slate-800/30 backdrop-blur-xl border border-slate-700/50 rounded-2xl"
-                    >
-                      <div className="bg-slate-700/30 rounded-full w-24 h-24 flex items-center justify-center mx-auto mb-6">
-                        <User className="w-12 h-12 text-slate-400" />
-                      </div>
-                      <h3 className="text-xl font-semibold text-white mb-2">Perfil não configurado</h3>
-                      <p className="text-slate-400 mb-6">Configure suas informações pessoais para começar</p>
-                      <motion.button
-                        onClick={() => setShowAddForm(true)}
-                        className="bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white px-6 py-3 rounded-xl font-semibold transition-all duration-300"
-                        whileHover={{ scale: 1.05 }}
-                        whileTap={{ scale: 0.95 }}
-                      >
-                        Configurar Perfil
-                      </motion.button>
-                    </motion.div>
-                  )}
-                </motion.div>
-              )}
-
-              {/* Other tabs */}
-              {activeTab === 'projects' && (
-                <motion.div
-                  key="projects"
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -20 }}
-                >
-                  <div className="mb-8">
-                    <h2 className="text-3xl font-bold text-white mb-2">Gerenciar Projetos</h2>
-                    <p className="text-slate-400">Adicione e gerencie seus projetos de QA</p>
-                  </div>
-                  {renderItemsList(data.projects || [], 'projects', ['company', 'type', 'description', 'technologies'])}
-                </motion.div>
-              )}
-
-              {activeTab === 'certificates' && (
-                <motion.div
-                  key="certificates"
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -20 }}
-                >
-                  <div className="mb-8">
-                    <h2 className="text-3xl font-bold text-white mb-2">Gerenciar Certificados</h2>
-                    <p className="text-slate-400">Organize suas certificações e conquistas</p>
-                  </div>
-                  {renderItemsList(data.certificates || [], 'certificates', ['issuer', 'date', 'category', 'skills'])}
-                </motion.div>
-              )}
-
-              {activeTab === 'skills' && (
-                <motion.div
-                  key="skills"
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -20 }}
-                >
-                  <div className="mb-8">
-                    <h2 className="text-3xl font-bold text-white mb-2">Gerenciar Habilidades</h2>
-                    <p className="text-slate-400">Defina suas competências técnicas e soft skills</p>
-                  </div>
-                  {renderItemsList(data.skills || [], 'skills', ['level', 'category', 'icon'])}
-                </motion.div>
-              )}
-
-              {activeTab === 'courses' && (
-                <motion.div
-                  key="courses"
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -20 }}
-                >
-                  <div className="mb-8">
-                    <h2 className="text-3xl font-bold text-white mb-2">Gerenciar Cursos</h2>
-                    <p className="text-slate-400">Acompanhe seu progresso educacional</p>
-                  </div>
-                  {renderItemsList(data.courses || [], 'courses', ['institution', 'progress', 'status', 'skills'])}
-                </motion.div>
-              )}
-
-              {activeTab === 'achievements' && (
-                <motion.div
-                  key="achievements"
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -20 }}
-                >
-                  <div className="mb-8">
-                    <h2 className="text-3xl font-bold text-white mb-2">Gerenciar Conquistas</h2>
-                    <p className="text-slate-400">Destaque seus reconhecimentos profissionais</p>
-                  </div>
-                  {renderItemsList(data.achievements || [], 'achievements', ['organization', 'date', 'type'])}
-                </motion.div>
-              )}
-
-              {activeTab === 'feedbacks' && (
-                <motion.div
-                  key="feedbacks"
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -20 }}
-                  className="space-y-8"
-                >
-                  <div>
-                    <h2 className="text-3xl font-bold text-white mb-2">Feedbacks dos Visitantes</h2>
-                    <p className="text-slate-400">Veja o que os visitantes estão dizendo sobre seu portfólio</p>
-                  </div>
-                  
-                  <div className="space-y-6">
-                    {data.feedbacks && data.feedbacks.length > 0 ? (
-                      data.feedbacks.map((feedback, index) => (
-                        <motion.div
-                          key={feedback.id}
-                          className="bg-slate-800/30 backdrop-blur-xl border border-slate-700/50 rounded-2xl p-6"
-                          initial={{ opacity: 0, y: 20 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          transition={{ delay: index * 0.1 }}
-                        >
-                          <div className="flex items-center justify-between mb-4">
-                            <div className="flex items-center gap-2">
-                              {[...Array(5)].map((_, i) => (
-                                <Star key={i} className={`w-5 h-5 ${i < feedback.rating ? 'text-yellow-400 fill-current' : 'text-slate-600'}`} />
-                              ))}
-                              <span className="ml-2 text-sm text-slate-400">({feedback.rating}/5)</span>
-                            </div>
-                            <div className="flex items-center gap-2 text-sm text-slate-400">
-                              <Calendar className="w-4 h-4" />
-                              {new Date(feedback.created_at).toLocaleDateString('pt-BR')}
-                            </div>
-                          </div>
-                          
-                          {feedback.feedback_text && (
-                            <p className="text-slate-300 mb-4 leading-relaxed">{feedback.feedback_text}</p>
-                          )}
-                          
-                          <div className="flex items-center gap-3">
-                            {feedback.category && (
-                              <span className="inline-block px-3 py-1 bg-purple-600/20 text-purple-400 rounded-full text-sm font-medium">
-                                {feedback.category}
-                              </span>
-                            )}
-                            <span className="text-xs text-slate-500">
-                              IP: {feedback.ip_address || 'N/A'}
-                            </span>
-                          </div>
-                        </motion.div>
-                      ))
-                    ) : (
-                      <motion.div
-                        initial={{ opacity: 0, scale: 0.9 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        className="text-center py-16 bg-slate-800/30 backdrop-blur-xl border border-slate-700/50 rounded-2xl"
-                      >
-                        <div className="bg-slate-700/30 rounded-full w-24 h-24 flex items-center justify-center mx-auto mb-6">
-                          <MessageSquare className="w-12 h-12 text-slate-400" />
-                        </div>
-                        <h3 className="text-xl font-semibold text-white mb-2">Nenhum feedback ainda</h3>
-                        <p className="text-slate-400">Os feedbacks dos visitantes aparecerão aqui</p>
-                      </motion.div>
-                    )}
-                  </div>
-                </motion.div>
-              )}
-            </AnimatePresence>
+            ))}
           </div>
         </div>
       </div>
 
-      {/* Form Modal */}
+      {/* Content */}
+      <div className="max-w-7xl mx-auto px-6 py-8">
+        <AnimatePresence mode="wait">
+          {activeTab === 'overview' && (
+            <motion.div
+              key="overview"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              transition={{ duration: 0.3 }}
+            >
+              {renderOverview()}
+            </motion.div>
+          )}
+
+          {activeTab === 'personal' && (
+            <motion.div
+              key="personal"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              transition={{ duration: 0.3 }}
+            >
+              {renderPersonalInfo()}
+            </motion.div>
+          )}
+
+          {activeTab === 'projects' && (
+            <motion.div
+              key="projects"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              transition={{ duration: 0.3 }}
+            >
+              {renderDataList('projects', data?.projects || [], 'Projetos')}
+            </motion.div>
+          )}
+
+          {activeTab === 'certificates' && (
+            <motion.div
+              key="certificates"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              transition={{ duration: 0.3 }}
+            >
+              {renderDataList('certificates', data?.certificates || [], 'Certificados')}
+            </motion.div>
+          )}
+
+          {activeTab === 'skills' && (
+            <motion.div
+              key="skills"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              transition={{ duration: 0.3 }}
+            >
+              {renderDataList('skills', data?.skills || [], 'Habilidades')}
+            </motion.div>
+          )}
+
+          {activeTab === 'courses' && (
+            <motion.div
+              key="courses"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              transition={{ duration: 0.3 }}
+            >
+              {renderDataList('courses', data?.courses || [], 'Cursos')}
+            </motion.div>
+          )}
+
+          {activeTab === 'achievements' && (
+            <motion.div
+              key="achievements"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              transition={{ duration: 0.3 }}
+            >
+              {renderDataList('achievements', data?.achievements || [], 'Conquistas')}
+            </motion.div>
+          )}
+
+          {activeTab === 'feedbacks' && (
+            <motion.div
+              key="feedbacks"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              transition={{ duration: 0.3 }}
+            >
+              {renderDataList('feedbacks', data?.feedbacks || [], 'Feedbacks')}
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
+
+      {/* Modals */}
       <AnimatePresence>
-        {(showAddForm || isEditing) && (
-          <FormModal
-            type={activeTab}
-            item={isEditing ? editingItem : null}
-            onSave={(formData) => {
-              if (isEditing) {
-                handleUpdate(activeTab, editingItem.id, formData);
-              } else {
-                handleCreate(activeTab, formData);
-              }
-            }}
-            onClose={() => {
-              setShowAddForm(false);
-              setIsEditing(false);
-              setEditingItem(null);
-            }}
-          />
-        )}
+        {editingItem && renderEditForm()}
+        {showDeleteConfirm && renderDeleteConfirm()}
       </AnimatePresence>
     </div>
   );

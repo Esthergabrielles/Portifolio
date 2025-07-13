@@ -1,24 +1,198 @@
 import React from 'react';
-import { Moon, Sun, Sparkles, Zap } from 'lucide-react';
+import { Moon, Sun, Sparkles, Zap, Star, Palette } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 interface DarkModeToggleProps {
   isDark: boolean;
   toggle: () => void;
+  variant?: 'default' | 'premium' | 'floating';
+  size?: 'sm' | 'md' | 'lg';
 }
 
-const DarkModeToggle: React.FC<DarkModeToggleProps> = ({ isDark, toggle }) => {
+const DarkModeToggle: React.FC<DarkModeToggleProps> = ({ 
+  isDark, 
+  toggle, 
+  variant = 'premium',
+  size = 'md' 
+}) => {
+  const sizeClasses = {
+    sm: 'w-10 h-10',
+    md: 'w-12 h-12',
+    lg: 'w-14 h-14'
+  };
+
+  const iconSizes = {
+    sm: 'w-4 h-4',
+    md: 'w-5 h-5',
+    lg: 'w-6 h-6'
+  };
+
+  if (variant === 'floating') {
+    return (
+      <motion.button
+        onClick={toggle}
+        className={`fixed bottom-6 right-6 z-50 ${sizeClasses[size]} rounded-full shadow-2xl backdrop-blur-xl border transition-all duration-500 overflow-hidden group ${
+          isDark 
+            ? 'bg-gradient-to-br from-slate-800/90 to-slate-900/90 border-slate-600/50 text-yellow-400' 
+            : 'bg-gradient-to-br from-white/90 to-slate-50/90 border-slate-300/50 text-slate-700'
+        }`}
+        whileHover={{ scale: 1.1, rotate: 5 }}
+        whileTap={{ scale: 0.95 }}
+        aria-label="Toggle dark mode"
+      >
+        {/* Premium Background Animation */}
+        <motion.div
+          className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent opacity-0 group-hover:opacity-100"
+          animate={{
+            x: ['-100%', '100%']
+          }}
+          transition={{
+            duration: 1.5,
+            repeat: Infinity,
+            repeatDelay: 2,
+            ease: "linear"
+          }}
+        />
+
+        {/* Icon Container */}
+        <div className="relative z-10 flex items-center justify-center w-full h-full">
+          <AnimatePresence mode="wait">
+            {isDark ? (
+              <motion.div
+                key="sun"
+                initial={{ rotate: -90, opacity: 0, scale: 0.5 }}
+                animate={{ rotate: 0, opacity: 1, scale: 1 }}
+                exit={{ rotate: 90, opacity: 0, scale: 0.5 }}
+                transition={{ duration: 0.5, ease: "easeInOut" }}
+                className="relative"
+              >
+                <motion.div
+                  animate={{ 
+                    rotate: [0, 360],
+                    scale: [1, 1.1, 1]
+                  }}
+                  transition={{ 
+                    rotate: { duration: 8, repeat: Infinity, ease: "linear" },
+                    scale: { duration: 2, repeat: Infinity, ease: "easeInOut" }
+                  }}
+                >
+                  <Sun className={iconSizes[size]} />
+                </motion.div>
+                
+                {/* Sun rays animation */}
+                {[...Array(8)].map((_, i) => (
+                  <motion.div
+                    key={i}
+                    className="absolute w-0.5 h-2 bg-current rounded-full"
+                    style={{
+                      left: '50%',
+                      top: '50%',
+                      transformOrigin: '50% 10px',
+                      transform: `translate(-50%, -50%) rotate(${i * 45}deg)`,
+                    }}
+                    animate={{
+                      scaleY: [0.5, 1, 0.5],
+                      opacity: [0.5, 1, 0.5],
+                    }}
+                    transition={{
+                      duration: 1.5,
+                      repeat: Infinity,
+                      delay: i * 0.1,
+                    }}
+                  />
+                ))}
+              </motion.div>
+            ) : (
+              <motion.div
+                key="moon"
+                initial={{ rotate: 90, opacity: 0, scale: 0.5 }}
+                animate={{ rotate: 0, opacity: 1, scale: 1 }}
+                exit={{ rotate: -90, opacity: 0, scale: 0.5 }}
+                transition={{ duration: 0.5, ease: "easeInOut" }}
+                className="relative"
+              >
+                <motion.div
+                  animate={{ 
+                    rotate: [0, -10, 10, 0],
+                    scale: [1, 1.05, 1]
+                  }}
+                  transition={{ 
+                    duration: 4, 
+                    repeat: Infinity, 
+                    ease: "easeInOut" 
+                  }}
+                >
+                  <Moon className={iconSizes[size]} />
+                </motion.div>
+                
+                {/* Stars around moon */}
+                {[...Array(3)].map((_, i) => (
+                  <motion.div
+                    key={i}
+                    className="absolute w-1 h-1 bg-current rounded-full"
+                    style={{
+                      left: `${-8 + i * 8}px`,
+                      top: `${-6 + (i % 2) * 12}px`,
+                    }}
+                    animate={{
+                      opacity: [0, 1, 0],
+                      scale: [0, 1, 0],
+                    }}
+                    transition={{
+                      duration: 2,
+                      repeat: Infinity,
+                      delay: i * 0.5,
+                    }}
+                  />
+                ))}
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
+
+        {/* Glow Effect */}
+        <motion.div
+          className={`absolute inset-0 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300 ${
+            isDark ? 'bg-yellow-400/20' : 'bg-slate-600/20'
+          }`}
+          animate={{
+            scale: [1, 1.2, 1],
+          }}
+          transition={{
+            duration: 2,
+            repeat: Infinity,
+            ease: "easeInOut"
+          }}
+        />
+      </motion.button>
+    );
+  }
+
   return (
     <motion.button
       onClick={toggle}
-      className="relative p-4 rounded-2xl bg-gradient-to-br from-slate-100 to-slate-200 dark:from-slate-800 dark:to-slate-900 border border-slate-300 dark:border-slate-600 shadow-lg hover:shadow-xl transition-all duration-500 overflow-hidden group"
+      className={`relative ${sizeClasses[size]} rounded-2xl transition-all duration-500 overflow-hidden group ${
+        isDark 
+          ? 'bg-gradient-to-br from-slate-800 via-slate-700 to-slate-900 border border-slate-600/50 text-yellow-400 shadow-xl' 
+          : 'bg-gradient-to-br from-white via-slate-50 to-slate-100 border border-slate-300/50 text-slate-700 shadow-lg'
+      }`}
       whileHover={{ scale: 1.05, rotate: 2 }}
       whileTap={{ scale: 0.95 }}
       aria-label="Toggle dark mode"
     >
-      {/* Background Gradient Animation */}
+      {/* Premium Background Pattern */}
+      <div className="absolute inset-0 opacity-10">
+        <div className={`absolute inset-0 bg-pattern-grid ${isDark ? 'text-yellow-400' : 'text-slate-600'}`} />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent" />
+      </div>
+
+      {/* Premium Background Animation */}
       <motion.div
-        className="absolute inset-0 bg-gradient-to-r from-yellow-400/20 via-orange-400/20 to-yellow-400/20 dark:from-blue-400/20 dark:via-purple-400/20 dark:to-blue-400/20"
+        className={`absolute inset-0 bg-gradient-to-r ${
+          isDark 
+            ? 'from-yellow-400/20 via-orange-400/20 to-yellow-400/20' 
+            : 'from-blue-400/20 via-purple-400/20 to-blue-400/20'
+        }`}
         animate={{
           x: isDark ? ['-100%', '100%'] : ['100%', '-100%'],
         }}
@@ -35,7 +209,7 @@ const DarkModeToggle: React.FC<DarkModeToggleProps> = ({ isDark, toggle }) => {
           <motion.div
             key={i}
             className={`absolute w-1 h-1 rounded-full ${
-              isDark ? 'bg-blue-400' : 'bg-yellow-400'
+              isDark ? 'bg-yellow-400' : 'bg-slate-600'
             }`}
             style={{
               left: `${20 + i * 15}%`,
@@ -57,76 +231,18 @@ const DarkModeToggle: React.FC<DarkModeToggleProps> = ({ isDark, toggle }) => {
       </div>
 
       {/* Main Icon Container */}
-      <div className="relative z-10 flex items-center justify-center">
+      <div className="relative z-10 flex items-center justify-center w-full h-full">
         <AnimatePresence mode="wait">
           {isDark ? (
             <motion.div
-              key="moon"
-              initial={{ opacity: 0, rotate: -180, scale: 0 }}
-              animate={{ opacity: 1, rotate: 0, scale: 1 }}
-              exit={{ opacity: 0, rotate: 180, scale: 0 }}
-              transition={{ duration: 0.6, ease: "easeInOut" }}
-              className="relative"
-            >
-              {/* Moon with Glow */}
-              <motion.div
-                className="relative"
-                animate={{
-                  filter: [
-                    "drop-shadow(0 0 10px rgba(59, 130, 246, 0.5))",
-                    "drop-shadow(0 0 20px rgba(59, 130, 246, 0.8))",
-                    "drop-shadow(0 0 10px rgba(59, 130, 246, 0.5))"
-                  ]
-                }}
-                transition={{ duration: 2, repeat: Infinity }}
-              >
-                <Moon className="w-6 h-6 text-blue-400" />
-              </motion.div>
-
-              {/* Stars around Moon */}
-              {[...Array(4)].map((_, i) => (
-                <motion.div
-                  key={i}
-                  className="absolute w-1 h-1 bg-blue-300 rounded-full"
-                  style={{
-                    left: `${-10 + i * 8}px`,
-                    top: `${-8 + (i % 2) * 16}px`,
-                  }}
-                  animate={{
-                    opacity: [0, 1, 0],
-                    scale: [0, 1, 0],
-                  }}
-                  transition={{
-                    duration: 1.5,
-                    repeat: Infinity,
-                    delay: i * 0.3,
-                  }}
-                />
-              ))}
-
-              {/* Crescent Effect */}
-              <motion.div
-                className="absolute inset-0 bg-gradient-to-r from-transparent via-blue-400/30 to-transparent rounded-full"
-                animate={{
-                  rotate: [0, 360],
-                }}
-                transition={{
-                  duration: 8,
-                  repeat: Infinity,
-                  ease: "linear"
-                }}
-              />
-            </motion.div>
-          ) : (
-            <motion.div
               key="sun"
-              initial={{ opacity: 0, rotate: 180, scale: 0 }}
-              animate={{ opacity: 1, rotate: 0, scale: 1 }}
-              exit={{ opacity: 0, rotate: -180, scale: 0 }}
+              initial={{ rotate: -180, opacity: 0, scale: 0 }}
+              animate={{ rotate: 0, opacity: 1, scale: 1 }}
+              exit={{ rotate: 180, opacity: 0, scale: 0 }}
               transition={{ duration: 0.6, ease: "easeInOut" }}
               className="relative"
             >
-              {/* Sun with Glow */}
+              {/* Sun with Premium Glow */}
               <motion.div
                 className="relative"
                 animate={{
@@ -138,14 +254,25 @@ const DarkModeToggle: React.FC<DarkModeToggleProps> = ({ isDark, toggle }) => {
                 }}
                 transition={{ duration: 2, repeat: Infinity }}
               >
-                <Sun className="w-6 h-6 text-yellow-500" />
+                <motion.div
+                  animate={{ 
+                    rotate: [0, 360],
+                    scale: [1, 1.1, 1]
+                  }}
+                  transition={{ 
+                    rotate: { duration: 8, repeat: Infinity, ease: "linear" },
+                    scale: { duration: 2, repeat: Infinity, ease: "easeInOut" }
+                  }}
+                >
+                  <Sun className={iconSizes[size]} />
+                </motion.div>
               </motion.div>
 
-              {/* Sun Rays */}
+              {/* Premium Sun Rays */}
               {[...Array(8)].map((_, i) => (
                 <motion.div
                   key={i}
-                  className="absolute w-0.5 h-3 bg-yellow-400 rounded-full"
+                  className="absolute w-0.5 h-3 bg-current rounded-full"
                   style={{
                     left: '50%',
                     top: '50%',
@@ -164,18 +291,19 @@ const DarkModeToggle: React.FC<DarkModeToggleProps> = ({ isDark, toggle }) => {
                 />
               ))}
 
-              {/* Sparkles around Sun */}
-              {[...Array(3)].map((_, i) => (
+              {/* Premium Sparkles around Sun */}
+              {[...Array(4)].map((_, i) => (
                 <motion.div
                   key={i}
                   className="absolute"
                   style={{
-                    left: `${-15 + i * 15}px`,
+                    left: `${-15 + i * 10}px`,
                     top: `${-10 + (i % 2) * 20}px`,
                   }}
                   animate={{
                     rotate: [0, 360],
                     scale: [0, 1, 0],
+                    opacity: [0, 1, 0],
                   }}
                   transition={{
                     duration: 2,
@@ -183,15 +311,119 @@ const DarkModeToggle: React.FC<DarkModeToggleProps> = ({ isDark, toggle }) => {
                     delay: i * 0.4,
                   }}
                 >
-                  <Sparkles className="w-2 h-2 text-yellow-400" />
+                  <Sparkles className="w-2 h-2 text-yellow-300" />
                 </motion.div>
               ))}
+            </motion.div>
+          ) : (
+            <motion.div
+              key="moon"
+              initial={{ rotate: 180, opacity: 0, scale: 0 }}
+              animate={{ rotate: 0, opacity: 1, scale: 1 }}
+              exit={{ rotate: -180, opacity: 0, scale: 0 }}
+              transition={{ duration: 0.6, ease: "easeInOut" }}
+              className="relative"
+            >
+              {/* Moon with Premium Glow */}
+              <motion.div
+                className="relative"
+                animate={{
+                  filter: [
+                    "drop-shadow(0 0 10px rgba(100, 116, 139, 0.5))",
+                    "drop-shadow(0 0 20px rgba(100, 116, 139, 0.8))",
+                    "drop-shadow(0 0 10px rgba(100, 116, 139, 0.5))"
+                  ]
+                }}
+                transition={{ duration: 2, repeat: Infinity }}
+              >
+                <motion.div
+                  animate={{ 
+                    rotate: [0, -10, 10, 0],
+                    scale: [1, 1.05, 1]
+                  }}
+                  transition={{ 
+                    duration: 4, 
+                    repeat: Infinity, 
+                    ease: "easeInOut" 
+                  }}
+                >
+                  <Moon className={iconSizes[size]} />
+                </motion.div>
+              </motion.div>
+
+              {/* Premium Stars around Moon */}
+              {[...Array(5)].map((_, i) => (
+                <motion.div
+                  key={i}
+                  className="absolute w-1 h-1 bg-current rounded-full"
+                  style={{
+                    left: `${-12 + i * 6}px`,
+                    top: `${-8 + (i % 2) * 16}px`,
+                  }}
+                  animate={{
+                    opacity: [0, 1, 0],
+                    scale: [0, 1, 0],
+                    rotate: [0, 180, 360],
+                  }}
+                  transition={{
+                    duration: 2,
+                    repeat: Infinity,
+                    delay: i * 0.3,
+                  }}
+                />
+              ))}
+
+              {/* Premium Constellation Effect */}
+              <motion.div
+                className="absolute inset-0"
+                animate={{
+                  rotate: [0, 360],
+                }}
+                transition={{
+                  duration: 20,
+                  repeat: Infinity,
+                  ease: "linear"
+                }}
+              >
+                {[...Array(3)].map((_, i) => (
+                  <motion.div
+                    key={i}
+                    className="absolute w-0.5 h-0.5 bg-current rounded-full"
+                    style={{
+                      left: `${30 + i * 20}%`,
+                      top: `${25 + i * 15}%`,
+                    }}
+                    animate={{
+                      opacity: [0.3, 1, 0.3],
+                      scale: [0.5, 1, 0.5],
+                    }}
+                    transition={{
+                      duration: 3,
+                      repeat: Infinity,
+                      delay: i * 0.8,
+                    }}
+                  />
+                ))}
+              </motion.div>
             </motion.div>
           )}
         </AnimatePresence>
       </div>
 
-      {/* Ripple Effect on Click */}
+      {/* Premium Border Glow */}
+      <motion.div
+        className={`absolute inset-0 rounded-2xl border-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300 ${
+          isDark ? 'border-yellow-400/50' : 'border-slate-400/50'
+        }`}
+        animate={{
+          borderColor: isDark 
+            ? ['rgba(251, 191, 36, 0.5)', 'rgba(251, 191, 36, 0.8)', 'rgba(251, 191, 36, 0.5)']
+            : ['rgba(100, 116, 139, 0.5)', 'rgba(100, 116, 139, 0.8)', 'rgba(100, 116, 139, 0.5)']
+        }}
+        transition={{ duration: 2, repeat: Infinity }}
+      />
+
+      {/* Premium Ripple Effect on Click */}
       <motion.div
         className="absolute inset-0 rounded-2xl"
         initial={{ scale: 0, opacity: 0.5 }}
@@ -200,56 +432,37 @@ const DarkModeToggle: React.FC<DarkModeToggleProps> = ({ isDark, toggle }) => {
         transition={{ duration: 0.4 }}
         style={{
           background: isDark 
-            ? 'radial-gradient(circle, rgba(59, 130, 246, 0.3) 0%, transparent 70%)'
-            : 'radial-gradient(circle, rgba(251, 191, 36, 0.3) 0%, transparent 70%)'
+            ? 'radial-gradient(circle, rgba(251, 191, 36, 0.3) 0%, transparent 70%)'
+            : 'radial-gradient(circle, rgba(100, 116, 139, 0.3) 0%, transparent 70%)'
         }}
       />
 
-      {/* Hover Glow Effect */}
+      {/* Premium Mode Indicator */}
       <motion.div
-        className="absolute inset-0 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"
-        style={{
-          background: isDark
-            ? 'linear-gradient(45deg, rgba(59, 130, 246, 0.1), rgba(147, 51, 234, 0.1))'
-            : 'linear-gradient(45deg, rgba(251, 191, 36, 0.1), rgba(249, 115, 22, 0.1))'
+        className="absolute -top-1 -right-1 w-3 h-3 rounded-full"
+        animate={{
+          backgroundColor: isDark ? '#fbbf24' : '#64748b',
+          scale: [1, 1.2, 1],
+        }}
+        transition={{
+          backgroundColor: { duration: 0.3 },
+          scale: { duration: 2, repeat: Infinity }
         }}
       />
 
-      {/* Lightning Effect for Mode Switch */}
-      <AnimatePresence>
-        {isDark && (
-          <motion.div
-            initial={{ opacity: 0, scale: 0 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 0 }}
-            className="absolute top-1 right-1"
-          >
-            <motion.div
-              animate={{
-                opacity: [0, 1, 0],
-                scale: [0.5, 1, 0.5],
-              }}
-              transition={{
-                duration: 1,
-                repeat: Infinity,
-                delay: 1,
-              }}
-            >
-              <Zap className="w-3 h-3 text-purple-400" />
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-
-      {/* Mode Label */}
+      {/* Premium Tooltip */}
       <motion.div
-        className="absolute -bottom-8 left-1/2 transform -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+        className="absolute -bottom-12 left-1/2 transform -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"
         initial={{ y: 10 }}
         whileHover={{ y: 0 }}
       >
-        <span className="text-xs font-medium text-slate-600 dark:text-slate-400 bg-white dark:bg-slate-800 px-2 py-1 rounded-lg shadow-lg whitespace-nowrap">
-          {isDark ? 'Modo Claro' : 'Modo Escuro'}
-        </span>
+        <div className={`px-3 py-1 rounded-lg text-xs font-medium whitespace-nowrap shadow-lg ${
+          isDark 
+            ? 'bg-slate-800 text-yellow-400 border border-slate-600' 
+            : 'bg-white text-slate-700 border border-slate-300'
+        }`}>
+          {isDark ? '☀️ Modo Claro' : '🌙 Modo Escuro'}
+        </div>
       </motion.div>
     </motion.button>
   );

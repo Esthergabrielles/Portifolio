@@ -5,6 +5,7 @@ import { useScrollPosition } from '../hooks/useScrollPosition';
 import { useDarkMode } from '../hooks/useDarkMode';
 import PremiumLogo from './PremiumLogo';
 import PremiumButton from './PremiumButton';
+import DarkModeToggle from './DarkModeToggle';
 
 const Header: React.FC = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -131,120 +132,8 @@ const Header: React.FC = () => {
 
             {/* Right side controls */}
             <div className="flex items-center space-x-4">
-              {/* Dark Mode Toggle with Animation */}
-              <motion.button
-                onClick={toggleDarkMode}
-                className="relative p-3 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 hover:text-primary-600 transition-all duration-300 group overflow-hidden"
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                aria-label="Toggle dark mode"
-              >
-                {/* Background Animation */}
-                <motion.div
-                  className="absolute inset-0 bg-gradient-to-r from-primary-500/10 to-accent-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
-                  animate={{
-                    background: [
-                      'linear-gradient(45deg, rgba(14,165,233,0.1) 0%, rgba(217,70,239,0.1) 100%)',
-                      'linear-gradient(225deg, rgba(217,70,239,0.1) 0%, rgba(14,165,233,0.1) 100%)',
-                      'linear-gradient(45deg, rgba(14,165,233,0.1) 0%, rgba(217,70,239,0.1) 100%)'
-                    ]
-                  }}
-                  transition={{ duration: 4, repeat: Infinity }}
-                />
-
-                <AnimatePresence mode="wait">
-                  {isDark ? (
-                    <motion.div
-                      key="sun"
-                      initial={{ rotate: -90, opacity: 0, scale: 0.5 }}
-                      animate={{ rotate: 0, opacity: 1, scale: 1 }}
-                      exit={{ rotate: 90, opacity: 0, scale: 0.5 }}
-                      transition={{ duration: 0.5, ease: "easeInOut" }}
-                      className="relative z-10"
-                    >
-                      <motion.div
-                        animate={{ 
-                          rotate: [0, 360],
-                          scale: [1, 1.1, 1]
-                        }}
-                        transition={{ 
-                          rotate: { duration: 8, repeat: Infinity, ease: "linear" },
-                          scale: { duration: 2, repeat: Infinity, ease: "easeInOut" }
-                        }}
-                      >
-                        <Sun className="w-5 h-5" />
-                      </motion.div>
-                      
-                      {/* Sun rays animation */}
-                      {[...Array(8)].map((_, i) => (
-                        <motion.div
-                          key={i}
-                          className="absolute w-0.5 h-2 bg-current rounded-full"
-                          style={{
-                            left: '50%',
-                            top: '50%',
-                            transformOrigin: '50% 10px',
-                            transform: `translate(-50%, -50%) rotate(${i * 45}deg)`,
-                          }}
-                          animate={{
-                            scaleY: [0.5, 1, 0.5],
-                            opacity: [0.5, 1, 0.5],
-                          }}
-                          transition={{
-                            duration: 1.5,
-                            repeat: Infinity,
-                            delay: i * 0.1,
-                          }}
-                        />
-                      ))}
-                    </motion.div>
-                  ) : (
-                    <motion.div
-                      key="moon"
-                      initial={{ rotate: 90, opacity: 0, scale: 0.5 }}
-                      animate={{ rotate: 0, opacity: 1, scale: 1 }}
-                      exit={{ rotate: -90, opacity: 0, scale: 0.5 }}
-                      transition={{ duration: 0.5, ease: "easeInOut" }}
-                      className="relative z-10"
-                    >
-                      <motion.div
-                        animate={{ 
-                          rotate: [0, -10, 10, 0],
-                          scale: [1, 1.05, 1]
-                        }}
-                        transition={{ 
-                          duration: 4, 
-                          repeat: Infinity, 
-                          ease: "easeInOut" 
-                        }}
-                      >
-                        <Moon className="w-5 h-5" />
-                      </motion.div>
-                      
-                      {/* Stars around moon */}
-                      {[...Array(3)].map((_, i) => (
-                        <motion.div
-                          key={i}
-                          className="absolute w-1 h-1 bg-current rounded-full"
-                          style={{
-                            left: `${-8 + i * 8}px`,
-                            top: `${-6 + (i % 2) * 12}px`,
-                          }}
-                          animate={{
-                            opacity: [0, 1, 0],
-                            scale: [0, 1, 0],
-                          }}
-                          transition={{
-                            duration: 2,
-                            repeat: Infinity,
-                            delay: i * 0.5,
-                          }}
-                        />
-                      ))}
-                    </motion.div>
-                  )}
-                </AnimatePresence>
-              </motion.button>
+              {/* Premium Dark Mode Toggle */}
+              <DarkModeToggle isDark={isDark} toggle={toggleDarkMode} variant="premium" size="md" />
 
               {/* Premium CTA Button */}
               <div className="hidden md:block">

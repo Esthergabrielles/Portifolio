@@ -1,7 +1,7 @@
 /** @type {import('tailwindcss').Config} */
 export default {
   content: ['./index.html', './src/**/*.{js,ts,jsx,tsx}'],
-  darkMode: 'class',
+  darkMode: ['class', '[data-theme="dark"]'],
   theme: {
     extend: {
       fontFamily: {
@@ -257,6 +257,10 @@ export default {
         'gradient-premium-tertiary': 'linear-gradient(135deg, #22c55e 0%, #0ea5e9 100%)',
         'gradient-shimmer': 'linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent)',
         'mesh-gradient': 'radial-gradient(at 40% 20%, hsla(28,100%,74%,1) 0px, transparent 50%), radial-gradient(at 80% 0%, hsla(189,100%,56%,1) 0px, transparent 50%), radial-gradient(at 0% 50%, hsla(355,100%,93%,1) 0px, transparent 50%), radial-gradient(at 80% 50%, hsla(340,100%,76%,1) 0px, transparent 50%), radial-gradient(at 0% 100%, hsla(22,100%,77%,1) 0px, transparent 50%), radial-gradient(at 80% 100%, hsla(242,100%,70%,1) 0px, transparent 50%), radial-gradient(at 0% 0%, hsla(343,100%,76%,1) 0px, transparent 50%)',
+        'pattern-grid': 'linear-gradient(90deg, rgba(255,255,255,0.1) 1px, transparent 1px), linear-gradient(rgba(255,255,255,0.1) 1px, transparent 1px)',
+      },
+      backgroundSize: {
+        'pattern-grid': '20px 20px',
       },
       scale: {
         '102': '1.02',
@@ -338,11 +342,6 @@ export default {
         'smooth-in': 'cubic-bezier(0.4, 0, 1, 1)',
         'smooth-out': 'cubic-bezier(0, 0, 0.2, 1)',
       },
-      backgroundSize: {
-        '200': '200% 200%',
-        '300': '300% 300%',
-        '400': '400% 400%',
-      },
       backgroundPosition: {
         'pos-0': '0% 50%',
         'pos-100': '100% 50%',
@@ -353,6 +352,15 @@ export default {
         '80': '80',
         '90': '90',
         '100': '100',
+      },
+      animation: {
+        'shimmer': 'shimmer 2s linear infinite',
+      },
+      keyframes: {
+        shimmer: {
+          '0%': { transform: 'translateX(-100%)' },
+          '100%': { transform: 'translateX(100%)' },
+        },
       },
     },
   },
