@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { ChevronDown, Download, Mail, MapPin, Phone, Play } from 'lucide-react';
-import { motion } from 'framer-motion';
+import { ChevronDown, Download, Mail, MapPin, Phone, Play, Sparkles, Star, Zap } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { usePortfolioData } from '../hooks/usePortfolioData';
 import PremiumButton from './PremiumButton';
 import PremiumCard from './PremiumCard';
@@ -49,7 +49,11 @@ const Hero: React.FC = () => {
 
   if (loading) {
     return (
-      <section id="home" className="min-h-screen flex items-center justify-center bg-white">
+      <section id="home" className="min-h-screen flex items-center justify-center bg-gradient-to-br from-white via-slate-50 to-white dark:from-slate-950 dark:via-slate-900 dark:to-slate-950 relative overflow-hidden">
+        {/* Premium Background Pattern */}
+        <div className="absolute inset-0 bg-pattern-grid opacity-30" />
+        <div className="absolute inset-0 bg-gradient-to-br from-primary-500/5 via-transparent to-accent-500/5" />
+        
         <PremiumLoadingSpinner 
           size="xl" 
           variant="orbit" 
@@ -77,9 +81,39 @@ const Hero: React.FC = () => {
   };
 
   return (
-    <section id="home" className="min-h-screen flex items-center justify-center bg-white pt-32">
-      <div className="container mx-auto px-6">
-        <div className="max-w-6xl mx-auto">
+    <section id="home" className="min-h-screen flex items-center justify-center relative overflow-hidden pt-32">
+      {/* Premium Background */}
+      <div className="absolute inset-0 bg-gradient-to-br from-white via-slate-50 to-white dark:from-slate-950 dark:via-slate-900 dark:to-slate-950" />
+      <div className="absolute inset-0 bg-pattern-grid opacity-30" />
+      <div className="absolute inset-0 bg-gradient-to-br from-primary-500/5 via-transparent to-accent-500/5" />
+      
+      {/* Floating Elements */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        {[...Array(20)].map((_, i) => (
+          <motion.div
+            key={i}
+            className="absolute w-2 h-2 bg-gradient-to-r from-primary-400 to-accent-400 rounded-full opacity-20"
+            style={{
+              left: `${Math.random() * 100}%`,
+              top: `${Math.random() * 100}%`,
+            }}
+            animate={{
+              y: [0, -100, 0],
+              opacity: [0.2, 0.8, 0.2],
+              scale: [1, 1.5, 1],
+            }}
+            transition={{
+              duration: 8 + Math.random() * 4,
+              repeat: Infinity,
+              delay: Math.random() * 5,
+              ease: "easeInOut"
+            }}
+          />
+        ))}
+      </div>
+
+      <div className="container-12 relative z-10">
+        <div className="col-span-12">
           {/* Main Content */}
           <motion.div
             className="text-center"
@@ -87,117 +121,166 @@ const Hero: React.FC = () => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 1, ease: "easeOut" }}
           >
-            {/* Profile Image - Clean and Simple */}
+            {/* Profile Image - Premium Design */}
             <motion.div
-              className="relative inline-block mb-12"
-              initial={{ scale: 0 }}
-              animate={{ scale: 1 }}
-              transition={{ duration: 0.8, delay: 0.3, type: "spring", bounce: 0.4 }}
+              className="relative inline-block mb-16"
+              initial={{ scale: 0, rotate: -180 }}
+              animate={{ scale: 1, rotate: 0 }}
+              transition={{ duration: 1.2, delay: 0.3, type: "spring", bounce: 0.4 }}
             >
-              <div className="w-32 h-32 rounded-full overflow-hidden shadow-lg border-4 border-white mx-auto">
-                <img
-                  src={personalInfo?.profile_image || 'https://images.pexels.com/photos/774909/pexels-photo-774909.jpeg?auto=compress&cs=tinysrgb&w=400&h=400&fit=crop'}
-                  alt={personalInfo?.name || 'Esther Gabrielle'}
-                  className="w-full h-full object-cover"
-                />
+              <div className="relative">
+                {/* Glow Effect */}
+                <div className="absolute inset-0 bg-gradient-to-r from-primary-500 to-accent-500 rounded-full blur-2xl opacity-30 scale-110" />
+                
+                {/* Main Image Container */}
+                <div className="relative w-40 h-40 rounded-full overflow-hidden shadow-premium border-4 border-white/50 dark:border-slate-800/50 backdrop-blur-sm">
+                  <img
+                    src={personalInfo?.profile_image || 'https://images.pexels.com/photos/774909/pexels-photo-774909.jpeg?auto=compress&cs=tinysrgb&w=400&h=400&fit=crop'}
+                    alt={personalInfo?.name || 'Esther Gabrielle'}
+                    className="w-full h-full object-cover"
+                  />
+                  
+                  {/* Overlay Gradient */}
+                  <div className="absolute inset-0 bg-gradient-to-t from-primary-500/20 to-transparent" />
+                </div>
+                
+                {/* Floating Icons */}
+                {[Sparkles, Star, Zap].map((Icon, index) => (
+                  <motion.div
+                    key={index}
+                    className="absolute w-8 h-8 bg-gradient-to-r from-primary-500 to-accent-500 rounded-full flex items-center justify-center shadow-lg"
+                    style={{
+                      top: `${20 + index * 30}%`,
+                      right: index % 2 === 0 ? '-10px' : 'auto',
+                      left: index % 2 === 1 ? '-10px' : 'auto',
+                    }}
+                    animate={{
+                      y: [0, -10, 0],
+                      rotate: [0, 360],
+                      scale: [1, 1.1, 1],
+                    }}
+                    transition={{
+                      duration: 3 + index,
+                      repeat: Infinity,
+                      delay: index * 0.5,
+                    }}
+                  >
+                    <Icon className="w-4 h-4 text-white" />
+                  </motion.div>
+                ))}
               </div>
             </motion.div>
 
-            {/* Name and Title */}
+            {/* Name and Title - Premium Typography */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 1, delay: 0.6 }}
-              className="mb-12"
+              className="mb-16"
             >
-              <h1 className="text-5xl md:text-6xl lg:text-7xl font-poppins font-bold mb-6 leading-tight text-slate-900">
-                {personalInfo?.name?.split(' ')[0] || 'Esther'}{' '}
-                <span className="text-primary-600">
+              <h1 className="text-6xl md:text-7xl lg:text-8xl xl:text-9xl font-poppins font-black mb-8 leading-none">
+                <span className="block">
+                  {personalInfo?.name?.split(' ')[0] || 'Esther'}
+                </span>
+                <span className="block gradient-text">
                   {personalInfo?.name?.split(' ')[1] || 'Gabrielle'}
                 </span>
               </h1>
               
-              <div className="text-2xl md:text-3xl lg:text-4xl font-poppins font-medium text-slate-600 mb-8">
-                <span className="text-primary-600">
+              <div className="text-3xl md:text-4xl lg:text-5xl font-poppins font-bold text-slate-600 dark:text-slate-300 mb-8">
+                <span className="gradient-text">
                   {typedText}
                 </span>
                 <motion.span
-                  className="inline-block w-1 h-8 bg-primary-500 ml-2"
+                  className="inline-block w-1 h-12 bg-gradient-to-b from-primary-500 to-accent-500 ml-3 rounded-full"
                   animate={{ opacity: [0, 1, 0] }}
                   transition={{ duration: 1, repeat: Infinity }}
                 />
               </div>
             </motion.div>
 
-            {/* Description */}
+            {/* Description - Premium Styling */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 1, delay: 0.8 }}
-              className="mb-16"
+              className="mb-20"
             >
-              <p className="text-xl md:text-2xl text-slate-600 max-w-4xl mx-auto leading-relaxed font-inter">
-                {personalInfo?.description || 'Iniciando minha carreira em QA com paixão por encontrar bugs e garantir qualidade. Sempre em busca de aprender e crescer na área de tecnologia.'}
-              </p>
+              <PremiumCard
+                variant="glass"
+                padding="xl"
+                className="max-w-5xl mx-auto"
+              >
+                <p className="text-xl md:text-2xl lg:text-3xl text-slate-700 dark:text-slate-300 leading-relaxed font-inter">
+                  {personalInfo?.description || 'Iniciando minha carreira em QA com paixão por encontrar bugs e garantir qualidade. Sempre em busca de aprender e crescer na área de tecnologia.'}
+                </p>
+              </PremiumCard>
             </motion.div>
 
-            {/* Action Buttons */}
+            {/* Action Buttons - Premium Design */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 1, delay: 1 }}
-              className="flex flex-col sm:flex-row gap-6 justify-center mb-20"
+              className="flex flex-col sm:flex-row gap-8 justify-center mb-24"
             >
               <PremiumButton
-                variant="primary"
-                size="lg"
+                variant="gradient"
+                size="xl"
                 icon={Mail}
                 onClick={handleContact}
+                glow={true}
+                animated={true}
               >
                 Vamos Conversar
               </PremiumButton>
               
               <PremiumButton
                 variant="outline"
-                size="lg"
+                size="xl"
                 icon={Download}
                 onClick={handleDownloadCV}
+                animated={true}
               >
                 Download CV
               </PremiumButton>
 
               <PremiumButton
                 variant="ghost"
-                size="lg"
+                size="xl"
                 icon={Play}
                 onClick={handleWatchDemo}
+                animated={true}
               >
                 Ver Projetos
               </PremiumButton>
             </motion.div>
 
-            {/* Stats - Clean Grid */}
+            {/* Stats - Premium Grid */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 1, delay: 1.2 }}
-              className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-20"
+              className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-24"
             >
               {[
                 { 
                   label: 'Projetos de Estudo', 
                   value: '5+', 
-                  description: 'Projetos práticos desenvolvidos'
+                  description: 'Projetos práticos desenvolvidos',
+                  gradient: 'from-blue-500 to-cyan-500'
                 },
                 { 
                   label: 'Progresso QA Bootcamp', 
                   value: '93%', 
-                  description: 'Dedicação aos estudos'
+                  description: 'Dedicação aos estudos',
+                  gradient: 'from-purple-500 to-pink-500'
                 },
                 { 
                   label: 'Certificações', 
                   value: '15+', 
-                  description: 'Certificados conquistados'
+                  description: 'Certificados conquistados',
+                  gradient: 'from-green-500 to-emerald-500'
                 }
               ].map((stat, index) => (
                 <motion.div
@@ -205,19 +288,22 @@ const Hero: React.FC = () => {
                   initial={{ opacity: 0, y: 30 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.8, delay: 1.4 + index * 0.2 }}
+                  whileHover={{ scale: 1.05, y: -10 }}
                 >
                   <PremiumCard 
-                    variant="default" 
+                    variant="premium" 
                     padding="xl" 
-                    className="text-center border border-slate-200 hover:border-primary-300 transition-colors duration-300"
+                    className="text-center group cursor-pointer"
+                    interactive={true}
+                    animated={true}
                   >
-                    <h3 className="text-4xl font-bold text-slate-900 mb-3 font-poppins">
-                      {stat.value}
-                    </h3>
-                    <p className="text-lg font-semibold text-slate-700 mb-2 font-inter">
+                    <div className={`w-20 h-20 bg-gradient-to-r ${stat.gradient} rounded-3xl flex items-center justify-center mx-auto mb-6 shadow-premium group-hover:scale-110 transition-transform duration-300`}>
+                      <span className="text-3xl font-bold text-white">{stat.value}</span>
+                    </div>
+                    <h3 className="text-2xl font-bold text-slate-900 dark:text-white mb-3 font-poppins">
                       {stat.label}
-                    </p>
-                    <p className="text-sm text-slate-500 font-inter">
+                    </h3>
+                    <p className="text-slate-600 dark:text-slate-400 font-inter">
                       {stat.description}
                     </p>
                   </PremiumCard>
@@ -225,52 +311,60 @@ const Hero: React.FC = () => {
               ))}
             </motion.div>
 
-            {/* Contact Info - Clean Layout */}
+            {/* Contact Info - Premium Layout */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 1, delay: 1.8 }}
-              className="flex flex-col sm:flex-row items-center justify-center gap-8 text-slate-600 mb-20"
+              className="mb-24"
             >
-              {[
-                { icon: MapPin, text: personalInfo?.location || 'Santa Bárbara d\'Oeste, SP' },
-                { icon: Phone, text: personalInfo?.phone || '(19) 98926-1419' },
-                { icon: Mail, text: personalInfo?.email || 'esthergabriellesouza@gmail.com' }
-              ].map((item, index) => (
-                <motion.div
-                  key={index}
-                  className="flex items-center gap-3"
-                  whileHover={{ scale: 1.05 }}
-                  transition={{ duration: 0.3 }}
-                >
-                  <div className="p-3 bg-primary-100 rounded-xl">
-                    <item.icon className="w-5 h-5 text-primary-600" />
-                  </div>
-                  <span className="font-inter font-medium text-lg">
-                    {item.text}
-                  </span>
-                </motion.div>
-              ))}
+              <PremiumCard
+                variant="glass"
+                padding="xl"
+                className="max-w-4xl mx-auto"
+              >
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                  {[
+                    { icon: MapPin, text: personalInfo?.location || 'Santa Bárbara d\'Oeste, SP', gradient: 'from-red-500 to-pink-500' },
+                    { icon: Phone, text: personalInfo?.phone || '(19) 98926-1419', gradient: 'from-green-500 to-emerald-500' },
+                    { icon: Mail, text: personalInfo?.email || 'esthergabriellesouza@gmail.com', gradient: 'from-blue-500 to-cyan-500' }
+                  ].map((item, index) => (
+                    <motion.div
+                      key={index}
+                      className="flex flex-col items-center text-center group cursor-pointer"
+                      whileHover={{ scale: 1.05, y: -5 }}
+                      transition={{ duration: 0.3 }}
+                    >
+                      <div className={`w-16 h-16 bg-gradient-to-r ${item.gradient} rounded-2xl flex items-center justify-center mb-4 shadow-lg group-hover:shadow-xl group-hover:scale-110 transition-all duration-300`}>
+                        <item.icon className="w-8 h-8 text-white" />
+                      </div>
+                      <span className="font-inter font-semibold text-lg text-slate-700 dark:text-slate-300">
+                        {item.text}
+                      </span>
+                    </motion.div>
+                  ))}
+                </div>
+              </PremiumCard>
             </motion.div>
 
-            {/* Scroll Indicator */}
+            {/* Scroll Indicator - Premium Animation */}
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ duration: 1, delay: 2 }}
               className="flex flex-col items-center"
             >
-              <p className="text-slate-500 font-inter mb-6 text-lg">
+              <p className="text-slate-500 dark:text-slate-400 font-inter mb-8 text-xl font-medium">
                 Explore meu portfólio
               </p>
               <motion.div
-                animate={{ y: [0, 10, 0] }}
+                animate={{ y: [0, 15, 0] }}
                 transition={{ duration: 2, repeat: Infinity }}
-                className="cursor-pointer"
+                className="cursor-pointer group"
                 onClick={() => document.querySelector('#about')?.scrollIntoView({ behavior: 'smooth' })}
               >
-                <div className="p-4 bg-slate-100 hover:bg-primary-100 rounded-full transition-colors duration-300">
-                  <ChevronDown className="w-6 h-6 text-slate-600" />
+                <div className="w-16 h-16 bg-gradient-to-r from-primary-500 to-accent-500 hover:from-primary-600 hover:to-accent-600 rounded-full flex items-center justify-center shadow-premium group-hover:shadow-glow transition-all duration-300 group-hover:scale-110">
+                  <ChevronDown className="w-8 h-8 text-white" />
                 </div>
               </motion.div>
             </motion.div>

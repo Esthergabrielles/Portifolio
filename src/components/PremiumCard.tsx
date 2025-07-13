@@ -8,7 +8,7 @@ interface PremiumCardProps {
   interactive?: boolean;
   padding?: 'none' | 'sm' | 'md' | 'lg' | 'xl';
   rounded?: 'sm' | 'md' | 'lg' | 'xl' | '2xl' | '3xl';
-  shadow?: 'none' | 'sm' | 'md' | 'lg' | 'xl' | '2xl';
+  shadow?: 'none' | 'sm' | 'md' | 'lg' | 'xl' | '2xl' | 'premium';
   border?: boolean;
   glow?: boolean;
   animated?: boolean;
@@ -22,20 +22,20 @@ const PremiumCard: React.FC<PremiumCardProps> = ({
   interactive = false,
   padding = 'lg',
   rounded = '3xl',
-  shadow = 'lg',
+  shadow = 'premium',
   border = true,
   glow = false,
   animated = true,
   onClick,
 }) => {
-  const baseClasses = 'relative transition-all duration-500 overflow-hidden';
+  const baseClasses = 'relative transition-all duration-500 overflow-hidden backdrop-blur-premium';
 
   const variantClasses = {
-    default: 'bg-white/90 dark:bg-slate-900/90 backdrop-blur-sm',
-    glass: 'glass backdrop-blur-premium',
-    gradient: 'bg-gradient-to-br from-white/95 via-slate-50/95 to-white/95 dark:from-slate-900/95 dark:via-slate-800/95 dark:to-slate-900/95 backdrop-blur-sm',
-    elevated: 'bg-white/95 dark:bg-slate-900/95 border-t border-white/30 dark:border-slate-700/30 backdrop-blur-sm',
-    premium: 'bg-gradient-to-br from-white via-slate-50/50 to-white dark:from-slate-900 dark:via-slate-800/50 dark:to-slate-900 backdrop-blur-premium'
+    default: 'bg-white/90 dark:bg-slate-900/90',
+    glass: 'bg-white/10 dark:bg-black/20 border-white/20 dark:border-white/10',
+    gradient: 'bg-gradient-to-br from-white/95 via-slate-50/95 to-white/95 dark:from-slate-900/95 dark:via-slate-800/95 dark:to-slate-900/95',
+    elevated: 'bg-white/95 dark:bg-slate-900/95 border-t border-white/30 dark:border-slate-700/30',
+    premium: 'bg-gradient-to-br from-white via-slate-50/50 to-white dark:from-slate-900 dark:via-slate-800/50 dark:to-slate-900'
   };
 
   const paddingClasses = {
@@ -61,11 +61,12 @@ const PremiumCard: React.FC<PremiumCardProps> = ({
     md: 'shadow-md',
     lg: 'shadow-lg',
     xl: 'shadow-xl',
-    '2xl': 'shadow-2xl'
+    '2xl': 'shadow-2xl',
+    premium: 'shadow-premium'
   };
 
   const borderClasses = border ? 'border border-slate-200/60 dark:border-slate-800/60' : '';
-  const interactiveClasses = interactive ? 'cursor-pointer hover:shadow-2xl hover:-translate-y-2 hover:scale-[1.02]' : '';
+  const interactiveClasses = interactive ? 'cursor-pointer hover:shadow-premium-lg hover:-translate-y-2 hover:scale-102' : '';
   const glowClasses = glow ? 'hover:shadow-glow' : '';
 
   const combinedClasses = `

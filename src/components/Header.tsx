@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Menu, X, Sun, Moon, Sparkles, ChevronDown } from 'lucide-react';
+import { Menu, X, Sparkles, ChevronDown } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useScrollPosition } from '../hooks/useScrollPosition';
 import { useDarkMode } from '../hooks/useDarkMode';
@@ -79,8 +79,8 @@ const Header: React.FC = () => {
         transition={{ duration: 0.8, ease: "easeOut" }}
         className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${
           isScrolled 
-            ? 'bg-white/95 backdrop-blur-lg border-b border-slate-200 shadow-lg' 
-            : 'bg-white/80 backdrop-blur-sm'
+            ? 'bg-white/95 dark:bg-slate-900/95 backdrop-blur-lg border-b border-slate-200 dark:border-slate-700 shadow-lg' 
+            : 'bg-white/80 dark:bg-slate-900/80 backdrop-blur-sm'
         }`}
       >
         <div className="container mx-auto">
@@ -106,8 +106,8 @@ const Header: React.FC = () => {
                   onClick={() => handleMenuClick(item.href, item.id)}
                   className={`relative px-6 py-3 text-sm font-medium rounded-xl transition-all duration-300 ${
                     activeSection === item.id
-                      ? 'text-primary-600 bg-primary-50 shadow-md'
-                      : 'text-slate-700 hover:text-primary-600 hover:bg-slate-50'
+                      ? 'text-primary-600 dark:text-primary-400 bg-primary-50 dark:bg-primary-900/30 shadow-md'
+                      : 'text-slate-700 dark:text-slate-300 hover:text-primary-600 dark:hover:text-primary-400 hover:bg-slate-50 dark:hover:bg-slate-800'
                   }`}
                   initial={{ opacity: 0, y: -20 }}
                   animate={{ opacity: 1, y: 0 }}
@@ -133,7 +133,12 @@ const Header: React.FC = () => {
             {/* Right side controls */}
             <div className="flex items-center space-x-4">
               {/* Premium Dark Mode Toggle */}
-              <DarkModeToggle isDark={isDark} toggle={toggleDarkMode} variant="premium" size="md" />
+              <DarkModeToggle 
+                isDark={isDark} 
+                toggle={toggleDarkMode} 
+                variant="premium" 
+                size="md" 
+              />
 
               {/* Premium CTA Button */}
               <div className="hidden md:block">
@@ -151,7 +156,7 @@ const Header: React.FC = () => {
               {/* Premium Mobile menu button */}
               <motion.button
                 onClick={() => setIsMenuOpen(!isMenuOpen)}
-                className="lg:hidden relative p-3 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 hover:text-primary-600 transition-all duration-300 group overflow-hidden"
+                className="lg:hidden relative p-3 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 hover:text-primary-600 dark:hover:text-primary-400 transition-all duration-300 group overflow-hidden"
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
                 aria-label="Toggle menu"
@@ -199,7 +204,7 @@ const Header: React.FC = () => {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.4 }}
-            className="lg:hidden fixed inset-0 top-20 bg-white/95 backdrop-blur-lg z-40 border-t border-slate-200"
+            className="lg:hidden fixed inset-0 top-20 bg-white/95 dark:bg-slate-900/95 backdrop-blur-lg z-40 border-t border-slate-200 dark:border-slate-700"
           >
             <motion.div
               initial={{ y: -50, opacity: 0 }}
@@ -214,8 +219,8 @@ const Header: React.FC = () => {
                   onClick={() => handleMenuClick(item.href, item.id)}
                   className={`block w-full text-left px-8 py-5 text-xl font-medium rounded-2xl transition-all duration-300 group ${
                     activeSection === item.id
-                      ? 'text-primary-600 bg-primary-50 shadow-lg'
-                      : 'text-slate-700 hover:text-primary-600 hover:bg-slate-50'
+                      ? 'text-primary-600 dark:text-primary-400 bg-primary-50 dark:bg-primary-900/30 shadow-lg'
+                      : 'text-slate-700 dark:text-slate-300 hover:text-primary-600 dark:hover:text-primary-400 hover:bg-slate-50 dark:hover:bg-slate-800'
                   }`}
                   initial={{ x: -50, opacity: 0 }}
                   animate={{ x: 0, opacity: 1 }}
@@ -226,7 +231,7 @@ const Header: React.FC = () => {
                     <div className={`w-3 h-3 rounded-full transition-all duration-300 ${
                       activeSection === item.id 
                         ? 'bg-primary-500 scale-100' 
-                        : 'bg-slate-300 scale-0 group-hover:scale-100'
+                        : 'bg-slate-300 dark:bg-slate-600 scale-0 group-hover:scale-100'
                     }`} />
                     {item.label}
                   </div>
