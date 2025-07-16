@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { DivideIcon as LucideIcon } from 'lucide-react';
+import { LucideIcon } from 'lucide-react';
 
 interface PremiumButtonProps {
   children: React.ReactNode;
@@ -76,7 +76,11 @@ const PremiumButton: React.FC<PremiumButtonProps> = ({
       {/* Premium Background Animation */}
       {animated && variant === 'gradient' && (
         <motion.div
-          className="absolute inset-0 bg-gradient-to-r from-accent-600 via-primary-600 to-accent-600 opacity-0 group-hover:opacity-100 transition-opacity duration-400"
+          className={`absolute inset-0 bg-gradient-to-r ${
+            variant === 'gradient' 
+              ? 'from-accent-600 via-primary-600 to-accent-600' 
+              : 'from-primary-600 via-accent-600 to-primary-600'
+          } opacity-0 group-hover:opacity-100 transition-opacity duration-400`}
           animate={{
             backgroundPosition: ['0% 50%', '100% 50%', '0% 50%']
           }}
