@@ -551,3 +551,53 @@
   background: linear-gradient(rgb(15, 23, 42), rgb(15, 23, 42)) padding-box,
               linear-gradient(135deg, #38bdf8, #a855f7) border-box;
 }
+
+
+/* Premium visual tweaks */
+body {
+  font-family: 'Inter', 'Helvetica Neue', Arial, sans-serif;
+  background: linear-gradient(135deg, #f7f9fc, #e2e8f0);
+  color: #1a202c;
+  line-height: 1.6;
+}
+
+button, .btn {
+  background: linear-gradient(90deg, #667eea, #764ba2);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 0.75rem 1.25rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+}
+
+button:hover, .btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 10px rgba(0,0,0,0.15);
+}
+
+.card {
+  background: white;
+  border-radius: 12px;
+  padding: 1rem;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+  transition: box-shadow 0.3s ease;
+}
+
+.card:hover {
+  box-shadow: 0 6px 12px rgba(0,0,0,0.1);
+}
+
+h1, h2, h3 {
+  font-weight: 600;
+}
+
+a {
+  color: #5a67d8;
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
