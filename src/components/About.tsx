@@ -3,10 +3,12 @@ import { Award, Users, Target, Lightbulb, MessageCircle, Clock, Sparkles, Star, 
 import { motion } from 'framer-motion';
 import AnimatedSection from './AnimatedSection';
 import { usePortfolioData } from '../hooks/usePortfolioData';
+import { useDarkMode } from '../hooks/useDarkMode';
 import PremiumCard from './PremiumCard';
 
 const About: React.FC = () => {
   const { data: portfolioData, loading } = usePortfolioData();
+  const { isDark } = useDarkMode();
 
   // Experiências padrão caso não haja dados
   const defaultExperiences = [
@@ -39,10 +41,13 @@ const About: React.FC = () => {
 
   if (loading) {
     return (
-      <section id="about" className="section-spacing relative overflow-hidden">
+      <section id="about" className={`section-spacing relative overflow-hidden ${
+        isDark 
+          ? 'bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900' 
+          : 'bg-gradient-to-br from-purple-50 via-pink-50 to-blue-50'
+      }`}>
         {/* Premium Background */}
-        <div className="absolute inset-0 bg-gradient-to-br from-slate-50 via-white to-slate-100 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900" />
-        <div className="absolute inset-0 bg-pattern-dots opacity-30" />
+        <div className={`absolute inset-0 ${isDark ? 'bg-pattern-grid opacity-20' : 'bg-pattern-dots opacity-30'}`} />
         
         <div className="container-12 relative z-10">
           <div className="col-span-12 text-center">
@@ -65,25 +70,36 @@ const About: React.FC = () => {
   }
 
   return (
-    <section id="about" className="section-spacing relative overflow-hidden">
+    <section id="about" className={`section-spacing relative overflow-hidden ${
+      isDark 
+        ? 'bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900' 
+        : 'bg-gradient-to-br from-purple-50 via-pink-50 to-blue-50'
+    }`}>
       {/* Premium Background */}
-      <div className="absolute inset-0 bg-gradient-to-br from-slate-50 via-white to-slate-100 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900" />
-      <div className="absolute inset-0 bg-pattern-dots opacity-30" />
-      <div className="absolute inset-0 bg-gradient-to-br from-primary-500/5 via-transparent to-accent-500/5" />
+      <div className={`absolute inset-0 ${isDark ? 'bg-pattern-grid opacity-20' : 'bg-pattern-dots opacity-30'}`} />
+      <div className={`absolute inset-0 ${
+        isDark 
+          ? 'bg-gradient-to-br from-blue-500/10 via-transparent to-purple-500/10' 
+          : 'bg-gradient-to-br from-pink-500/10 via-purple-500/10 to-blue-500/10'
+      }`} />
       
       {/* Floating Elements */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        {[...Array(15)].map((_, i) => (
+        {[...Array(isDark ? 10 : 20)].map((_, i) => (
           <motion.div
             key={i}
-            className="absolute w-1 h-1 bg-gradient-to-r from-primary-400 to-accent-400 rounded-full opacity-30"
+            className={`absolute w-1 h-1 rounded-full ${
+              isDark 
+                ? 'bg-gradient-to-r from-blue-400 to-purple-400 opacity-20' 
+                : 'bg-gradient-to-r from-pink-400 to-yellow-400 opacity-30'
+            }`}
             style={{
               left: `${Math.random() * 100}%`,
               top: `${Math.random() * 100}%`,
             }}
             animate={{
               y: [0, -50, 0],
-              opacity: [0.3, 0.8, 0.3],
+              opacity: isDark ? [0.1, 0.4, 0.1] : [0.3, 0.8, 0.3],
               scale: [1, 2, 1],
             }}
             transition={{
@@ -108,7 +124,11 @@ const About: React.FC = () => {
               <h2 className="text-6xl md:text-7xl font-poppins font-black mb-8 gradient-text">
                 Sobre Mim
               </h2>
-              <div className="w-32 h-2 bg-gradient-to-r from-primary-500 to-accent-500 mx-auto mb-12 rounded-full shadow-glow" />
+              <div className={`w-32 h-2 mx-auto mb-12 rounded-full shadow-glow ${
+                isDark 
+                  ? 'bg-gradient-to-r from-blue-500 to-purple-500' 
+                  : 'bg-gradient-to-r from-pink-500 to-yellow-500'
+              }`} />
               <PremiumCard
                 variant="glass"
                 padding="xl"
@@ -132,7 +152,11 @@ const About: React.FC = () => {
                 transition={{ duration: 0.4 }}
               >
                 {/* Glow Effect */}
-                <div className="absolute inset-0 bg-gradient-to-r from-primary-500 to-accent-500 rounded-3xl blur-2xl opacity-20 group-hover:opacity-30 transition-opacity duration-500" />
+                <div className={`absolute inset-0 rounded-3xl blur-2xl opacity-20 group-hover:opacity-30 transition-opacity duration-500 ${
+                  isDark 
+                    ? 'bg-gradient-to-r from-blue-500 to-purple-500' 
+                    : 'bg-gradient-to-r from-pink-500 to-yellow-500'
+                }`} />
                 
                 <PremiumCard
                   variant="premium"
@@ -141,19 +165,31 @@ const About: React.FC = () => {
                 >
                   <div className="relative overflow-hidden rounded-3xl">
                     <img
-                      src={personalInfo?.profile_image || "https://images.pexels.com/photos/3184306/pexels-photo-3184306.jpeg?auto=compress&cs=tinysrgb&w=800"}
+                      src={
+                        isDark 
+                          ? (personalInfo?.profile_image_dark || personalInfo?.profile_image || "https://images.pexels.com/photos/3184306/pexels-photo-3184306.jpeg?auto=compress&cs=tinysrgb&w=800")
+                          : (personalInfo?.profile_image || "https://images.pexels.com/photos/3184306/pexels-photo-3184306.jpeg?auto=compress&cs=tinysrgb&w=800")
+                      }
                       alt={personalInfo?.name || "Esther Gabrielle estudando"}
                       className="w-full h-[600px] object-cover group-hover:scale-105 transition-transform duration-700"
                     />
                     
                     {/* Premium Overlay */}
-                    <div className="absolute inset-0 bg-gradient-to-t from-primary-900/50 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                    <div className={`absolute inset-0 bg-gradient-to-t via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 ${
+                      isDark 
+                        ? 'from-blue-900/50' 
+                        : 'from-pink-900/50'
+                    }`} />
                     
                     {/* Floating Icons */}
-                    {[Sparkles, Star, Zap].map((Icon, index) => (
+                    {(isDark ? [Target, Award, Users] : [Sparkles, Star, Zap]).map((Icon, index) => (
                       <motion.div
                         key={index}
-                        className="absolute w-12 h-12 bg-gradient-to-r from-primary-500 to-accent-500 rounded-full flex items-center justify-center shadow-premium opacity-0 group-hover:opacity-100"
+                        className={`absolute w-12 h-12 rounded-full flex items-center justify-center shadow-premium opacity-0 group-hover:opacity-100 ${
+                          isDark 
+                            ? 'bg-gradient-to-r from-blue-500 to-purple-500' 
+                            : 'bg-gradient-to-r from-pink-500 to-yellow-500'
+                        }`}
                         style={{
                           top: `${20 + index * 25}%`,
                           right: `${10 + index * 15}%`,
@@ -226,7 +262,11 @@ const About: React.FC = () => {
                       interactive={true}
                     >
                       <div className="flex items-start space-x-6">
-                        <div className={`w-16 h-16 bg-gradient-to-r ${exp.gradient} rounded-2xl flex items-center justify-center shadow-premium group-hover:scale-110 group-hover:shadow-glow transition-all duration-300`}>
+                        <div className={`w-16 h-16 rounded-2xl flex items-center justify-center shadow-premium group-hover:scale-110 group-hover:shadow-glow transition-all duration-300 ${
+                          isDark 
+                            ? 'bg-gradient-to-r from-blue-500 to-purple-500' 
+                            : `bg-gradient-to-r ${exp.gradient}`
+                        }`}>
                           <exp.icon className="w-8 h-8 text-white" />
                         </div>
                         <div className="flex-1">
@@ -259,7 +299,11 @@ const About: React.FC = () => {
                       softSkills.map((skill, index) => (
                         <motion.span
                           key={skill.id}
-                          className="px-6 py-3 bg-gradient-to-r from-primary-500 to-accent-500 text-white rounded-2xl font-semibold font-inter shadow-premium hover:shadow-glow hover:scale-105 transition-all duration-300 cursor-pointer"
+                          className={`px-6 py-3 text-white rounded-2xl font-semibold font-inter shadow-premium hover:shadow-glow hover:scale-105 transition-all duration-300 cursor-pointer ${
+                            isDark 
+                              ? 'bg-gradient-to-r from-blue-500 to-purple-500' 
+                              : 'bg-gradient-to-r from-pink-500 to-yellow-500'
+                          }`}
                           initial={{ opacity: 0, scale: 0.8 }}
                           whileInView={{ opacity: 1, scale: 1 }}
                           transition={{ duration: 0.5, delay: index * 0.1 }}
@@ -274,7 +318,11 @@ const About: React.FC = () => {
                       ['Atenção aos Detalhes', 'Organização', 'Pensamento Analítico', 'Resolução de Problemas', 'Comunicação', 'Vontade de Aprender'].map((skill, index) => (
                         <motion.span
                           key={index}
-                          className="px-6 py-3 bg-gradient-to-r from-primary-500 to-accent-500 text-white rounded-2xl font-semibold font-inter shadow-premium hover:shadow-glow hover:scale-105 transition-all duration-300 cursor-pointer"
+                          className={`px-6 py-3 text-white rounded-2xl font-semibold font-inter shadow-premium hover:shadow-glow hover:scale-105 transition-all duration-300 cursor-pointer ${
+                            isDark 
+                              ? 'bg-gradient-to-r from-blue-500 to-purple-500' 
+                              : 'bg-gradient-to-r from-pink-500 to-yellow-500'
+                          }`}
                           initial={{ opacity: 0, scale: 0.8 }}
                           whileInView={{ opacity: 1, scale: 1 }}
                           transition={{ duration: 0.5, delay: index * 0.1 }}

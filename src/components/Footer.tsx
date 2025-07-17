@@ -1,5 +1,5 @@
 import React from 'react';
-import { Heart, Linkedin, Github, Mail, ExternalLink, Sparkles } from 'lucide-react';
+import { Heart, Linkedin, Github, Mail, ExternalLink, Sparkles, Rocket } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { usePortfolioData } from '../hooks/usePortfolioData';
 
@@ -26,18 +26,15 @@ const Footer: React.FC = () => {
 
   return (
     <footer className="relative overflow-hidden bg-gradient-to-br from-slate-900 via-slate-800 to-black text-white">
-      {/* Premium Background Pattern */}
       <div className="absolute inset-0 opacity-10">
         <div className="absolute inset-0 bg-pattern-grid"></div>
         <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent"></div>
       </div>
-      
+
       <div className="relative z-10 section-spacing">
         <div className="container-12">
           <div className="col-span-12">
-            {/* Main Footer Content */}
             <div className="text-center mb-16">
-              {/* Premium Logo */}
               <motion.div
                 className="mb-12"
                 initial={{ opacity: 0, y: 20 }}
@@ -51,21 +48,13 @@ const Footer: React.FC = () => {
                     {personalInfo?.name ? personalInfo.name.split(' ').map(n => n[0]).join('').slice(0, 2) : 'EG'}
                     <motion.div
                       className="absolute inset-0 bg-gradient-to-r from-white/20 to-transparent rounded-3xl"
-                      animate={{
-                        x: [-100, 100],
-                        opacity: [0, 0.5, 0]
-                      }}
-                      transition={{
-                        duration: 3,
-                        repeat: Infinity,
-                        ease: "linear"
-                      }}
+                      animate={{ x: [-100, 100], opacity: [0, 0.5, 0] }}
+                      transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
                     />
                   </div>
                 </div>
               </motion.div>
 
-              {/* Name and Description */}
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
@@ -80,8 +69,7 @@ const Footer: React.FC = () => {
                   {personalInfo?.description || 'Transformando ideias em realidade através de testes de qualidade excepcional. Cada bug encontrado é um problema evitado, cada teste é um passo rumo à perfeição.'}
                 </p>
               </motion.div>
-              
-              {/* Premium Social Links */}
+
               <motion.div
                 className="flex justify-center gap-6 mb-16"
                 initial={{ opacity: 0, y: 20 }}
@@ -90,23 +78,23 @@ const Footer: React.FC = () => {
                 viewport={{ once: true }}
               >
                 {[
-                  { 
-                    name: 'LinkedIn', 
-                    href: 'https://linkedin.com/in/esthergabrielle', 
+                  {
+                    name: 'LinkedIn',
+                    href: 'https://linkedin.com/in/esthergabrielle',
                     icon: Linkedin,
                     color: 'from-blue-500 to-blue-600',
                     hoverColor: 'hover:from-blue-600 hover:to-blue-700'
                   },
-                  { 
-                    name: 'GitHub', 
-                    href: 'https://github.com/Esthergabrielles', 
+                  {
+                    name: 'GitHub',
+                    href: 'https://github.com/Esthergabrielles',
                     icon: Github,
                     color: 'from-gray-700 to-gray-800',
                     hoverColor: 'hover:from-gray-800 hover:to-gray-900'
                   },
-                  { 
-                    name: 'Email', 
-                    href: `mailto:${personalInfo?.email || 'esthergabriellesouza@gmail.com'}`, 
+                  {
+                    name: 'Email',
+                    href: `mailto:${personalInfo?.email || 'esthergabriellesouza@gmail.com'}`,
                     icon: Mail,
                     color: 'from-emerald-500 to-emerald-600',
                     hoverColor: 'hover:from-emerald-600 hover:to-emerald-700'
@@ -135,8 +123,7 @@ const Footer: React.FC = () => {
                 ))}
               </motion.div>
             </div>
-            
-            {/* Premium Divider */}
+
             <motion.div
               className="w-full h-px bg-gradient-to-r from-transparent via-slate-600 to-transparent mb-12"
               initial={{ scaleX: 0 }}
@@ -144,8 +131,7 @@ const Footer: React.FC = () => {
               transition={{ duration: 0.8, delay: 0.8 }}
               viewport={{ once: true }}
             />
-            
-            {/* Bottom Section */}
+
             <motion.div
               className="flex flex-col md:flex-row justify-between items-center gap-6"
               initial={{ opacity: 0, y: 20 }}
@@ -156,40 +142,24 @@ const Footer: React.FC = () => {
               <div className="flex items-center gap-2 text-slate-400 font-inter">
                 <span>© 2024 {personalInfo?.name || 'Esther Gabrielle'}. Todos os direitos reservados.</span>
               </div>
-              
               <div className="flex items-center gap-2 text-slate-400 font-inter">
                 <span>Desenvolvido com</span>
                 <motion.div
-                  animate={{ 
-                    scale: [1, 1.2, 1],
-                    rotate: [0, 10, -10, 0]
-                  }}
-                  transition={{ 
-                    duration: 2, 
-                    repeat: Infinity,
-                    ease: "easeInOut"
-                  }}
+                  animate={{ scale: [1, 1.2, 1], rotate: [0, 10, -10, 0] }}
+                  transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
                 >
                   <Heart className="w-5 h-5 text-red-400 fill-current" />
                 </motion.div>
                 <span>e muita atenção aos detalhes</span>
                 <motion.div
-                  animate={{ 
-                    rotate: [0, 360],
-                    scale: [1, 1.1, 1]
-                  }}
-                  transition={{ 
-                    duration: 3, 
-                    repeat: Infinity,
-                    ease: "linear"
-                  }}
+                  animate={{ rotate: [0, 360], scale: [1, 1.1, 1] }}
+                  transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
                 >
                   <Sparkles className="w-4 h-4 text-yellow-400" />
                 </motion.div>
               </div>
             </motion.div>
 
-            {/* Premium Back to Top */}
             <motion.div
               className="text-center mt-12"
               initial={{ opacity: 0 }}
@@ -204,10 +174,10 @@ const Footer: React.FC = () => {
                 whileTap={{ scale: 0.95 }}
               >
                 <motion.div
-                  animate={{ y: [0, -3, 0] }}
+                  animate={{ y: [0, -5, 0] }}
                   transition={{ duration: 1.5, repeat: Infinity }}
                 >
-                  ↑
+                  <Rocket className="w-5 h-5 text-white" />
                 </motion.div>
                 <span>Voltar ao topo</span>
               </motion.button>

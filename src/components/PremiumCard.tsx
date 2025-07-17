@@ -53,16 +53,7 @@ const PremiumCard: React.FC<PremiumCardProps> = ({
     xl: 'rounded-3xl',
     '2xl': 'rounded-3xl',
     '3xl': 'rounded-3xl'
-  };
-
-  const shadowClasses = {
-    none: '',
-    sm: 'shadow-sm',
-    md: 'shadow-md',
-    lg: 'shadow-lg',
-    xl: 'shadow-xl',
-    '2xl': 'shadow-2xl',
-    premium: 'shadow-premium'
+  
   };
 
   const borderClasses = border ? 'border border-slate-200/60 dark:border-slate-800/60' : '';

@@ -5,7 +5,7 @@ interface AnimatedSectionProps {
   children: React.ReactNode;
   className?: string;
   animation?: 'fade-in' | 'slide-up' | 'scale-in';
-  delay?: number;
+  delay?: number; // delay em segundos
 }
 
 const AnimatedSection: React.FC<AnimatedSectionProps> = ({
@@ -20,13 +20,14 @@ const AnimatedSection: React.FC<AnimatedSectionProps> = ({
   });
 
   const animationClass = isIntersecting ? `animate-${animation}` : 'opacity-0';
-  const delayClass = delay > 0 ? `animate-stagger-${Math.min(delay, 4)}` : '';
+
+  const style = delay > 0 ? { animationDelay: `${delay}s` } : undefined;
 
   return (
     <div
       ref={ref}
-      className={`${animationClass} ${delayClass} ${className}`}
-      style={{ animationDelay: delay > 4 ? `${delay * 0.2}s` : undefined }}
+      className={`${animationClass} ${className}`.trim()}
+      style={style}
     >
       {children}
     </div>

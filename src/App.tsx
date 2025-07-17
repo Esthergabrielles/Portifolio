@@ -2,7 +2,6 @@ import React, { Suspense, lazy } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import Header from './components/Header';
 import Hero from './components/Hero';
-import BackToTop from './components/BackToTop';
 import AdminRoute from './components/AdminRoute';
 import Footer from './components/Footer';
 import InteractiveElements from './components/InteractiveElements';
@@ -36,7 +35,6 @@ function App() {
               <Achievements />
               <Contact />
             </Suspense>
-            <BackToTop />
             <Footer />
           </div>
         } />
