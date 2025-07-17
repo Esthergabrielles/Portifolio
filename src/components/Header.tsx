@@ -1,20 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { Menu, X, Sparkles } from 'lucide-react';
+import { Menu, X, Sparkles, ChevronDown } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useScrollPosition } from '../hooks/useScrollPosition';
 import { useDarkMode } from '../hooks/useDarkMode';
 import PremiumLogo from './PremiumLogo';
 import PremiumButton from './PremiumButton';
 import DarkModeToggle from './DarkModeToggle';
-
-const menuItems = [
-  { href: '#about', label: 'Sobre', id: 'about' },
-  { href: '#projects', label: 'Projetos', id: 'projects' },
-  { href: '#skills', label: 'Habilidades', id: 'skills' },
-  { href: '#courses', label: 'Cursos', id: 'courses' },
-  { href: '#certificates', label: 'Certificados', id: 'certificates' },
-  { href: '#contact', label: 'Contato', id: 'contact' }
-];
 
 const Header: React.FC = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -23,15 +14,20 @@ const Header: React.FC = () => {
   const isScrolled = scrollY > 50;
   const { isDark, toggleDarkMode } = useDarkMode();
 
+  const menuItems = [
+    { href: '#about', label: 'Sobre', id: 'about' },
+    { href: '#projects', label: 'Projetos', id: 'projects' },
+    { href: '#skills', label: 'Habilidades', id: 'skills' },
+    { href: '#courses', label: 'Cursos', id: 'courses' },
+    { href: '#certificates', label: 'Certificados', id: 'certificates' },
+    { href: '#contact', label: 'Contato', id: 'contact' }
+  ];
+
   const handleMenuClick = (href: string, id: string) => {
     setIsMenuOpen(false);
     setActiveSection(id);
     const element = document.querySelector(href);
-    if (element) {
-      element.scrollIntoView({ behavior: 'smooth' });
-    } else {
-      window.location.href = href;
-    }
+    element?.scrollIntoView({ behavior: 'smooth' });
   };
 
   const handleLogoClick = () => {
@@ -39,24 +35,37 @@ const Header: React.FC = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
+  // Track active section based on scroll position
   useEffect(() => {
     const handleScroll = () => {
-      const current = menuItems.find(item => {
-        const el = document.getElementById(item.id);
-        if (el) {
-          const rect = el.getBoundingClientRect();
+      const sections = menuItems.map(item => item.id);
+      const currentSection = sections.find(section => {
+        const element = document.getElementById(section);
+        if (element) {
+          const rect = element.getBoundingClientRect();
           return rect.top <= 100 && rect.bottom >= 100;
         }
         return false;
       });
-      setActiveSection(current?.id || 'home');
+      
+      if (currentSection) {
+        setActiveSection(currentSection);
+      } else if (scrollY < 100) {
+        setActiveSection('home');
+      }
     };
+
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
-  }, [scrollY]);
+  }, [scrollY, menuItems]);
 
   useEffect(() => {
-    document.body.style.overflow = isMenuOpen ? 'hidden' : 'unset';
+    if (isMenuOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'unset';
+    }
+
     return () => {
       document.body.style.overflow = 'unset';
     };
@@ -67,25 +76,29 @@ const Header: React.FC = () => {
       <motion.header
         initial={{ y: -100 }}
         animate={{ y: 0 }}
-        transition={{ duration: 0.8, ease: 'easeOut' }}
+        transition={{ duration: 0.8, ease: "easeOut" }}
         className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${
-          isScrolled
-            ? 'bg-white/95 dark:bg-slate-900/95 backdrop-blur-lg border-b border-slate-200 dark:border-slate-700 shadow-lg'
+          isScrolled 
+            ? 'bg-white/95 dark:bg-slate-900/95 backdrop-blur-lg border-b border-slate-200 dark:border-slate-700 shadow-lg' 
             : 'bg-white/80 dark:bg-slate-900/80 backdrop-blur-sm'
         }`}
       >
         <div className="container mx-auto">
           <div className="flex items-center justify-between h-20 px-6">
-            <motion.div
+            {/* Premium Logo */}
+            <motion.div 
               className="flex-shrink-0"
               whileHover={{ scale: 1.05 }}
-              initial={{ opacity: 0, y: -10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6 }}
+              transition={{ duration: 0.3 }}
             >
-              <PremiumLogo size="md" onClick={handleLogoClick} animated={true} />
+              <PremiumLogo 
+                size="md" 
+                onClick={handleLogoClick}
+                animated={true}
+              />
             </motion.div>
 
+            {/* Desktop Navigation */}
             <nav className="hidden lg:flex items-center space-x-2">
               {menuItems.map((item, index) => (
                 <motion.button
@@ -93,7 +106,7 @@ const Header: React.FC = () => {
                   onClick={() => handleMenuClick(item.href, item.id)}
                   className={`relative px-6 py-3 text-sm font-medium rounded-xl transition-all duration-300 ${
                     activeSection === item.id
-                      ? 'text-primary-600 dark:text-primary-400 bg-primary-50 dark:bg-primary-900/30 shadow-md ring-1 ring-primary-400/30'
+                      ? 'text-primary-600 dark:text-primary-400 bg-primary-50 dark:bg-primary-900/30 shadow-md'
                       : 'text-slate-700 dark:text-slate-300 hover:text-primary-600 dark:hover:text-primary-400 hover:bg-slate-50 dark:hover:bg-slate-800'
                   }`}
                   initial={{ opacity: 0, y: -20 }}
@@ -102,6 +115,8 @@ const Header: React.FC = () => {
                   whileHover={{ y: -2, scale: 1.02 }}
                 >
                   {item.label}
+                  
+                  {/* Active Indicator */}
                   {activeSection === item.id && (
                     <motion.div
                       className="absolute bottom-1 left-1/2 w-2 h-2 bg-primary-500 rounded-full shadow-lg"
@@ -115,8 +130,17 @@ const Header: React.FC = () => {
               ))}
             </nav>
 
+            {/* Right side controls */}
             <div className="flex items-center space-x-4">
-              <DarkModeToggle isDark={isDark} toggle={toggleDarkMode} variant="premium" size="md" />
+              {/* Premium Dark Mode Toggle */}
+              <DarkModeToggle 
+                isDark={isDark} 
+                toggle={toggleDarkMode} 
+                variant="premium" 
+                size="md" 
+              />
+
+              {/* Premium CTA Button */}
               <div className="hidden md:block">
                 <PremiumButton
                   variant="gradient"
@@ -128,16 +152,19 @@ const Header: React.FC = () => {
                   Contrate-me
                 </PremiumButton>
               </div>
+
+              {/* Premium Mobile menu button */}
               <motion.button
                 onClick={() => setIsMenuOpen(!isMenuOpen)}
                 className="lg:hidden relative p-3 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 hover:text-primary-600 dark:hover:text-primary-400 transition-all duration-300 group overflow-hidden"
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
                 aria-label="Toggle menu"
-                aria-expanded={isMenuOpen}
-                aria-controls="mobile-navigation"
               >
-                <motion.div className="absolute inset-0 bg-gradient-to-r from-primary-500/10 to-accent-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                <motion.div
+                  className="absolute inset-0 bg-gradient-to-r from-primary-500/10 to-accent-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+                />
+
                 <AnimatePresence mode="wait">
                   {isMenuOpen ? (
                     <motion.div
@@ -169,22 +196,21 @@ const Header: React.FC = () => {
         </div>
       </motion.header>
 
+      {/* Premium Mobile Navigation Overlay */}
       <AnimatePresence>
         {isMenuOpen && (
           <motion.div
-            id="mobile-navigation"
-            role="menu"
-            initial={{ clipPath: 'circle(0% at 90% 10%)' }}
-            animate={{ clipPath: 'circle(150% at 90% 10%)' }}
-            exit={{ clipPath: 'circle(0% at 90% 10%)' }}
-            transition={{ duration: 0.5, ease: 'easeInOut' }}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.4 }}
             className="lg:hidden fixed inset-0 top-20 bg-white/95 dark:bg-slate-900/95 backdrop-blur-lg z-40 border-t border-slate-200 dark:border-slate-700"
           >
             <motion.div
               initial={{ y: -50, opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
               exit={{ y: -50, opacity: 0 }}
-              transition={{ duration: 0.5, ease: 'easeOut' }}
+              transition={{ duration: 0.5, ease: "easeOut" }}
               className="p-8 space-y-3"
             >
               {menuItems.map((item, index) => (
@@ -203,15 +229,15 @@ const Header: React.FC = () => {
                 >
                   <div className="flex items-center gap-4">
                     <div className={`w-3 h-3 rounded-full transition-all duration-300 ${
-                      activeSection === item.id
-                        ? 'bg-primary-500 scale-100'
+                      activeSection === item.id 
+                        ? 'bg-primary-500 scale-100' 
                         : 'bg-slate-300 dark:bg-slate-600 scale-0 group-hover:scale-100'
                     }`} />
                     {item.label}
                   </div>
                 </motion.button>
               ))}
-
+              
               <motion.div
                 className="pt-8"
                 initial={{ x: -50, opacity: 0 }}
